@@ -148,6 +148,52 @@ Packs: `flutter`, `api`, `web`. Re-run when you want the latest.
 
 ---
 
+## Multi-project / monorepo sessions
+
+If you work across several projects that live under one parent folder (e.g. `my-org/api`, `my-org/web`, `my-org/mobile`), open Claude Code from the **parent folder** — not from a child — if you want cross-project edits to honor every pack's standards and hooks.
+
+**Why:** Claude Code loads `.claude/settings.json` from the directory it's opened in. Plugins and hooks are bound to that scope. `--add-dir` grants file access to a sibling project but does **not** merge that project's `.claude/settings.json`. So editing a `.dart` file from a session rooted in your web project won't auto-invoke Flutter standards or run the dart-format hook.
+
+**Pattern that works:**
+
+1. Commit a parent-level `./.claude/settings.json` that enables every pack you need and declares path-aware hooks (dispatch by file extension). Example:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "pixelcrafts": {
+      "source": { "source": "github", "repo": "pixelcrafts-app/claude-craft" }
+    }
+  },
+  "enabledPlugins": {
+    "flutter-standards@pixelcrafts": true,
+    "api-standards@pixelcrafts": true,
+    "web-standards@pixelcrafts": true,
+    "core-hooks@pixelcrafts": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{
+          "type": "command",
+          "command": "filepath=$(jq -r '.tool_response.filePath // .tool_input.file_path // empty'); case \"$filepath\" in *.ts|*.tsx|*.js|*.jsx|*.json|*.md) dir=$(dirname \"$filepath\"); while [ \"$dir\" != \"/\" ] && [ ! -f \"$dir/package.json\" ]; do dir=$(dirname \"$dir\"); done; [ -x \"$dir/node_modules/.bin/prettier\" ] && \"$dir/node_modules/.bin/prettier\" --write \"$filepath\" >/dev/null 2>&1 || true ;; *.dart) dart format \"$filepath\" >/dev/null 2>&1 || true ;; esac; exit 0"
+        }]
+      }
+    ]
+  }
+}
+```
+
+2. Keep each child's own `.claude/settings.json` for single-project sessions (only that pack loaded, project-specific permissions).
+
+**Rule of thumb:**
+- Cross-project work → open from parent.
+- Single-project work → open from child.
+- `--add-dir` is for *reading* a sibling (e.g. "check the API controller"), not for editing it under its own rules.
+
+---
+
 ## Troubleshooting
 
 **"Plugin not found"** — run `/plugin marketplace list`. If `pixelcrafts` isn't listed, the marketplace didn't register. For zero-config setups, try `/reload-plugins`.
