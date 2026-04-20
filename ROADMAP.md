@@ -4,6 +4,7 @@ Where Claude Craft is headed. Dates are directional — we ship when it's ready.
 
 ## Shipped
 
+- **v0.6.0** — `verify-changes` skill (core-hooks). Generic cross-stack verification workflow — asks scope + dimensions + depth, walks a dependency graph of the changeset, runs batched rule-by-rule audits using installed SKILL.md files, records results in task metadata to preserve context on large changesets. Pure prompt — no hooks, no MCPs, no indexing. Replaces the indexing-MCP path with a stack-agnostic, infra-free approach. Also ships `subagent-brief` (core-hooks) — warm-brief discipline on Agent / Task / Explore delegation.
 - **v0.5.0** — Web design pack. New auto-invoke standard `craft-guide` (17 sections covering color + contrast + harmony, spacing, type + font loading, shadow/radius scales, motion, all state variants, density by app type, 14 named aesthetics with per-aesthetic specs, iconography, chrome, a11y as craft, theme, microcopy, brand moments). 4 new explicit skills: `premium-check` rewritten as iteration-loop audit, new `extract-tokens`, `theme-audit`, `aesthetic-coherence`. Universal formulas enforced; brand values from user.
 - **v0.4.0** — `docs-sync` skill added to `core-hooks`. README overhauled. Pre-ship gates include an end-of-task docs sync step.
 - **v0.3.0** — Smart Detect → Check → Suggest production-readiness audits across all three packs. New `production-readiness` skill in Flutter and Web; expanded `code-quality` in API with 11 operational checks.

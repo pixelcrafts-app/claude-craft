@@ -37,7 +37,7 @@ Swap the pack to match the project:
 | NestJS + Prisma | `api-standards@pixelcrafts` |
 | Next.js | `web-standards@pixelcrafts` |
 
-Always include `core-hooks@pixelcrafts` — the cross-stack safety net (blocks secret edits + dangerous shell commands) plus the `docs-sync` skill that catches code-vs-docs drift at end-of-task moments.
+Always include `core-hooks@pixelcrafts` — the cross-stack safety net (blocks secret edits + dangerous shell commands) plus three workflow skills: `docs-sync` (code-vs-docs drift at end-of-task), `verify-changes` (cross-stack dependency-aware verification of any changeset), and `subagent-brief` (warm-brief discipline on delegation).
 
 ---
 
@@ -132,10 +132,12 @@ Slash commands:
 - `/web-standards:theme-audit` — light/dark parity, hydration flash, switch coverage
 - `/web-standards:aesthetic-coherence` — flag mixed design languages in one surface
 
-### Safety + Docs-sync (`core-hooks`)
+### Safety + workflow skills (`core-hooks`)
 
 - PreToolUse hooks block edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). No commands — runs on every edit.
-- Auto-invoke `docs-sync` skill catches drift between code and docs at end-of-task moments (version bumps, new skills, "ship / done / release"). Flags deltas; never rewrites prose; never blocks.
+- Auto-invoke `docs-sync` — catches drift between code and docs at end-of-task moments (version bumps, new skills, "ship / done / release"). Flags deltas; never rewrites prose; never blocks.
+- Auto-invoke `verify-changes` — generic cross-stack verification. Fires on "verify my changes" / "cross-check" / end of a non-trivial branch. Asks scope + dimensions + depth, walks a dependency graph of the changeset (finds every consumer of every changed file), runs batched rule-by-rule audits using whichever SKILL.md standards packs are installed, records batch results in task metadata so context doesn't blow on large changesets, emits critical / polish / consumer-break verdict. Pure prompt — no external tools.
+- Auto-invoke `subagent-brief` — warm-brief discipline when you (or another skill) delegate work to an Agent / Task / Explore subagent. Enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET so the spawn starts warm instead of re-discovering context.
 
 ---
 

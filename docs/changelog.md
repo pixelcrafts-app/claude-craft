@@ -4,6 +4,31 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.6.0] — 2026-04-21
+
+### Added — core-hooks
+
+- **`subagent-brief` skill** — auto-invoke skill that enforces warm-brief discipline when delegating to Agent / Task / Explore / Plan / general-purpose subagents. A subagent is a fresh Claude instance with no memory of the current conversation; handing it an open-ended task causes it to re-discover context already in hand, burning 3–10× the tokens of a precise brief. Provides a concrete brief template (GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET), named anti-patterns, patterns that win, reasonable token-spend bands.
+- **`verify-changes` skill** — generic cross-stack verification workflow. Fires when the user asks "verify my changes" / "cross-check" / "audit what I did" or ends a non-trivial chunk of work. Six phases: scope dialogue (what to cover, which dimensions, how deep), discovery + dependency graph (rg-based consumer detection), TaskCreate plan (dependency-aware task tree, batches of 5–10), batch execution (iterate rule-by-rule per batch, record results in task metadata to preserve context), consolidated report (critical / polish / consumer-break verdict), optional fix loop. Stack-agnostic — reads whichever SKILL.md files are installed. Pure prompt — no hooks, no MCPs, no indexing infrastructure. Replaces the "install indexing MCP" path: generic, robust, works on any repo size without external dependencies.
+
+### Design rationale
+
+Indexing MCPs (serena, claude-context, Graphiti) all require per-stack or infrastructure dependencies (LSPs, embedding models, vector DBs). `verify-changes` achieves the core benefit — dependency-aware, context-preserving verification of a changeset — using only built-in Claude Code tools (Read / Grep / Glob / Edit / TaskCreate). No per-stack setup, no install ceremony, works on Flutter / API / Web / future stacks identically.
+
+### Infrastructure
+
+- `core-hooks` bumped to `0.6.0`.
+- Marketplace metadata version bumped to `0.6.0` to reflect the new skill.
+- Other plugins unchanged at `0.5.0`.
+
+---
+
+## [0.5.1] — 2026-04-21
+
+(Superseded by 0.6.0 — `subagent-brief` shipped as part of the 0.6.0 bundle.)
+
+---
+
 ## [0.5.0] — 2026-04-21
 
 Web design pack. The web standards move from "covers Next.js patterns" to "covers premium visual craft end-to-end," with a strict separation: **universal formulas enforced, brand values from the user.** Never imposes colors, fonts, or aesthetics.

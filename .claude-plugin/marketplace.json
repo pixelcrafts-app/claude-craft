@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js). Install a pack, Claude applies the standards. No CLAUDE.md edits.",
-    "version": "0.5.0"
+    "version": "0.6.0"
   },
   "plugins": [
     {
@@ -36,10 +36,10 @@
     {
       "name": "core-hooks",
       "source": "./core/plugins/core-hooks",
-      "description": "Cross-stack safety + docs-sync — PreToolUse hooks that block edits to secrets (.env, keys, credentials) and dangerous shell commands, plus a docs-sync skill that catches drift between code and README / CHANGELOG / docs at end-of-task moments.",
-      "version": "0.5.0",
+      "description": "Cross-stack safety + docs-sync + subagent-brief + verify-changes — PreToolUse hooks (block secret edits + dangerous shell), docs-sync skill (end-of-task drift catcher), subagent-brief skill (warm-brief discipline on delegation), verify-changes skill (generic cross-stack verification with dependency graph + batched execution for large changesets). Pure prompt, no external dependencies.",
+      "version": "0.6.0",
       "category": "core",
-      "tags": ["hooks", "safety", "secrets", "cross-stack", "docs-sync"]
+      "tags": ["hooks", "safety", "secrets", "cross-stack", "docs-sync", "subagent-brief", "verify-changes"]
     }
   ]
 }

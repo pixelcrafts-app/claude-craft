@@ -9,7 +9,7 @@ No `CLAUDE.md` edits. No onboarding wiki. No drift.
 
 [Quickstart](docs/quickstart.md) · [See it in action](docs/before-after.md) · [Skills](docs/skills.md) · [Roadmap](ROADMAP.md)
 
-![version](https://img.shields.io/badge/version-0.5.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
+![version](https://img.shields.io/badge/version-0.6.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
 
 </div>
 
@@ -111,7 +111,12 @@ Next.js + Tailwind + shadcn.
 </tr>
 </table>
 
-Plus **`core-hooks`** — cross-stack safety: blocks edits to `.env` / secrets, blocks `rm -rf`, blocks `git reset --hard`, plus an end-of-task **`docs-sync`** skill that catches drift between code and README / CHANGELOG / docs at release moments.
+Plus **`core-hooks`** — cross-stack safety + workflow skills:
+
+- **PreToolUse hooks** — block edits to `.env` / secrets; block `rm -rf`, `git reset --hard`, and other destructive shell commands
+- **`docs-sync`** — end-of-task skill that catches drift between code and README / CHANGELOG / docs at release moments
+- **`verify-changes`** — generic cross-stack verification workflow. Asks scope + dimensions + depth, builds a dependency-aware task tree, runs batched rule-by-rule audits across any installed standards pack, emits critical / polish / consumer-break verdict. Pure prompt — no external tools, no indexing, works on any stack
+- **`subagent-brief`** — warm-brief discipline for delegation. When a spawn is warranted, enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET so subagents start warm instead of re-discovering context you already have
 
 ---
 
@@ -243,7 +248,7 @@ claude-craft/
 ├── flutter/skills/flutter-standards/    Flutter pack — 10 standards + 8 skills + 3 agents
 ├── api/skills/api-standards/            NestJS + Prisma pack — 2 standards + sync-migrate + 2 agents
 ├── web/skills/web-standards/            Next.js pack — 3 standards + pre-ship, premium-check, extract-tokens, theme-audit, aesthetic-coherence
-├── core/plugins/core-hooks/             Cross-stack safety + docs-sync
+├── core/plugins/core-hooks/             Cross-stack safety + docs-sync + verify-changes + subagent-brief
 ├── scripts/export.sh                    Cursor + AGENTS.md export
 ├── docs/                                Guides, philosophy, before/after, changelog
 ├── ROADMAP.md                           What's shipping next
@@ -254,9 +259,9 @@ claude-craft/
 
 ## 🛣️ Status
 
-**v0.5.0** — Web design pack. New auto-invoke `craft-guide` (17-section universal design formulas — color + harmony + contrast, spacing, type + font loading, shadow/radius scales, motion, all state variants, 14 aesthetics with "never mix two" rule, iconography, chrome, a11y, theme, microcopy, brand moments). 4 new explicit skills: iteration-loop `premium-check`, `extract-tokens`, `theme-audit`, `aesthetic-coherence`. Universal formulas enforced; brand values from user.
+**v0.6.0** — `verify-changes` skill lands in `core-hooks`. Generic cross-stack verification — asks scope + dimensions + depth, walks a dependency graph of the changeset, runs batched rule-by-rule audits using whatever SKILL.md files are installed, records results in task metadata to preserve context on large changesets. Pure prompt, no hooks, no MCPs, no indexing. Also ships `subagent-brief` — warm-brief discipline on Agent / Task / Explore delegation.
 
-**v0.4.0** — Smart Detect → Check → Suggest audits for production readiness across all three packs, plus a new `docs-sync` skill that catches README / CHANGELOG / ROADMAP drift at release time.
+**v0.5.0** — Web design pack. New auto-invoke `craft-guide` (17-section universal design formulas — color + harmony + contrast, spacing, type + font loading, shadow/radius scales, motion, all state variants, 14 aesthetics with "never mix two" rule, iconography, chrome, a11y, theme, microcopy, brand moments). 4 new explicit skills: iteration-loop `premium-check`, `extract-tokens`, `theme-audit`, `aesthetic-coherence`. Universal formulas enforced; brand values from user.
 
 Prior releases: [docs/changelog.md](docs/changelog.md). What's next: [ROADMAP.md](ROADMAP.md).
 

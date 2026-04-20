@@ -1,7 +1,7 @@
 {
   "name": "core-hooks",
-  "version": "0.5.0",
-  "description": "Cross-stack safety + end-of-task docs sync — PreToolUse hooks that block edits to secrets (.env, keys, credentials) and dangerous shell commands (rm -rf, git reset --hard), plus a docs-sync skill that catches drift between code and README / CHANGELOG / docs at release-ready moments.",
+  "version": "0.6.0",
+  "description": "Cross-stack safety + docs-sync + subagent-brief + verify-changes — PreToolUse hooks that block edits to secrets and dangerous shell commands, a docs-sync skill that catches drift at end-of-task, a subagent-brief skill that enforces warm-brief discipline on delegation, and a verify-changes skill that runs generic cross-stack verification with dependency graph + batched execution so large changesets get checked without losing context. Pure prompt — no hooks, no MCPs, no indexing. Works on any stack with Read / Grep / Glob / Edit / TaskCreate alone.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

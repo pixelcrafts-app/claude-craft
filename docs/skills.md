@@ -109,11 +109,13 @@ Run on every Edit / Write / Bash:
 
 No slash command. Runs automatically.
 
-### 1 auto-invoke skill
+### 3 auto-invoke skills
 
 | Skill | Fires on | Does |
 |---|---|---|
 | docs-sync | End-of-task signals (version bump, plugin added/removed, "ship / done / release", pre-ship runs, `v*.*.*` commit) | Cross-checks code vs README / CHANGELOG / ROADMAP / `docs/skills.md` / plugin descriptions. Flags deltas. Never rewrites prose. Never blocks. |
+| subagent-brief | Any time the model considers delegating to Agent / Task / Explore / Plan / general-purpose subagent | Enforces warm-brief discipline: goal + known context (paths + lines) + hard scope + output shape + budget. A subagent given "figure it out" burns 3–10× the tokens of one given specifics. This skill keeps spawns cheap and stops subagents from re-discovering what you already know. |
+| verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph (finds consumers of every changed file). Creates a TaskCreate tree batched 5–10 tasks per batch. Verifies rule-by-rule from whichever SKILL.md files are installed. Records batch results in task metadata so context doesn't blow on large changesets. Emits critical / polish / consumer-break verdict. Pure prompt — no hooks, no external tools. |
 
 Install alongside any pack — the hooks apply regardless of stack, and `docs-sync` runs on any repo whether it's one of ours or not.
 
