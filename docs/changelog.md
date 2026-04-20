@@ -4,6 +4,18 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.2.1] — 2026-04-20
+
+### Added
+
+- **Verify, don't guess — cross-boundary contracts.** New discipline rule across all three packs: when code crosses a boundary (API call, env var, third-party SDK, DB column, shared type), read the source of truth before assuming its shape. Never invent field names or response types from context. If the source isn't readable, ask the user a concrete question. Surface unverified assumptions at the end of each response.
+  - Flutter: added to `engineering` standard.
+  - API: added to `code-quality` audit (checks V1–V6).
+  - Web: added to `nextjs` standard.
+  - Pre-ship gates (Flutter + Web) now include a cross-boundary contract step.
+
+---
+
 ## [0.2.0] — 2026-04-20
 
 First public release. Repo moved to `pixelcrafts-app/claude-craft`.

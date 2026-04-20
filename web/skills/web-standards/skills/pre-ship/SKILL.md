@@ -36,7 +36,12 @@ For every component modified in this task:
 - What happens on slow network?
 - What happens at 320px width? At 2560px?
 
-## Step 5: Checklist
+## Step 5: Cross-Boundary Contracts
+For every API call, env var, third-party SDK, or shared type touched in this task:
+- [ ] Field names, types, and response shapes were verified against the source of truth (controller/DTO, OpenAPI spec, typings, `.env.example`) — not guessed
+- [ ] Any assumption that couldn't be verified is surfaced to the user in the final response, not silently coded
+
+## Step 6: Checklist
 Answer each honestly:
 - [ ] I verified the UI renders REAL content, not placeholders
 - [ ] Lint passes with zero errors, zero warnings
@@ -44,6 +49,7 @@ Answer each honestly:
 - [ ] No "remaining steps" or "TODO" items are left unfinished
 - [ ] Dark mode looks intentionally designed, not just "tolerable"
 - [ ] Keyboard navigation works on all interactive elements
+- [ ] I did not guess any cross-boundary contract (API shape, env var, SDK method, shared type)
 
 ## Verdict
 If all boxes are checked: task is complete.

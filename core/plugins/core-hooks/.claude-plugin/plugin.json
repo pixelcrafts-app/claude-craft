@@ -1,6 +1,6 @@
 {
   "name": "core-hooks",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Cross-stack safety hooks — block edits to secrets (.env, keys, credentials) and dangerous shell commands (rm -rf, git reset --hard).",
   "author": {
     "name": "pixelcrafts",

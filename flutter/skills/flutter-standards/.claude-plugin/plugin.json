@@ -1,6 +1,6 @@
 {
   "name": "flutter-standards",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Flutter pack — 9 auto-invoke standards + 8 audit/scaffold skills + 3 review agents. Claude applies the standards automatically on Flutter code.",
   "author": {
     "name": "pixelcrafts",

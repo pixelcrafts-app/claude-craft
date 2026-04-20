@@ -37,13 +37,19 @@ For every screen modified in this task:
 - What happens if the user kills the app mid-operation?
 - What happens on sign-out and sign-in with a different account?
 
-## Step 5: Checklist
+## Step 5: Cross-Boundary Contracts
+For every API call, env var, third-party SDK, or DB query touched in this task:
+- [ ] Field names, types, and response shapes were verified against the source of truth (controller/DTO, schema, typings, `.env.example`) — not guessed
+- [ ] Any assumption that couldn't be verified is surfaced to the user in the final response, not silently coded
+
+## Step 6: Checklist
 Answer each honestly:
 - [ ] I verified the UI renders REAL content, not placeholders
 - [ ] I ran `flutter analyze` — zero errors, zero warnings
 - [ ] Every screen I touched is screenshot-worthy
 - [ ] No "remaining steps" or "TODO" items are left unfinished
 - [ ] I did not add unrequested features or refactoring
+- [ ] I did not guess any cross-boundary contract (API shape, env var, SDK method, DB column)
 
 ## Verdict
 If all boxes are checked: task is complete.

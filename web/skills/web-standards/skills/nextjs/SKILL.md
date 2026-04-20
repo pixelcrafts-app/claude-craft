@@ -152,3 +152,28 @@ Concrete code patterns for Next.js app router, React components, Tailwind CSS, a
 - No array index as `key` in lists with dynamic/reorderable data — use stable unique identifiers
 - No barrel files (`index.ts` re-exports) — they break tree-shaking and slow builds. Import directly from the source file.
 - Validate external data at boundaries — parse API responses with Zod schemas before passing into the app
+
+---
+
+## Verify, Don't Guess — Cross-Boundary Contracts
+
+When writing code that crosses a boundary — calling an API, reading an env var, using a third-party SDK, consuming a shared type from another package — **read the source of truth before assuming its shape.** Never invent a field name, type, or return value from context.
+
+Decision tree:
+
+1. **Can I read the source of truth?** (API controller + DTO, OpenAPI spec, `.env.example`, SDK typings, shared package)
+   - Yes → read it. Use the exact field names, types, and shapes found there.
+2. **Can't read it?** (external API, undocumented third-party, private backend)
+   - Ask the user with a concrete question: "The `/users/:id/subscriptions` endpoint — what fields does the response have?"
+3. **Never guess.** "Probably `userId`" is the same bug as "definitely `userId`" when the real field is `user_id`.
+
+**Examples requiring this discipline:**
+
+- Calling a NestJS endpoint from Next.js → read the controller + DTO in the API repo. If it lives in a sibling directory, add it to the session (`--add-dir`) or Read it directly.
+- Parsing a JSON response → read an actual sample (curl / network tab / logs), not the endpoint name.
+- Reading `process.env.NEXT_PUBLIC_X` → check `.env.example` or the backend's env loader; don't assume a name.
+- Using a third-party SDK method → read its type definitions or docs; don't call a method "because it should exist."
+
+**When the user asks you to build a frontend feature that calls an API:** the default move is to locate and read the API code first, then write the client. Order: read → plan → code. Not: code → hope → debug.
+
+**Surface every assumption you couldn't verify.** End your response with a short "Assumptions I couldn't verify" list so the user knows what to sanity-check. Silent assumptions are silent bugs.

@@ -83,3 +83,26 @@ description: Apply when auditing NestJS endpoints for security and correctness �
 - [ ] I3. One service per domain concern
 - [ ] I4. Same error handling pattern in every service
 - [ ] I5. Constants in UPPER_SNAKE_CASE
+
+---
+
+## VERIFY, DON'T GUESS — CROSS-BOUNDARY CONTRACTS
+
+When code crosses a boundary — reading a DB column, calling a third-party API, consuming an env var, importing a shared type from another package, relying on a library's signature — **read the source of truth before assuming its shape.** Never invent a field name, type, or return value from context.
+
+Decision tree:
+
+1. **Can I read the source of truth?** (Prisma schema / migration, `.env.example`, third-party SDK typings, shared DTO, OpenAPI spec)
+   - Yes → read it. Use the exact field names, types, and shapes found there.
+2. **Can't read it?** (external API with no typings, private upstream service)
+   - Ask the user with a concrete question: "The Stripe webhook payload — which event type and which fields do you need me to handle?"
+3. **Never guess.** "Probably `user_id`" is the same bug as "definitely `user_id`" when the real column is `userId`.
+
+**Audit checks:**
+
+- [ ] V1. Every Prisma query uses field names verified against `schema.prisma` — not guessed from model names
+- [ ] V2. Every `process.env.X` has a matching entry in `.env.example` with a comment describing what it is
+- [ ] V3. Every third-party SDK call uses methods verified in the package's type definitions — not invented
+- [ ] V4. Every response DTO shape matches what the frontend/consumer actually reads — verified against the client code or OpenAPI spec
+- [ ] V5. When parsing external webhooks / upstream responses, a real sample payload has been checked — not inferred from the endpoint name
+- [ ] V6. Assumptions that couldn't be verified are surfaced to the user, not silently coded

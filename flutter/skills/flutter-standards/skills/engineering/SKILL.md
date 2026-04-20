@@ -172,6 +172,32 @@ Skip none. Verify each. A passing compile check at step 6 does not validate step
 
 ---
 
+## VERIFY, DON'T GUESS — CROSS-BOUNDARY CONTRACTS
+
+When writing code that crosses a boundary — calling an API, using a shared type, reading an env var, depending on a third-party library signature, hitting a DB column — **read the source of truth before assuming its shape.** Never invent a field name, type, or return value from context.
+
+Decision tree:
+
+1. **Can I read the source of truth?** (API controller, Prisma schema, `.env.example`, library typings, DB migration)
+   - Yes → read it. Use the exact field names, types, and shapes found there.
+2. **Can't read it?** (private repo, external API, undocumented third-party)
+   - Ask the user. Provide a concrete question: "The `/users/:id/subscriptions` endpoint — what does the response shape look like? I need fields and types."
+3. **Never guess.** "Probably `userId`" is the same bug as "definitely `userId`" when the real field is `user_id`.
+
+**Examples requiring this discipline:**
+
+- Calling a NestJS endpoint from Flutter → read the controller + DTO in the API repo. If it's in a sibling directory (monorepo or adjacent project), `--add-dir` it or Read it directly. If it's a private service, ask.
+- Parsing a JSON payload → read an actual sample response (curl/Postman/logs), not the endpoint's name.
+- Reading `process.env.SOMETHING` equivalent → check `.env.example` or the backend's env loader; don't assume a name.
+- Using a third-party SDK method → read its type definitions or docs; don't call a method "because it should exist."
+- Querying a DB column → check the Prisma schema or migration; don't guess column names from model names.
+
+**When the user asks you to build a frontend feature that calls an API:** the default move is to locate and read the API code first, then write the client. Order: read → plan → code. Not: code → hope → debug.
+
+**Surface every assumption you couldn't verify.** End your response with a short "Assumptions I couldn't verify" list so the user knows what to sanity-check. Silent assumptions are silent bugs.
+
+---
+
 ## ARCHITECTURE
 
 ### Clean Separation
