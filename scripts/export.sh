@@ -86,8 +86,8 @@ done
 agents="$TARGET/AGENTS.md"
 {
   printf '# Agent Standards — %s pack\n\n' "$PACK"
-  printf 'Auto-generated from `nandamashokkumar/pixelcrafts`. Do not edit — regenerate via `scripts/export.sh`.\n\n'
-  printf 'Source: https://github.com/nandamashokkumar/pixelcrafts\n\n'
+  printf 'Auto-generated from `pixelcrafts-app/claude-craft`. Do not edit — regenerate via `scripts/export.sh`.\n\n'
+  printf 'Source: https://github.com/pixelcrafts-app/claude-craft\n\n'
   printf -- '---\n\n'
   for skill in "${STANDARDS[@]}"; do
     src="$BUNDLE/$skill/SKILL.md"

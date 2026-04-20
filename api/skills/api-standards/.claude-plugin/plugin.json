@@ -1,12 +1,12 @@
 {
   "name": "api-standards",
-  "version": "0.1.1",
-  "description": "API full bundle — 2 auto-invoke standards skills (nestjs, code-quality) + sync-migrate workflow skill + api-documenter + security-reviewer agents. Claude applies standards automatically on NestJS + Prisma code. Zero CLAUDE.md edits.",
+  "version": "0.2.0",
+  "description": "API pack — NestJS + Prisma. Auto-invoke nestjs + code-quality standards, sync-migrate workflow, api-documenter + security-reviewer agents.",
   "author": {
     "name": "pixelcrafts",
-    "url": "https://github.com/nandamashokkumar"
+    "url": "https://github.com/pixelcrafts-app"
   },
-  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
-  "keywords": ["api", "nestjs", "standards", "audit", "security", "documentation"]
+  "keywords": ["api", "nestjs", "prisma", "standards", "audit", "security", "documentation"]
 }

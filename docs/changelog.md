@@ -1,6 +1,33 @@
 # Changelog
 
-All notable changes to this repo are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/). Versions follow [SemVer](https://semver.org/).
+All notable changes are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/). Versions follow [SemVer](https://semver.org/).
+
+---
+
+## [0.2.0] — 2026-04-20
+
+First public release. Repo moved to `pixelcrafts-app/claude-craft`.
+
+### Breaking
+
+- **Standalone per-skill plugins removed.** Previous versions shipped every audit/scaffold/workflow skill twice — once inside the stack bundle and once as its own plugin (`flutter-pre-ship`, `flutter-scaffold-feature`, `web-premium-check`, `api-sync-migrate`, etc.). Every skill is still available via its namespaced slash command (`/flutter-standards:pre-ship`, `/api-standards:sync-migrate`) — just install the bundle. If you had a standalone plugin enabled, replace it with the bundle:
+  - `flutter-pre-ship@pixelcrafts` → `flutter-standards@pixelcrafts`
+  - `api-sync-migrate@pixelcrafts` → `api-standards@pixelcrafts`
+  - `web-premium-check@pixelcrafts` → `web-standards@pixelcrafts`
+- **Marketplace shrinks from 15 plugins to 4.** One pack per stack plus `core-hooks`.
+
+### Changed
+
+- Repo renamed to `claude-craft` and moved to the `pixelcrafts-app` org. Old URL `nandamashokkumar/pixelcrafts` replaced across all files.
+- `scripts/sync.sh` removed — no longer needed without standalone plugins.
+- `core/hooks/` (dead duplicate) removed. Real hooks live in `core/plugins/core-hooks/hooks/`.
+- `docs/history.md` removed — internal provenance not useful for public consumers.
+
+### Infrastructure
+
+- All plugin versions bumped to `0.2.0` in lockstep.
+- README rewritten for public launch.
+- Quickstart, skills, contributing docs rewritten.
 
 ---
 
@@ -8,86 +35,42 @@ All notable changes to this repo are documented here. Format follows [Keep a Cha
 
 ### Changed
 
-- **Agents now load companion standards on invocation.** All 5 agents (`api-standards`: security-reviewer, api-documenter; `flutter-standards`: flutter-reviewer, security-reviewer, test-writer) prepend a Standards Context block instructing Claude to Glob + Read the companion `SKILL.md` files before auditing. Previous behavior: agents ran with only their own checklist and didn't reference the auto-invoke standards in the same plugin. This fixes "agent invoked claude-craft but ignored most of it."
-
-### Infrastructure
-
-- Marketplace + bundle versions bumped to 0.1.1 (flutter-standards, api-standards). Slice plugins unchanged.
+- **Agents now load companion standards on invocation.** All 5 agents (`api-standards`: security-reviewer, api-documenter; `flutter-standards`: flutter-reviewer, security-reviewer, test-writer) prepend a Standards Context block instructing Claude to Glob + Read the companion `SKILL.md` files before auditing. Previous behavior: agents ran with only their own checklist and didn't reference the auto-invoke standards in the same plugin.
 
 ---
 
 ## [0.1.0] — 2026-04-20
 
-First public release. Three stack packs plus cross-stack safety, with multi-tool export.
+Initial internal release. Three stack packs plus cross-stack safety, with multi-tool export.
 
-### Repo model
+### Flutter pack — `flutter-standards`
 
-- One repo (`claude-craft`), one marketplace at `.claude-plugin/marketplace.json`, stack packs as top-level folders (`flutter/`, `api/`, `web/`, `core/`, `database/` planned)
-- Stack-prefixed plugin names (`flutter-<skill>`, `api-<skill>`, `web-<skill>`) so stacks don't collide
-- Namespaced slash commands (`/flutter-standards:pre-ship`, `/api-standards:sync-migrate`) — unambiguous per pack
-- **Rules ship as auto-invoke skills**, not separate markdown files. Claude Code loads them itself when file types match — zero `CLAUDE.md` edits
-- **Zero-config install** via `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`) — commit once, team auto-installs on first session
-- **Multi-tool export** via `scripts/export.sh` — generates `.cursor/rules/*.mdc` (Cursor) + `AGENTS.md` (Antigravity, Codex, Aider, OpenAI SWE)
+9 auto-invoke standards (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability).
 
-### Flutter pack — `flutter-standards@pixelcrafts`
+8 explicit audit/scaffold skills accessible via `/flutter-standards:<skill>`:
+- pre-ship, premium-check, verify-screens, find-hardcoded, find-duplicates, accessibility-audit, scaffold-screen, scaffold-feature
 
-9 auto-invoke standards skills:
-- **craft-guide** — typography, spacing, motion, state clarity, visual weight
-- **engineering** — DRY, SSOT, Surgeon Principle, No Hardcoded Values, Centralize, Error Handling, Security, AI-DoD
-- **widget-rules** — widget discipline, `const` use, animations, text resilience, image handling
-- **api-data** — mappers, models, repositories, API client contract
-- **testing** — pyramid, mocktail, golden tests, Riverpod/Provider patterns, CI gates, coverage
-- **accessibility** — Semantics, contrast, touch targets, color-alone, text scaling, reduced motion, RTL
-- **performance** — 16ms/8ms frame budgets, cold start, decode-at-display-size, isolates
-- **forms** — field anatomy, keyboard + autofill, validation timing, error messages
-- **observability** — three pillars, PII classification, consent, retention, trace + session IDs
+3 agents: flutter-reviewer, test-writer, security-reviewer.
 
-8 explicit audit/scaffold skills (each also installable as a slice plugin):
-- `flutter-pre-ship` — full quality gate (`/flutter-standards:pre-ship`)
-- `flutter-premium-check` — single-screen craft audit
-- `flutter-verify-screens` — data source → screen trace
-- `flutter-find-hardcoded` — design-system violation scan
-- `flutter-find-duplicates` — DRY violation scan
-- `flutter-accessibility-audit` — 10-pattern a11y scan
-- `flutter-scaffold-screen` — generate screen with 4 states
-- `flutter-scaffold-feature` — generate full vertical slice
+### API pack — `api-standards`
 
-3 agents (bundled):
-- **flutter-reviewer** — review a diff against all Flutter standards
-- **test-writer** — generate widget + unit tests matching the project's framework
-- **security-reviewer** — flag PII/secret leaks, insecure storage, unsafe deep links
+2 auto-invoke standards: nestjs, code-quality.
 
-### API pack — `api-standards@pixelcrafts`
+1 explicit workflow: `/api-standards:sync-migrate`.
 
-2 auto-invoke standards:
-- **nestjs** — module/controller/service/repository split, DTO validation, Prisma patterns, error shapes
-- **code-quality** — endpoint hygiene, auth guards, type safety, test coverage
+2 agents: api-documenter, security-reviewer.
 
-1 explicit workflow skill:
-- `api-sync-migrate` — Prisma schema change workflow (`/api-standards:sync-migrate`)
+### Web pack — `web-standards`
 
-2 agents:
-- **api-documenter** — OpenAPI-style docs from controllers
-- **security-reviewer** — endpoint/service review for auth/validation/PII gaps
+1 auto-invoke standard: nextjs.
 
-### Web pack — `web-standards@pixelcrafts`
+2 explicit skills: `/web-standards:pre-ship`, `/web-standards:premium-check`.
 
-1 auto-invoke standard:
-- **nextjs** — app router, server/client boundaries, Tailwind tokens, shadcn patterns, React Query, React Hook Form + Zod, a11y, TypeScript discipline
+### Safety — `core-hooks`
 
-2 explicit skills:
-- `web-pre-ship` — quality gate (`/web-standards:pre-ship`)
-- `web-premium-check` — single-component craft audit
+Cross-stack PreToolUse hooks (`protect-files.sh`, `protect-bash.sh`).
 
-### Core safety — `core-hooks@pixelcrafts`
+### Distribution
 
-Cross-stack PreToolUse hooks:
-- `protect-files.sh` — blocks edits to `.env`, `*.key`, `*.pem`, `credentials.json`
-- `protect-bash.sh` — blocks `rm -rf /`, `git reset --hard`, protected-branch force-push
-- Registered via `plugin.json` using `${CLAUDE_PLUGIN_ROOT}` — no app-level wiring
-
-### Marketplace
-
-- 15 plugins total: 3 bundles + 8 Flutter slices + 1 API slice + 2 Web slices + core-hooks
-- `scripts/sync.sh` — mirrors bundle → slices for explicit skills
-- `scripts/export.sh` — exports to Cursor Rules v2 + AGENTS.md
+- Zero-config install via `.claude/settings.json`
+- Multi-tool export via `scripts/export.sh` for Cursor + AGENTS.md consumers

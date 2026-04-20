@@ -1,12 +1,12 @@
 {
   "name": "flutter-standards",
-  "version": "0.1.1",
-  "description": "Flutter full bundle — 9 auto-invoke standards skills (craft, engineering, widget-rules, api-data, testing, a11y, performance, forms, observability) + 8 audit/scaffold skills + 3 agents. Claude applies standards automatically when you touch Flutter code. Zero CLAUDE.md edits.",
+  "version": "0.2.0",
+  "description": "Flutter pack — 9 auto-invoke standards + 8 audit/scaffold skills + 3 review agents. Claude applies the standards automatically on Flutter code.",
   "author": {
     "name": "pixelcrafts",
-    "url": "https://github.com/nandamashokkumar"
+    "url": "https://github.com/pixelcrafts-app"
   },
-  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
   "keywords": ["flutter", "dart", "mobile", "standards", "audit", "scaffold", "accessibility", "performance", "craft", "design-system"]
 }

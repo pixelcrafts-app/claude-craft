@@ -61,20 +61,20 @@ None of these claim to transform a team overnight. They compound. A pattern that
 
 ## What this is NOT
 
-- **Not a framework.** Your app's stack (Riverpod/GoRouter/Hive) stays in your own `app-level.md`. This pack is stack-universal Flutter discipline.
+- **Not a framework.** Your app's stack (Riverpod, Prisma, React Query, …) stays in your own project's `CLAUDE.md`. This pack is stack-idiomatic discipline.
 - **Not a design system.** Apps still own their colors, fonts, and components. This pack enforces that they *use* one — not which one.
 - **Not a linter.** Linters run on syntax. These skills reason about structure and intent.
 - **Not a replacement for code review.** It catches the boring-and-obvious so reviewers can focus on the important-and-subtle.
-- **Not complete.** A11y, performance, and forms are covered; analytics dashboards, store-listing craft, and localization workflows are not. See the roadmap for what's coming.
+- **Not complete.** See the [roadmap](../ROADMAP.md) for what's coming.
 
 ## Who should adopt
 
-- Teams shipping **2+ Flutter apps** in the same org — the consistency gain compounds per app
-- Teams where **AI-assisted coding is a first-class workflow** — rules in system-prompt form are only useful if the AI reads them
+- Teams shipping **2+ apps in the same stack** — the consistency gain compounds per app
+- Teams where **AI-assisted coding is a first-class workflow** — rules in plain prose are only useful if the AI reads them
 - Teams tired of **"our standards live in a Notion page from eight months ago"** — this repo is the alternative
 
-## Who should not adopt yet
+## Who should hold off
 
-- Teams shipping **one** Flutter app — you probably don't need the plugin-install complexity; just copy the rules you like into your own `.claude/rules/`
-- Teams with **custom in-house frameworks** that contradict Flutter-idiomatic patterns — the rules will argue with your framework and both will lose
-- Teams with a strong existing **design system + audit tooling** — you likely already have 70% of what this provides; picking individual skills (`find-hardcoded`, `accessibility-audit`) may be enough
+- Teams shipping **one** app in a single stack — copy the rules you like into your own `.claude/rules/` until the plugin install is worth the ceremony
+- Teams with **custom in-house frameworks** that contradict idiomatic patterns — the rules will argue with your framework and both will lose
+- Teams with **strong existing design-system + audit tooling** — you likely already have 70% of what this provides; picking individual skills (`find-hardcoded`, `accessibility-audit`) may be enough

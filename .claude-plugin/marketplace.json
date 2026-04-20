@@ -2,130 +2,42 @@
   "name": "pixelcrafts",
   "owner": {
     "name": "pixelcrafts",
-    "url": "https://github.com/nandamashokkumar"
+    "url": "https://github.com/pixelcrafts-app"
   },
   "metadata": {
-    "description": "Claude Code standards for shipping production-grade software — Flutter, API (NestJS + Prisma), and Web (Next.js) packs. Install a full stack bundle and Claude auto-applies the standards. Zero CLAUDE.md edits.",
-    "version": "0.1.1"
+    "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js). Install a pack, Claude applies the standards. No CLAUDE.md edits.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "flutter-standards",
       "source": "./flutter/skills/flutter-standards",
-      "description": "Flutter full bundle — 9 auto-invoke standards skills (craft, engineering, widget rules, api-data, testing, a11y, performance, forms, observability) + 8 audit/scaffold skills + 3 agents. Claude applies standards automatically when you touch Flutter code. Agents load companion standards on invocation.",
-      "version": "0.1.1",
+      "description": "Flutter pack — 9 auto-invoke standards (craft, engineering, widgets, data, testing, a11y, perf, forms, observability), 8 audit/scaffold skills invoked via slash commands, 3 review agents.",
+      "version": "0.2.0",
       "category": "mobile-flutter",
-      "tags": ["bundle", "flutter", "dart", "mobile", "standards"]
-    },
-    {
-      "name": "flutter-pre-ship",
-      "source": "./flutter/skills/flutter-pre-ship",
-      "description": "Full quality gate before declaring done — craft, engineering, a11y, perf, tests. Audit skill.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "quality-gate", "flutter"]
-    },
-    {
-      "name": "flutter-premium-check",
-      "source": "./flutter/skills/flutter-premium-check",
-      "description": "Audit a screen against the craft standard — typography, spacing, motion, state clarity.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "craft", "design", "flutter"]
-    },
-    {
-      "name": "flutter-verify-screens",
-      "source": "./flutter/skills/flutter-verify-screens",
-      "description": "Trace data pipeline source → screen to confirm every widget reads from a real source, not mock data.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "data-flow", "flutter"]
-    },
-    {
-      "name": "flutter-find-hardcoded",
-      "source": "./flutter/skills/flutter-find-hardcoded",
-      "description": "Scan lib/ for design-system violations — hex colors, magic EdgeInsets, inline TextStyle, ad-hoc Durations.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "design-system", "tokens", "flutter"]
-    },
-    {
-      "name": "flutter-find-duplicates",
-      "source": "./flutter/skills/flutter-find-duplicates",
-      "description": "Scan lib/ for DRY violations — duplicate widgets, helpers, providers, mappers, copy-pasted card/button code.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "dry", "refactor", "flutter"]
-    },
-    {
-      "name": "flutter-accessibility-audit",
-      "source": "./flutter/skills/flutter-accessibility-audit",
-      "description": "Scan lib/ for a11y violations — missing Semantics, color-alone signals, tiny touch targets, placeholder-only fields, missing autofill hints, RTL gaps.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["audit", "accessibility", "a11y", "flutter"]
-    },
-    {
-      "name": "flutter-scaffold-screen",
-      "source": "./flutter/skills/flutter-scaffold-screen",
-      "description": "Generate a new screen with all 4 states wired (loading, empty, error, content), design tokens referenced, state mgmt detected.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["generative", "scaffold", "flutter"]
-    },
-    {
-      "name": "flutter-scaffold-feature",
-      "source": "./flutter/skills/flutter-scaffold-feature",
-      "description": "Generate a full feature folder — model, mapper, repository, data sources, providers, screen, widgets, test stubs, README.",
-      "version": "0.1.0",
-      "category": "mobile-flutter",
-      "tags": ["generative", "scaffold", "feature", "flutter"]
+      "tags": ["flutter", "dart", "mobile", "standards"]
     },
     {
       "name": "api-standards",
       "source": "./api/skills/api-standards",
-      "description": "API full bundle — 2 auto-invoke standards skills (nestjs, code-quality) + sync-migrate workflow skill + api-documenter + security-reviewer agents. Claude applies standards automatically on NestJS + Prisma code. Agents load companion standards on invocation.",
-      "version": "0.1.1",
+      "description": "API pack — NestJS + Prisma. 2 auto-invoke standards (nestjs, code-quality), sync-migrate workflow, api-documenter + security-reviewer agents.",
+      "version": "0.2.0",
       "category": "backend-api",
-      "tags": ["bundle", "api", "nestjs", "prisma", "standards"]
-    },
-    {
-      "name": "api-sync-migrate",
-      "source": "./api/skills/api-sync-migrate",
-      "description": "Prisma schema change workflow — edit, generate client, create migration, remind to sync downstream consumers.",
-      "version": "0.1.0",
-      "category": "backend-api",
-      "tags": ["api", "prisma", "migration", "workflow"]
+      "tags": ["api", "nestjs", "prisma", "standards"]
     },
     {
       "name": "web-standards",
       "source": "./web/skills/web-standards",
-      "description": "Web full bundle — 1 auto-invoke standards skill (nextjs) + pre-ship + premium-check audit skills for Next.js + Tailwind + shadcn. Claude applies standards automatically on web code.",
-      "version": "0.1.0",
+      "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards, pre-ship + premium-check audit skills.",
+      "version": "0.2.0",
       "category": "frontend-web",
-      "tags": ["bundle", "web", "nextjs", "react", "tailwind", "standards"]
-    },
-    {
-      "name": "web-pre-ship",
-      "source": "./web/skills/web-pre-ship",
-      "description": "Pre-ship quality gate for web — lint, data pipeline, state design, responsive, dark mode check.",
-      "version": "0.1.0",
-      "category": "frontend-web",
-      "tags": ["audit", "quality-gate", "web", "nextjs"]
-    },
-    {
-      "name": "web-premium-check",
-      "source": "./web/skills/web-premium-check",
-      "description": "Premium craft audit for a single web component — tokens, state design, visual polish, responsive, a11y.",
-      "version": "0.1.0",
-      "category": "frontend-web",
-      "tags": ["audit", "craft", "design-system", "web"]
+      "tags": ["web", "nextjs", "react", "tailwind", "standards"]
     },
     {
       "name": "core-hooks",
       "source": "./core/plugins/core-hooks",
-      "description": "Cross-stack safety hooks — block edits to secrets (.env, keys, credentials) and dangerous shell commands. Registers PreToolUse hooks automatically.",
-      "version": "0.1.0",
+      "description": "Cross-stack safety — PreToolUse hooks that block edits to secrets (.env, keys, credentials) and dangerous shell commands.",
+      "version": "0.2.0",
       "category": "core",
       "tags": ["hooks", "safety", "secrets", "cross-stack"]
     }

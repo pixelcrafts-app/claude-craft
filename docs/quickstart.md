@@ -1,15 +1,15 @@
 # Quickstart
 
-From zero to running in under 2 minutes. Works in Claude Code natively; exports to Cursor / Antigravity / AGENTS.md tools.
+From zero to standards-applied in under two minutes.
 
-## Prerequisites
+## What you need
 
-- [Claude Code](https://claude.com/claude-code) (CLI, desktop, web, or IDE extension), OR Cursor / Antigravity / any AGENTS.md-aware tool
-- A project on your machine — Flutter, NestJS + Prisma API, or Next.js web app
+- A project — Flutter, NestJS + Prisma API, or Next.js web
+- [Claude Code](https://claude.com/claude-code) (any form — CLI, desktop, IDE extension). Or Cursor, Antigravity, Codex, Aider — the [export script](#use-with-cursor-antigravity-codex-aider) covers them.
 
 ---
 
-## Path 1 — Claude Code, zero-config (recommended for teams)
+## Path 1 — Zero-config (recommended for teams)
 
 Commit `.claude/settings.json` to your project:
 
@@ -17,7 +17,7 @@ Commit `.claude/settings.json` to your project:
 {
   "extraKnownMarketplaces": {
     "pixelcrafts": {
-      "source": { "source": "github", "repo": "nandamashokkumar/pixelcrafts" }
+      "source": { "source": "github", "repo": "pixelcrafts-app/claude-craft" }
     }
   },
   "enabledPlugins": {
@@ -27,161 +27,142 @@ Commit `.claude/settings.json` to your project:
 }
 ```
 
-Every teammate who opens the project in Claude Code auto-installs the marketplace + plugins on first session. Nothing else to run. Swap the bundle per project:
+Teammates who open the project in Claude Code auto-install on first session — no commands, no onboarding doc.
 
-| Project type | Bundle |
+Swap the pack to match the project:
+
+| Project | `enabledPlugins` entry |
 |---|---|
 | Flutter | `flutter-standards@pixelcrafts` |
-| NestJS + Prisma API | `api-standards@pixelcrafts` |
-| Next.js web | `web-standards@pixelcrafts` |
+| NestJS + Prisma | `api-standards@pixelcrafts` |
+| Next.js | `web-standards@pixelcrafts` |
 
-Always include `core-hooks@pixelcrafts` — cross-stack safety (blocks secret edits, dangerous shell).
+Always include `core-hooks@pixelcrafts` — it's the safety net that blocks secret edits and dangerous shell commands, regardless of stack.
 
-## Path 2 — Claude Code, slash commands (one-off install)
+---
+
+## Path 2 — Slash commands (one-off install)
 
 ```
-/plugin marketplace add nandamashokkumar/pixelcrafts
+/plugin marketplace add pixelcrafts-app/claude-craft
 /plugin install flutter-standards@pixelcrafts
 /plugin install core-hooks@pixelcrafts
 ```
 
-To update later: `/plugin marketplace update pixelcrafts`.
-
-## Path 3 — Single skill, à la carte
-
-```
-/plugin install flutter-find-hardcoded@pixelcrafts
-/plugin install flutter-accessibility-audit@pixelcrafts
-/plugin install flutter-scaffold-feature@pixelcrafts
-```
-
-Each audit/scaffold skill ships as an independent slice plugin.
+To pull later updates: `/plugin marketplace update pixelcrafts`.
 
 ---
 
-## Path 4 — Cursor / Antigravity / Codex / Aider
+## First run — see it work
 
-Generate tool-native rule files from the same source:
+Once installed, open a file matching your pack:
+- Flutter → any `.dart` in `lib/`
+- API → any `.ts` in `src/`
+- Web → any `.tsx` in `app/` or `components/`
 
-```bash
-git clone https://github.com/nandamashokkumar/pixelcrafts
-./claude-craft/scripts/export.sh /path/to/your-project flutter
-```
+Ask Claude to build or review something in that file. The auto-invoke standards fire on their own — you don't cite, import, or enable anything.
 
-Outputs:
-- `.cursor/rules/flutter-*.mdc` — Cursor Rules v2 (one per standards skill, scoped to `lib/**/*.dart`)
-- `AGENTS.md` — concatenated standards (Antigravity, Codex, Aider, OpenAI SWE)
-
-Packs available: `flutter`, `api`, `web`. Re-run anytime to pull the latest.
-
----
-
-## First action — auto-invoke
-
-Once installed (any path above), open a file matching your pack (`.dart` for Flutter, `src/**/*.ts` for API, `app/**/*.tsx` for Web) and ask Claude to build or review something. The standards skills fire automatically — Claude will write to them without you citing anything.
-
-No `@`-imports. No `CLAUDE.md` edits. Auto-invoke is the whole point.
-
-## First audit (30 seconds, Flutter)
-
+**Try an audit (Flutter):**
 ```
 /flutter-standards:find-hardcoded
 ```
 
 Sample output:
-
 ```
-# Design System Violations
+Design System Violations
 Scope: lib/   Scanned: 127 files   Violations: 184
 
-## Colors (73)
-  lib/features/home/widgets/card.dart:24
+Colors (73)
+  lib/features/home/card.dart:24
     Color(0xFF3A6FE0) → AppColors.primary
 
-## Spacing (48)
+Spacing (48)
   lib/features/onboarding/welcome.dart:32
     EdgeInsets.all(16) → EdgeInsets.all(AppSpacing.md)
 ```
 
-## First scaffold (1 minute, Flutter)
-
+**Try a scaffold:**
 ```
 /flutter-standards:scaffold-feature bookmarks --with-api --with-persistence
 ```
 
-Generates model, mapper, repository, remote + local data sources, providers, screen with 4 states wired, widgets, test stubs, feature README. Detects your state management, design-system prefix, folder layout.
+Generates model, mapper, repository, remote + local data sources, providers, screen with loading / empty / error / content states wired, widgets, test stubs, and a feature README.
 
-## First pre-ship gate
-
+**Run the full quality gate before merging:**
 ```
 /flutter-standards:pre-ship
 ```
 
-Audits changed files for all 4 states, design tokens, Semantics labels, touch targets ≥48dp, no `print()`, test presence. Fix critical items before the PR.
-
 ---
 
-## Per-pack install matrix
+## What each pack gives you
 
-### Flutter (9 auto-invoke standards + 8 audit/scaffold skills + 3 agents)
+### Flutter (`flutter-standards`)
 
-```
-/plugin install flutter-standards@pixelcrafts
-```
+9 auto-invoke standards (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability).
 
-Slash commands: `/flutter-standards:pre-ship`, `/flutter-standards:premium-check`, `/flutter-standards:verify-screens`, `/flutter-standards:find-hardcoded`, `/flutter-standards:find-duplicates`, `/flutter-standards:accessibility-audit`, `/flutter-standards:scaffold-screen`, `/flutter-standards:scaffold-feature`.
+Slash commands:
+- `/flutter-standards:pre-ship` — quality gate before merge
+- `/flutter-standards:premium-check` — craft review of a screen
+- `/flutter-standards:verify-screens` — trace data source → UI
+- `/flutter-standards:find-hardcoded` — scan for design-system violations
+- `/flutter-standards:find-duplicates` — scan for DRY violations
+- `/flutter-standards:accessibility-audit` — 10 a11y patterns
+- `/flutter-standards:scaffold-screen` — generate screen with 4 states
+- `/flutter-standards:scaffold-feature` — generate feature folder
 
-Agents: `flutter-reviewer`, `test-writer`, `security-reviewer`.
+Agents: `flutter-reviewer`, `security-reviewer`, `test-writer`.
 
-### API (2 auto-invoke standards + 1 workflow skill + 2 agents)
+### API (`api-standards`)
 
-```
-/plugin install api-standards@pixelcrafts
-```
+Auto-invoke: `nestjs`, `code-quality`.
 
-Slash command: `/api-standards:sync-migrate`. Agents: `api-documenter`, `security-reviewer`.
+Slash command: `/api-standards:sync-migrate` — Prisma schema change workflow, reminds you to sync downstream consumers.
 
-### Web (1 auto-invoke standard + 2 audit skills)
+Agents: `api-documenter`, `security-reviewer`.
 
-```
-/plugin install web-standards@pixelcrafts
-```
+### Web (`web-standards`)
+
+Auto-invoke: `nextjs`.
 
 Slash commands: `/web-standards:pre-ship`, `/web-standards:premium-check`.
 
-### Core safety (cross-stack)
+### Safety (`core-hooks`)
 
-```
-/plugin install core-hooks@pixelcrafts
-```
-
-Registers PreToolUse hooks that block edits to secrets (`.env`, keys, credentials) and dangerous shell (`rm -rf`, `git reset --hard`). No commands — runs automatically.
+Registers PreToolUse hooks that block edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). No commands — runs on every edit.
 
 ---
 
-## Common gotchas
+## Use with Cursor, Antigravity, Codex, Aider
 
-### "Plugin not found"
+```bash
+git clone https://github.com/pixelcrafts-app/claude-craft
+./claude-craft/scripts/export.sh /path/to/your-project flutter
+```
 
-Confirm the marketplace was added: `/plugin marketplace list` should show `pixelcrafts`. If using zero-config (Path 1), run `/reload-plugins` to trigger install.
+Generates:
+- `.cursor/rules/flutter-*.mdc` — Cursor Rules v2 (one per standards skill, scoped to `lib/**/*.dart`)
+- `AGENTS.md` — concatenated standards for Antigravity, Codex, Aider, OpenAI SWE
 
-### Standards aren't firing
-
-Auto-invoke triggers on matching file types. If you're editing a `.md` file or chatting without opening a source file, the standards won't load — that's correct. Open a matching source file and they fire.
-
-### Skill suggests a token that doesn't exist
-
-The skills detect your design-system class names by grepping `lib/shared/` (Flutter) or `components/` (Web). If they can't find them, they fall back to generic names (`AppColors`, `AppSpacing`). Add a project `CLAUDE.md` note telling Claude your actual class names.
-
-### Cursor/Antigravity don't pick up changes
-
-Re-run `scripts/export.sh` after pulling the latest `claude-craft` — the tool-native files are generated artifacts, not live imports.
+Packs: `flutter`, `api`, `web`. Re-run when you want the latest.
 
 ---
 
-## Next steps
+## Troubleshooting
 
-- [`docs/skills.md`](skills.md) — full per-skill catalog with sample outputs
-- [`docs/craft.md`](craft.md) — the philosophy behind the standards
-- [`docs/roadmap.md`](roadmap.md) — Database pack next, Core extraction after
-- [`docs/contributing.md`](contributing.md) — if you want to add rules or skills
+**"Plugin not found"** — run `/plugin marketplace list`. If `pixelcrafts` isn't listed, the marketplace didn't register. For zero-config setups, try `/reload-plugins`.
+
+**Standards aren't firing** — auto-invoke needs a matching file open. Editing a `.md` or just chatting won't trigger Flutter standards. Open a `.dart` file and try again.
+
+**Skill names tokens that don't exist** — the skills detect your design-system class names by grepping `lib/shared/` (Flutter) or `components/` (Web). If they can't find them, they default to generic names (`AppColors`, `AppSpacing`). Drop a project `CLAUDE.md` line telling Claude your actual class names.
+
+**Cursor / Antigravity changes don't appear** — the generated files are artifacts, not live imports. Re-run `scripts/export.sh` after pulling latest.
+
+---
+
+## What's next
+
+- [docs/skills.md](skills.md) — every skill with sample output
+- [docs/craft.md](craft.md) — the philosophy
+- [ROADMAP.md](../ROADMAP.md) — what's shipping next
+- [docs/contributing.md](contributing.md) — add rules or skills

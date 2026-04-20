@@ -1,91 +1,28 @@
-# Pixelcrafts Standards
+# Claude Craft
 
-**Production-grade software standards for AI coding agents — across stacks, across tools.**
+Software standards that live inside Claude Code. You install a plugin, Claude starts applying the standards. No `CLAUDE.md` edits, no onboarding doc, no drift between projects.
 
-One marketplace. 15 plugins. Three stack packs ship today — **Flutter**, **API (NestJS + Prisma)**, **Web (Next.js)** — plus a cross-stack `core-hooks` safety plugin. Works natively in Claude Code; exports to Cursor + Antigravity + AGENTS.md-consumers (Codex, Aider, OpenAI SWE) via one script. A **Database** pack is next; see [docs/roadmap.md](docs/roadmap.md).
+Three packs ship today:
 
-**Zero CLAUDE.md edits.** Rules ship as auto-invoke skills — Claude loads them itself when you touch matching code.
+| Pack | Stack | What you get |
+|---|---|---|
+| **flutter-standards** | Flutter + Dart | 9 auto-invoke standards · 8 audit/scaffold skills · 3 review agents |
+| **api-standards** | NestJS + Prisma | 2 auto-invoke standards · sync-migrate workflow · 2 review agents |
+| **web-standards** | Next.js + Tailwind + shadcn | 1 auto-invoke standard · pre-ship + premium-check audits |
 
----
-
-## In 30 seconds (Claude Code, Flutter)
-
-```
-/plugin marketplace add nandamashokkumar/pixelcrafts
-/plugin install flutter-standards@pixelcrafts
-/plugin install core-hooks@pixelcrafts
-```
-
-Done. Open a `.dart` file and Claude starts applying craft, engineering, widget, a11y, perf, and testing standards. Slash commands (`/flutter-standards:pre-ship`, `/flutter-standards:scaffold-feature`, …) are immediately available.
-
-Full zero-config install (no commands) in [docs/quickstart.md](docs/quickstart.md).
+Plus **`core-hooks`** — cross-stack safety that blocks edits to `.env`/secrets and dangerous shell commands (`rm -rf`, `git reset --hard`).
 
 ---
 
-## What ships today
+## Install in 30 seconds
 
-Three stack packs in v0.1.0 plus a cross-stack safety plugin — **Flutter**, **API (NestJS + Prisma)**, **Web (Next.js + Tailwind + shadcn)**, and **core-hooks**. The Flutter pack is the most complete (9 auto-invoke standards + 8 audit/scaffold skills + 3 agents); API and Web are focused initial releases extracted from production work across the pixelcrafts portfolio.
-
-Catalog below is the Flutter pack. For API + Web, see [docs/skills.md](docs/skills.md).
-
-## Flutter pack
-
-### 9 auto-invoke standards skills
-
-No imports, no configuration — each skill auto-loads when Claude sees matching work (e.g. editing a `.dart` widget triggers `craft-guide` + `widget-rules` + `accessibility`).
-
-- **craft-guide** — typography, spacing, motion, state clarity, visual weight
-- **engineering** — DRY, SSOT, Surgeon Principle, AI-Assisted Definition of Done
-- **widget-rules** — widget discipline, animations, text resilience
-- **api-data** — mappers, models, repositories, API client contract
-- **testing** — pyramid, mocking, coverage, CI gates
-- **accessibility** — Semantics, contrast, touch targets, RTL
-- **performance** — frame budgets, cold start, images, isolates
-- **forms** — field anatomy, validation, keyboard, autofill
-- **observability** — logging, crash reports, analytics, PII
-
-### 8 audit / scaffold skills — explicit slash commands
-
-- **`/flutter-standards:pre-ship`** — full quality gate before merging
-- **`/flutter-standards:premium-check`** — craft review of a single screen
-- **`/flutter-standards:verify-screens`** — trace data source → screen
-- **`/flutter-standards:find-hardcoded`** — scan `lib/` for design-system violations
-- **`/flutter-standards:find-duplicates`** — scan `lib/` for DRY violations
-- **`/flutter-standards:accessibility-audit`** — scan `lib/` for a11y violations (10 patterns)
-- **`/flutter-standards:scaffold-screen`** — generate a screen with 4 states wired
-- **`/flutter-standards:scaffold-feature`** — generate a full feature folder (model / mapper / repo / providers / screen / tests)
-
-Each audit/scaffold skill is also published as a standalone slice plugin if you want it without the full bundle (`flutter-pre-ship@pixelcrafts`, etc.).
-
-See [docs/skills.md](docs/skills.md) for what each one outputs.
-
----
-
-## Why use it
-
-| Pain | Fix |
-|------|-----|
-| Every new feature starts with a stub screen that grows half-built | `/scaffold-feature` generates 4 states + data layer in seconds |
-| Reviewers catch the same a11y/perf/craft issues every PR | `/pre-ship` catches them before the PR opens |
-| Design system drifts — hex colors creep back in | `/find-hardcoded` + CI gate keeps tokens enforced |
-| Two widgets do the same thing under different names | `/find-duplicates` surfaces the groups to collapse |
-| "Our standards live in a Notion page from 8 months ago" | Rules live in this repo; one `git pull` updates every consumer |
-
-Longer argument in [docs/why.md](docs/why.md). Philosophy in [docs/craft.md](docs/craft.md).
-
----
-
-## Install
-
-### Option A — Zero-config (recommended for teams)
-
-Commit `.claude/settings.json` to your project:
+Drop this into `.claude/settings.json` in your project:
 
 ```json
 {
   "extraKnownMarketplaces": {
     "pixelcrafts": {
-      "source": { "source": "github", "repo": "nandamashokkumar/pixelcrafts" }
+      "source": { "source": "github", "repo": "pixelcrafts-app/claude-craft" }
     }
   },
   "enabledPlugins": {
@@ -95,126 +32,113 @@ Commit `.claude/settings.json` to your project:
 }
 ```
 
-Every teammate opening the project in Claude Code auto-installs the marketplace + plugins on first session. No commands to run. No onboarding doc. Swap `flutter-standards` for `api-standards` or `web-standards` per project.
+Swap `flutter-standards` for `api-standards` or `web-standards` depending on the project. Commit it. Every teammate who opens the project in Claude Code auto-installs on first session.
 
-### Option B — Slash commands (one-off install)
+Prefer slash commands? Run once:
 
 ```
-/plugin marketplace add nandamashokkumar/pixelcrafts
+/plugin marketplace add pixelcrafts-app/claude-craft
 /plugin install flutter-standards@pixelcrafts
 /plugin install core-hooks@pixelcrafts
 ```
 
-To update later: `/plugin marketplace update pixelcrafts`.
-
-### Option C — Single-skill slice install
-
-```
-/plugin install flutter-find-hardcoded@pixelcrafts
-/plugin install flutter-accessibility-audit@pixelcrafts
-/plugin install flutter-scaffold-feature@pixelcrafts
-```
-
-Each audit/scaffold skill ships as an independent plugin. Every Flutter plugin is namespaced `flutter-<skill>` so stacks (`api-<skill>`, `web-<skill>`, `db-<skill>`) don't collide.
+Update later with `/plugin marketplace update pixelcrafts`.
 
 ---
 
-## Use with other AI tools
+## How it works
 
-Cursor, Antigravity, Codex, Aider, and any tool that reads `AGENTS.md` can consume the same standards via the export script:
+**Auto-invoke standards.** Skills inside each pack carry descriptions like "apply to NestJS + Prisma code". Claude matches them against what it's editing and loads the relevant standards automatically. Edit a `.dart` widget → craft, engineering, widget, and a11y rules kick in. Edit a NestJS controller → nestjs + code-quality kick in. You don't import, enable, or remember anything.
+
+**Explicit skills via slash commands.** For audits and scaffolds you trigger on demand:
+
+```
+/flutter-standards:pre-ship           Full quality gate before merging
+/flutter-standards:scaffold-feature   Generate a feature with 4 states + data layer wired
+/flutter-standards:find-hardcoded     Scan lib/ for design-system violations
+/api-standards:sync-migrate           Prisma schema change workflow + downstream consumer reminders
+/web-standards:premium-check          Craft review of a single component
+```
+
+Full list: [docs/skills.md](docs/skills.md).
+
+**Review agents.** Invoke on a branch:
+
+```
+use agent api-standards:security-reviewer to audit auth changes on this branch
+use agent flutter-standards:flutter-reviewer to review src/features/checkout/
+```
+
+Agents load their pack's standards before reviewing, so the review applies the full standard — not a generic checklist.
+
+---
+
+## Use with Cursor, Antigravity, Codex, Aider
+
+One script exports the same standards to every AI tool's native format:
 
 ```bash
-git clone https://github.com/nandamashokkumar/pixelcrafts
+git clone https://github.com/pixelcrafts-app/claude-craft
 ./claude-craft/scripts/export.sh /path/to/your-project flutter
 ```
 
-It generates:
-- `.cursor/rules/<pack>-<skill>.mdc` — Cursor Rules v2 format, one per standards skill, scoped to the right file globs
-- `AGENTS.md` — concatenated standards for Antigravity, Codex, Aider, OpenAI SWE
+Generates:
+- `.cursor/rules/*.mdc` — Cursor Rules v2, globbed to the right files
+- `AGENTS.md` — concatenated standards for Antigravity / Codex / Aider / OpenAI SWE
 
-Packs available: `flutter`, `api`, `web`. Regenerate anytime to pull the latest standards. One source of truth across every AI tool your team uses.
+Packs: `flutter`, `api`, `web`. Regenerate anytime to pull the latest.
 
 ---
 
-## What's inside
+## Why this exists
+
+Teams shipping multiple apps in the same stack hit the same problem: every project grows its own "shared" rules, and every copy drifts. A year later you have four answers to "what's the padding on a card?" — one per project, none authoritative.
+
+Copy-paste between projects drifts. Git submodules rot. Notion docs decay. The durable fix is to put the standards in a **plugin marketplace** — install once, update with one command, and the rules your AI collaborator follows are the rules you actually wrote.
+
+Longer argument in [docs/why.md](docs/why.md). Philosophy in [docs/craft.md](docs/craft.md).
+
+---
+
+## Docs
+
+| Audience | Start here |
+|---|---|
+| Adopting for your team | [docs/why.md](docs/why.md) → [docs/craft.md](docs/craft.md) |
+| Setting up in a project | [docs/quickstart.md](docs/quickstart.md) |
+| Browsing what each skill does | [docs/skills.md](docs/skills.md) |
+| Contributing | [docs/contributing.md](docs/contributing.md) |
+| What's next | [ROADMAP.md](ROADMAP.md) |
+
+---
+
+## Project layout
 
 ```
 claude-craft/
-├── .claude-plugin/
-│   └── marketplace.json              15 plugins listed (Flutter + API + Web + core-hooks)
-├── flutter/                          Flutter pack
-│   └── skills/
-│       ├── flutter-standards/        bundle — 9 auto-invoke standards + 8 audit/scaffold skills + 3 agents
-│       ├── flutter-pre-ship/         slice — 1 skill
-│       ├── flutter-premium-check/
-│       ├── flutter-verify-screens/
-│       ├── flutter-find-hardcoded/
-│       ├── flutter-find-duplicates/
-│       ├── flutter-accessibility-audit/
-│       ├── flutter-scaffold-screen/
-│       └── flutter-scaffold-feature/
-├── api/                              API pack (NestJS + Prisma)
-│   └── skills/
-│       ├── api-standards/            bundle — 2 auto-invoke standards + sync-migrate workflow + 2 agents
-│       └── api-sync-migrate/         slice — Prisma schema change workflow
-├── web/                              Web pack (Next.js + Tailwind + shadcn)
-│   └── skills/
-│       ├── web-standards/            bundle — 1 auto-invoke standard + pre-ship + premium-check
-│       ├── web-pre-ship/             slice — quality gate
-│       └── web-premium-check/        slice — single-component craft audit
-├── core/
-│   ├── hooks/                        protect-files.sh, protect-bash.sh (source)
-│   └── plugins/
-│       └── core-hooks/               cross-stack safety plugin (registers PreToolUse hooks)
-├── database/                         (planned) — same shape: database/skills/
-├── scripts/
-│   ├── sync.sh                       mirrors bundle edits → slice copies (all packs)
-│   └── export.sh                     generates .cursor/rules + AGENTS.md for non-Claude-Code tools
-├── docs/
-│   ├── why.md                        problem + solution narrative
-│   ├── quickstart.md                 5-min install walkthrough
-│   ├── skills.md                     per-skill cards
-│   ├── rules.md                      per-rule cards
-│   ├── craft.md                      the philosophy
-│   ├── contributing.md               edit / add / version / ship
-│   ├── roadmap.md                    Database pack, Core extraction
-│   ├── changelog.md                  release history
-│   └── history.md                    how each pack was assembled
-├── LICENSE                           MIT
-└── README.md                         this file
+├── .claude-plugin/marketplace.json      4 plugins
+├── flutter/skills/flutter-standards/    Flutter pack
+├── api/skills/api-standards/            NestJS + Prisma pack
+├── web/skills/web-standards/            Next.js pack
+├── core/plugins/core-hooks/             Cross-stack safety hooks
+├── scripts/export.sh                    Cursor + AGENTS.md export
+├── docs/                                Guides, philosophy, changelog
+├── ROADMAP.md
+└── README.md
 ```
 
 ---
 
-## Documentation
+## Status
 
-| Audience | Start here |
-|----------|------------|
-| Tech lead deciding to adopt | [docs/why.md](docs/why.md) → [docs/craft.md](docs/craft.md) |
-| Developer setting it up | [docs/quickstart.md](docs/quickstart.md) → [docs/skills.md](docs/skills.md) |
-| Developer using it day-to-day | [docs/skills.md](docs/skills.md) → [docs/quickstart.md](docs/quickstart.md) |
-| Contributor | [docs/contributing.md](docs/contributing.md) → [docs/history.md](docs/history.md) |
+**v0.2.0** — packs consolidated, standalone per-skill plugins removed. One bundle per stack is now the only shape; every skill is still accessible via slash commands (`/flutter-standards:pre-ship`, etc.).
 
----
-
-## Status & roadmap
-
-- **Flutter pack — v0.1.0 shipped** (`flutter/`) — 9 auto-invoke standards, 8 audit/scaffold skills, 3 agents
-- **API pack — v0.1.0 shipped** (`api/`) — NestJS + Prisma, 2 auto-invoke standards, 1 workflow skill, 2 agents
-- **Web pack — v0.1.0 shipped** (`web/`) — Next.js + Tailwind + shadcn, 1 auto-invoke standard, 2 audit skills
-- **core-hooks — v0.1.0 shipped** (`core/plugins/core-hooks/`) — cross-stack PreToolUse safety hooks
-- **Multi-tool export — v0.1.0 shipped** (`scripts/export.sh`) — Cursor, Antigravity, Codex, Aider
-- **Database pack** — planned. Postgres-first with MySQL notes. Will land at `database/` with plugins prefixed `db-<skill>`.
-- **Core extraction** — with three packs now live, universal content (DRY, testing pyramid, observability, security) is the next extraction target. Will land as a shared `core-<skill>` pack referenced by the others.
-
-See [docs/roadmap.md](docs/roadmap.md) for detail.
-
----
+See [docs/changelog.md](docs/changelog.md) for the release history.
 
 ## Contributing
 
-See [docs/contributing.md](docs/contributing.md). TL;DR: edit the Flutter bundle plugin, run `./scripts/sync.sh`, bump versions, tag, open PR.
+PRs welcome. See [docs/contributing.md](docs/contributing.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — [LICENSE](LICENSE).

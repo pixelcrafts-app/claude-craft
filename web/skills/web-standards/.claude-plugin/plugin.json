@@ -1,12 +1,12 @@
 {
   "name": "web-standards",
-  "version": "0.1.0",
-  "description": "Web full bundle — 1 auto-invoke standards skill (nextjs) + pre-ship + premium-check audit skills for Next.js + Tailwind + shadcn. Claude applies standards automatically on web code. Zero CLAUDE.md edits.",
+  "version": "0.2.0",
+  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + pre-ship + premium-check audit skills.",
   "author": {
     "name": "pixelcrafts",
-    "url": "https://github.com/nandamashokkumar"
+    "url": "https://github.com/pixelcrafts-app"
   },
-  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
   "keywords": ["web", "nextjs", "react", "tailwind", "shadcn", "standards", "audit"]
 }
