@@ -1,0 +1,34 @@
+{
+  "name": "core-hooks",
+  "version": "0.1.0",
+  "description": "Cross-stack safety hooks — block edits to secrets (.env, keys, credentials) and dangerous shell commands (rm -rf, git reset --hard).",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["hooks", "safety", "secrets", "cross-stack"],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-bash.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "flutter-pre-ship",
+  "version": "0.1.0",
+  "description": "Pre-ship quality gate skill — runs the full craft + engineering + a11y + perf + test check before declaring a Flutter feature done.",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["flutter", "dart", "audit", "quality-gate", "pre-ship"]
+}

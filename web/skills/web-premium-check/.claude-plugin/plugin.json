@@ -1,0 +1,12 @@
+{
+  "name": "web-premium-check",
+  "version": "0.1.0",
+  "description": "Premium craft audit for a single web component — design tokens, state design, visual polish, responsive, accessibility.",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["web", "audit", "craft", "design-system", "premium"]
+}

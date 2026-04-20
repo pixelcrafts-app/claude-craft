@@ -1,0 +1,12 @@
+{
+  "name": "flutter-verify-screens",
+  "version": "0.1.0",
+  "description": "Trace source → screen data pipelines to confirm every widget reads from a real data source, no mock data leftovers.",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["flutter", "dart", "audit", "data-flow", "verification"]
+}

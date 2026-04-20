@@ -1,0 +1,12 @@
+{
+  "name": "flutter-find-duplicates",
+  "version": "0.1.0",
+  "description": "Scan lib/ for DRY violations — widgets rendering the same UI under different names, helper functions doing the same format/parse, providers exposing the same data, mappers, copy-pasted card/button code.",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["flutter", "dart", "audit", "dry", "refactor"]
+}

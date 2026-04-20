@@ -1,0 +1,12 @@
+{
+  "name": "web-pre-ship",
+  "version": "0.1.0",
+  "description": "Pre-ship quality gate for web features — lint, data pipeline, state design, responsive, dark mode check before declaring a feature done.",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/nandamashokkumar"
+  },
+  "homepage": "https://github.com/nandamashokkumar/pixelcrafts",
+  "license": "MIT",
+  "keywords": ["web", "nextjs", "audit", "quality-gate", "pre-ship"]
+}
