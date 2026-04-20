@@ -76,19 +76,23 @@ Install: `/plugin install api-standards@pixelcrafts`.
 
 Install: `/plugin install web-standards@pixelcrafts`.
 
-### 2 auto-invoke standards
+### 3 auto-invoke standards
 
 | Skill | Fires on | Enforces |
 |---|---|---|
 | nextjs | `app/**`, `components/**`, `**/*.tsx` | App router, server/client boundaries, Tailwind tokens, shadcn patterns, React Query, React Hook Form + Zod, verify-don't-guess cross-boundary contracts |
 | production-readiness | App-level wiring, middleware, `next.config.js` | Smart Detect→Check→Suggest audit: error boundaries, Suspense, optimistic UI, image optimization, metadata/OG, sitemap, CSP, analytics consent, Core Web Vitals, env-logging |
+| craft-guide | Any `.tsx` / `.css` under `app/` / `components/` | 17 universal design formulas — color + contrast + harmony, spacing rhythm, type scale, font loading, shadow + radius scales, motion choreography, all state variants, density by app type, safe-area, aesthetic coherence, iconography, chrome details, a11y as craft, theme discipline, microcopy, brand moments. Universal formulas enforced; brand values come from user. |
 
-### 2 explicit skills
+### 5 explicit skills
 
 | Slash command | What it does |
 |---|---|
 | [/web-standards:pre-ship](#pre-ship-web) | Quality gate before merge |
-| [/web-standards:premium-check](#premium-check-web) | Craft review of a component |
+| [/web-standards:premium-check](#premium-check-web) | 17-section iteration-loop craft audit (rule-by-rule PASS/FAIL, loops to zero FAIL) |
+| [/web-standards:extract-tokens](#extract-tokens) | Extract design tokens from codebase or input; write `design-tokens.md` single source of truth |
+| [/web-standards:theme-audit](#theme-audit) | Verify theme completeness — light/dark parity, hydration flash, `color-scheme`, switch coverage |
+| [/web-standards:aesthetic-coherence](#aesthetic-coherence) | Detect aesthetic mixing — flag screens committing to two design languages at once |
 
 ---
 
@@ -270,6 +274,57 @@ Closes the gap between "I finished the component" and "ready to ship". Catches l
 
 `/web-standards:premium-check <component-file>`
 
-Finds craft regressions in individual components. Tokens (zero hardcoded colors/fonts/spacing/radii), interaction quality (hover, focus, loading, confirms, ≥ 44px targets), state design (skeleton, CTA, actionable error), visual polish (hierarchy, alignment, dark mode independence), responsive, a11y.
+Iterates every rule across 17 craft-guide sections against a single file. For each rule: quotes evidence, records PASS / FAIL / N_A, suggests fix. Aggregates into critical vs polish failures. With `--fix`, loops: fix → re-audit → fix → re-audit until zero FAILs.
 
-Pairs with `pre-ship` for the full feature gate.
+Catches long-tail craft rules that single-pass audits skip. Expensive per-file — scope to one component or page at a time.
+
+Pairs with `pre-ship` for the full feature gate, with `extract-tokens` to establish what to audit against, with `theme-audit` + `aesthetic-coherence` for app-level coherence.
+
+---
+
+### extract-tokens
+
+`/web-standards:extract-tokens [optional-input-path]`
+
+Before auditing craft, you need to know the user's tokens. Three modes:
+
+1. **From codebase** — scans `tailwind.config`, `@theme`, CSS vars, shadcn setup
+2. **From user input** — parses paste, Figma export, screenshot, brand PDF
+3. **From Figma URL** — if Figma MCP is installed
+
+Normalizes into six dimensions (color / typography / spacing / radius / shadow / motion). Detects missing dimensions. Counts token-drift (inline hex, arbitrary Tailwind, inline rgba). Writes `design-tokens.md` as single source of truth — craft-guide + premium-check auto-read it when present.
+
+Never invents brand values. Asks the user when ambiguous.
+
+---
+
+### theme-audit
+
+`/web-standards:theme-audit [optional-scope]`
+
+Iterates eight sections of theme completeness:
+
+1. Token discipline — no hardcoded values leaking through
+2. Semantic naming — `--primary` not `--blue-500` in components
+3. Light/dark parity — every token defined in both; dark is not computed invert
+4. `color-scheme` property set (prevents native-form-flash in dark)
+5. SSR hydration flash — `suppressHydrationWarning`, blocking theme script, server-side initial class
+6. Switch coverage — toggle theme, walk every route; flag screens with unchanged backgrounds or unthemed embeds
+7. Multi-theme readiness — forced-colors, reduced-transparency, high-contrast
+8. Reports critical vs polish failures
+
+Pairs with `extract-tokens` — re-runs after tokens land.
+
+---
+
+### aesthetic-coherence
+
+`/web-standards:aesthetic-coherence [file | directory | "app"]`
+
+Detects the #1 "assembled, not designed" tell: mixing two design languages in one surface (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial).
+
+Scores 14 aesthetic signatures per file (minimalist, flat, material, utility-brutalist, glassmorphism, neumorphism, claymorphism, liquid glass, bento, editorial, brutalist, dark-cinematic, AI-native, retro/Y2K). Flags files where top 2 scores are within 30% — the classic mix.
+
+Cross-file: detects outlier screens committed to a different aesthetic than the app.
+
+Fix loop is **manual-confirmation** — aesthetic rewrites are taste calls, not automatic. This skill flags and proposes; user approves per file.

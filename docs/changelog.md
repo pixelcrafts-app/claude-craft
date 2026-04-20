@@ -4,6 +4,37 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.5.0] — 2026-04-21
+
+Web design pack. The web standards move from "covers Next.js patterns" to "covers premium visual craft end-to-end," with a strict separation: **universal formulas enforced, brand values from the user.** Never imposes colors, fonts, or aesthetics.
+
+### Added — Web pack (`web-standards`)
+
+**Auto-invoke standard — `craft-guide` (new)**
+
+17-section universal design guide covering color + contrast + harmony (WCAG AA 4.5:1 floor, AAA 7:1 premium, APCA awareness, color harmony commitment, 60-30-10 distribution, brand → UI derivation, tinted neutrals), spacing rhythm, modular type scale + font loading discipline, shadow & elevation scale, border radius scale + nested-radius math, motion choreography (3-layer stack, exit-faster-than-entry, `prefers-reduced-motion`), all state variants (4 primary + 8 edge states including offline, stale, partial, pending, rate-limited, permission-denied, success, rollback), responsive + density matched to app type (safe-area insets, `dvh`, thumb zone, tablet-as-its-own), 14 named aesthetics with per-aesthetic specs (minimalist, flat, material, utility-brutalist, glassmorphism, neumorphism, claymorphism, liquid glass 2026, bento, editorial, brutalist, dark-cinematic, AI-native, retro/Y2K) + "never mix two" rule, iconography, chrome & details (focus rings, selection, scrollbar, caret, cursor, text rendering, image treatments), accessibility as craft (`color-scheme`, forced-colors, reduced-transparency, focus trap, lang), theme discipline (SSR hydration flash, light/dark parity, multi-theme), microcopy rules, brand moments (404, 500, splash, offline, first-run, update).
+
+Every section has an "enforce / provide" table — what the skill requires from any brand vs. what the brand itself supplies.
+
+**4 explicit skills**
+
+- `/web-standards:premium-check` (rewritten) — iteration-loop craft audit. Walks every rule across 17 sections one at a time, records PASS / FAIL / N_A with evidence, loops fix-then-audit until zero FAILs. Replaces the single-pass 6-category sweep.
+- `/web-standards:extract-tokens` (new) — reads Tailwind config / `@theme` / CSS vars / shadcn setup, OR parses user-provided brand input (paste, Figma export, image, PDF), normalizes into six-dimension token map, writes `design-tokens.md` as single source of truth.
+- `/web-standards:theme-audit` (new) — verifies theme completeness: token discipline, semantic naming, light/dark parity (detects computed-invert), `color-scheme`, SSR hydration flash, switch coverage across every route, multi-theme readiness.
+- `/web-standards:aesthetic-coherence` (new) — scores 14 aesthetic signatures per file, flags files with top-2 scores within 30% (mixed aesthetic — the #1 "assembled, not designed" tell), flags cross-file outliers, proposes fixes per file with user confirmation.
+
+### Design principle — universal formulas only
+
+Every rule categorized as **enforce** (math / structure — WCAG contrast, 60-30-10 distribution, single modular scale, safe-area insets) or **provide** (brand values — chosen hues, chosen aesthetic, density target). The skills never pick brand values; they enforce discipline over whatever the user chose.
+
+### Infrastructure
+
+- All four plugins bumped to `0.5.0` in lockstep.
+- Marketplace + plugin descriptions updated.
+- `docs/skills.md` updated — web pack now lists 3 auto-invoke + 5 explicit skills.
+
+---
+
 ## [0.4.0] — 2026-04-20
 
 ### Added — cross-stack

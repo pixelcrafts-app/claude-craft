@@ -1,6 +1,6 @@
 {
   "name": "core-hooks",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Cross-stack safety + end-of-task docs sync — PreToolUse hooks that block edits to secrets (.env, keys, credentials) and dangerous shell commands (rm -rf, git reset --hard), plus a docs-sync skill that catches drift between code and README / CHANGELOG / docs at release-ready moments.",
   "author": {
     "name": "pixelcrafts",

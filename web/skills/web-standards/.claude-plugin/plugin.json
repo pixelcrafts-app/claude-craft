@@ -1,7 +1,7 @@
 {
   "name": "web-standards",
-  "version": "0.4.0",
-  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + smart production-readiness audit + pre-ship + premium-check audit skills.",
+  "version": "0.5.0",
+  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs + production-readiness + craft-guide standards. Explicit skills: pre-ship, premium-check (17-section iteration-loop craft audit), extract-tokens, theme-audit, aesthetic-coherence. Universal formulas, user-provided brand values.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

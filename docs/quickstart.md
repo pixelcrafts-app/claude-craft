@@ -123,9 +123,14 @@ Agents: `api-documenter`, `security-reviewer`.
 
 ### Web (`web-standards`)
 
-Auto-invoke: `nextjs`, `production-readiness`.
+Auto-invoke: `nextjs`, `production-readiness`, `craft-guide` (17-section universal design formulas — color, spacing, type, shadow/radius, motion, state, responsive, aesthetic coherence, iconography, chrome, a11y, theme, microcopy, brand moments; enforces discipline, never picks brand values).
 
-Slash commands: `/web-standards:pre-ship`, `/web-standards:premium-check`.
+Slash commands:
+- `/web-standards:pre-ship` — quality gate before merge
+- `/web-standards:premium-check` — 17-section iteration-loop craft audit (rule-by-rule PASS/FAIL, loops to zero)
+- `/web-standards:extract-tokens` — establish `design-tokens.md` as single source of truth
+- `/web-standards:theme-audit` — light/dark parity, hydration flash, switch coverage
+- `/web-standards:aesthetic-coherence` — flag mixed design languages in one surface
 
 ### Safety + Docs-sync (`core-hooks`)
 

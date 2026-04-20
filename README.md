@@ -9,7 +9,7 @@ No `CLAUDE.md` edits. No onboarding wiki. No drift.
 
 [Quickstart](docs/quickstart.md) · [See it in action](docs/before-after.md) · [Skills](docs/skills.md) · [Roadmap](ROADMAP.md)
 
-![version](https://img.shields.io/badge/version-0.4.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
+![version](https://img.shields.io/badge/version-0.5.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
 
 </div>
 
@@ -103,9 +103,9 @@ NestJS + Prisma.
 
 Next.js + Tailwind + shadcn.
 
-2 auto-invoke standards + 10-check smart production audit, pre-ship + premium-check.
+3 auto-invoke standards (nextjs, production-readiness, craft-guide) + pre-ship, premium-check (17-section iteration-loop), extract-tokens, theme-audit, aesthetic-coherence.
 
-**Killer feature:** production-readiness catches CSP holes, missing Suspense, CLS-killer images **before** you deploy — not after Lighthouse complains.
+**Killer feature:** `craft-guide` enforces universal design formulas (contrast math, harmony, 60-30-10, aesthetic coherence) without ever picking brand values — paired with `premium-check`'s rule-by-rule audit loop that guarantees every rule is checked, not just the obvious ones.
 
 </td>
 </tr>
@@ -121,7 +121,7 @@ Plus **`core-hooks`** — cross-stack safety: blocks edits to `.env` / secrets, 
 
 - Edit a `.dart` widget → craft, engineering, widgets, a11y, performance kick in
 - Edit a NestJS controller → nestjs + code-quality (now with 11-check production audit) kick in
-- Edit a Next.js route → nextjs + production-readiness kick in
+- Edit a Next.js route → nextjs + production-readiness + craft-guide kick in
 
 You don't import, enable, or remember anything. [See the catalog →](docs/skills.md)
 
@@ -242,7 +242,7 @@ claude-craft/
 ├── .claude-plugin/marketplace.json      4 plugins registered
 ├── flutter/skills/flutter-standards/    Flutter pack — 10 standards + 8 skills + 3 agents
 ├── api/skills/api-standards/            NestJS + Prisma pack — 2 standards + sync-migrate + 2 agents
-├── web/skills/web-standards/            Next.js pack — 2 standards + pre-ship + premium-check
+├── web/skills/web-standards/            Next.js pack — 3 standards + pre-ship, premium-check, extract-tokens, theme-audit, aesthetic-coherence
 ├── core/plugins/core-hooks/             Cross-stack safety + docs-sync
 ├── scripts/export.sh                    Cursor + AGENTS.md export
 ├── docs/                                Guides, philosophy, before/after, changelog
@@ -253,6 +253,8 @@ claude-craft/
 ---
 
 ## 🛣️ Status
+
+**v0.5.0** — Web design pack. New auto-invoke `craft-guide` (17-section universal design formulas — color + harmony + contrast, spacing, type + font loading, shadow/radius scales, motion, all state variants, 14 aesthetics with "never mix two" rule, iconography, chrome, a11y, theme, microcopy, brand moments). 4 new explicit skills: iteration-loop `premium-check`, `extract-tokens`, `theme-audit`, `aesthetic-coherence`. Universal formulas enforced; brand values from user.
 
 **v0.4.0** — Smart Detect → Check → Suggest audits for production readiness across all three packs, plus a new `docs-sync` skill that catches README / CHANGELOG / ROADMAP drift at release time.
 
