@@ -6,24 +6,57 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ## [0.3.0] — 2026-04-20
 
-### Added — API pack
+Smart production-readiness audits land in all three packs. Rigid "you must have X" rules are reserved for binary requirements (auth guards, no PII in logs, etc.). Contextual concerns — anything that depends on scale, audience, or infra — now follow **Detect → Check → Suggest**: the skill detects whether it's already addressed, audits depth if yes, and proposes options with tradeoffs if no. The user decides — the skill never rewrites the app.
 
-- **Smart production-readiness audit — Detect → Check → Suggest.** New framework in `api-standards/code-quality`: instead of rigid "you must have X" rules, the skill detects whether a concern is already addressed, audits depth if yes, and suggests with tradeoffs if no. The user decides — the skill never blindly enforces.
-- **10 new production operational concerns** covered by the new framework:
-  - J1. Rate limiting / throttling
-  - J2. Idempotency keys on mutations
-  - J3. Retry + backoff on upstream calls
-  - J4. Webhook signature verification
-  - J5. Graceful shutdown (SIGTERM + drain)
-  - J6. Health + readiness endpoints (liveness vs readiness)
-  - J7. Correlation IDs / request tracing
-  - J8. Soft-delete vs hard-delete policy
-  - J9. Audit logs for sensitive mutations
-  - J10. DB connection pool + query timeouts
+### Added — API pack (`api-standards`)
 
-### Pending
+11 new production operational checks in `code-quality` (section J):
 
-- Flutter and Web packs — same Detect → Check → Suggest audit to ship in a follow-up release. Binary rules there stay binary; contextual concerns (caching, retries, error boundaries, analytics, deep linking, etc.) will move to the new framework.
+- J1. Rate limiting / throttling
+- J2. Idempotency keys on mutations
+- J3. Retry + backoff on upstream calls
+- J4. Webhook signature verification
+- J5. Graceful shutdown (SIGTERM + drain)
+- J6. Health + readiness endpoints (liveness vs readiness)
+- J7. Correlation IDs / request tracing
+- J8. Soft-delete vs hard-delete policy
+- J9. Audit logs for sensitive mutations
+- J10. DB connection pool + query timeouts
+- J11. Environment-aware logging (level / format / redaction / sampling per env)
+
+### Added — Flutter pack (`flutter-standards`)
+
+New auto-invoke skill `production-readiness` with 9 smart checks:
+
+- R1. Retry + backoff on network calls
+- R2. App lifecycle handling (pause / resume / detached)
+- R3. Deep linking / universal links
+- R4. Push notification permission UX (pre-prompt rationale)
+- R5. App version / force-update gate
+- R6. Secure storage for sensitive data
+- R7. Locale + RTL support
+- R8. Offline support + sync queue
+- R9. Env-aware logging and observability
+
+### Added — Web pack (`web-standards`)
+
+New auto-invoke skill `production-readiness` with 10 smart checks:
+
+- R1. Error boundaries scoped per route
+- R2. Suspense boundaries for streaming
+- R3. Optimistic updates + rollback on failure
+- R4. Image optimization (`next/image`, sizes, priority, remote patterns)
+- R5. Metadata / OG / Twitter cards
+- R6. Sitemap + robots.txt
+- R7. CSP + security headers
+- R8. Analytics consent / cookie handling (EU/UK/CA)
+- R9. Core Web Vitals budgets (LCP / INP / CLS)
+- R10. Env-aware logging (server-side)
+
+### Infrastructure
+
+- All four plugins bumped to `0.3.0` in lockstep.
+- Marketplace and plugin descriptions updated to reflect the new audits.
 
 ---
 

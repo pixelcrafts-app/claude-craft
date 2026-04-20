@@ -12,8 +12,8 @@
     {
       "name": "flutter-standards",
       "source": "./flutter/skills/flutter-standards",
-      "description": "Flutter pack — 9 auto-invoke standards (craft, engineering, widgets, data, testing, a11y, perf, forms, observability), 8 audit/scaffold skills invoked via slash commands, 3 review agents.",
-      "version": "0.2.1",
+      "description": "Flutter pack — 10 auto-invoke standards (craft, engineering, widgets, data, testing, a11y, perf, forms, observability, production-readiness with smart Detect→Check→Suggest audits for retry/lifecycle/deep-links/push/force-update/secure-storage/locale/offline/env-logging), 8 audit/scaffold skills invoked via slash commands, 3 review agents.",
+      "version": "0.3.0",
       "category": "mobile-flutter",
       "tags": ["flutter", "dart", "mobile", "standards"]
     },
@@ -28,8 +28,8 @@
     {
       "name": "web-standards",
       "source": "./web/skills/web-standards",
-      "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards, pre-ship + premium-check audit skills.",
-      "version": "0.2.1",
+      "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + smart production-readiness audit (Detect→Check→Suggest for error boundaries, Suspense, optimistic UI, images, OG/metadata, sitemap, CSP, consent, Core Web Vitals, env-logging), pre-ship + premium-check audit skills.",
+      "version": "0.3.0",
       "category": "frontend-web",
       "tags": ["web", "nextjs", "react", "tailwind", "standards"]
     },
@@ -37,7 +37,7 @@
       "name": "core-hooks",
       "source": "./core/plugins/core-hooks",
       "description": "Cross-stack safety — PreToolUse hooks that block edits to secrets (.env, keys, credentials) and dangerous shell commands.",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "category": "core",
       "tags": ["hooks", "safety", "secrets", "cross-stack"]
     }

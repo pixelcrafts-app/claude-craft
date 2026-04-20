@@ -1,7 +1,7 @@
 {
   "name": "web-standards",
-  "version": "0.2.1",
-  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + pre-ship + premium-check audit skills.",
+  "version": "0.3.0",
+  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + smart production-readiness audit + pre-ship + premium-check audit skills.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

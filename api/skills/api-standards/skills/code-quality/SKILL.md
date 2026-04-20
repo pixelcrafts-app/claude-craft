@@ -165,6 +165,18 @@ These are the concerns that decide whether an API survives contact with producti
 - **Check (if present)** — Pool sized for (container concurrency × instances) without exceeding DB max connections? Statement timeout set (default unlimited is a footgun — one slow query can pin a connection)? Separate read/write pools if the app uses replicas?
 - **Suggest (if absent)** — Offer sensible defaults based on stack (Prisma + Postgres on Fly → `connection_limit=10`, `statement_timeout=30s`). Warn: production outages from connection exhaustion are almost always traceable to missing pool config.
 
+### J11. Environment-aware logging discipline
+
+- **Detect** — logger configuration that varies by `NODE_ENV` / config: level (`debug`/`info`/`warn`), format (JSON in prod, pretty in dev), transport (stdout in containers, file otherwise), sampling, redaction rules. Check for `pino`, `winston`, or the NestJS `Logger` with environment wiring.
+- **Check (if present)** —
+  - Log level driven by env (`LOG_LEVEL`), not hardcoded? Defaults to `info` in prod, `debug` in dev.
+  - Format differs by env: structured JSON in prod (parseable by Datadog/Loki/Cloudwatch), pretty/human in dev.
+  - Sensitive fields **redacted in all envs**: `password`, `token`, `authorization` header, `refreshToken`, full user objects, card numbers, API keys. Redaction happens at the logger layer, not at each call site.
+  - Stack traces included in dev and staging, suppressed or truncated in prod responses (never in HTTP bodies), but **always** kept in the log stream for post-hoc debugging.
+  - Request/response bodies not logged in prod by default (PII risk); enable only for specific endpoints with a justified reason.
+  - Log volume sampled or throttled for hot paths in prod (100% logs on a 10k-RPS endpoint = log bill eats the margin).
+- **Suggest (if absent)** — Offer `pino` (fast, structured by default, first-class redaction via `redact` option) or `winston` with an env-driven config factory. Call out the redaction list as the non-negotiable part — the rest is tunable.
+
 ---
 
 ## VERIFY, DON'T GUESS — CROSS-BOUNDARY CONTRACTS

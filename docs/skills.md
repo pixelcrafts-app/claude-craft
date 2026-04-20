@@ -12,12 +12,12 @@ Four plugins ship. Every standard, audit, scaffold, and agent is listed here wit
 
 Install: `/plugin install flutter-standards@pixelcrafts` — or enable in `.claude/settings.json`.
 
-### 9 auto-invoke standards
+### 10 auto-invoke standards
 
 | Skill | Fires on | Enforces |
 |---|---|---|
 | craft-guide | `.dart` UI | Typography, spacing, motion, state clarity, visual weight |
-| engineering | `.dart` | DRY, single source of truth, Surgeon Principle, AI-assisted Definition of Done |
+| engineering | `.dart` | DRY, single source of truth, Surgeon Principle, AI-assisted Definition of Done, verify-don't-guess cross-boundary contracts |
 | widget-rules | `.dart` widgets | `const`, stateful/stateless choice, animation scope, text resilience |
 | api-data | Repositories, providers | Mappers, models, repository contracts, API client shape |
 | testing | `test/**/*.dart` | Pyramid, mocktail, goldens, Riverpod test patterns, CI gates |
@@ -25,6 +25,7 @@ Install: `/plugin install flutter-standards@pixelcrafts` — or enable in `.clau
 | performance | `.dart` | Frame budgets, cold start, image decode-at-size, isolates |
 | forms | Form widgets | Field anatomy, keyboard, autofill, validation timing |
 | observability | Logging / analytics | One logger, structured events, PII classification |
+| production-readiness | App wiring / service layer | Smart Detect→Check→Suggest audit: retry, lifecycle, deep links, push UX, force-update, secure storage, locale/RTL, offline, env-logging |
 
 ### 8 explicit skills
 
@@ -56,7 +57,7 @@ Install: `/plugin install api-standards@pixelcrafts`.
 | Skill | Fires on | Enforces |
 |---|---|---|
 | nestjs | `src/**/*.ts`, `prisma/schema.prisma` | Module/controller/service/repository split, DTO validation, error shapes |
-| code-quality | `src/**/*.ts` | Endpoint hygiene, auth guards, type safety, test coverage |
+| code-quality | `src/**/*.ts` | Endpoint hygiene, auth guards, type safety, test coverage, verify-don't-guess cross-boundary contracts, smart Detect→Check→Suggest audit for rate limiting, idempotency, retries, webhooks, graceful shutdown, health/readiness, correlation IDs, soft delete, audit logs, DB pool, env-logging |
 
 ### 1 explicit workflow
 
@@ -75,11 +76,12 @@ Install: `/plugin install api-standards@pixelcrafts`.
 
 Install: `/plugin install web-standards@pixelcrafts`.
 
-### 1 auto-invoke standard
+### 2 auto-invoke standards
 
 | Skill | Fires on | Enforces |
 |---|---|---|
-| nextjs | `app/**`, `components/**`, `**/*.tsx` | App router, server/client boundaries, Tailwind tokens, shadcn patterns, React Query, React Hook Form + Zod |
+| nextjs | `app/**`, `components/**`, `**/*.tsx` | App router, server/client boundaries, Tailwind tokens, shadcn patterns, React Query, React Hook Form + Zod, verify-don't-guess cross-boundary contracts |
+| production-readiness | App-level wiring, middleware, `next.config.js` | Smart Detect→Check→Suggest audit: error boundaries, Suspense, optimistic UI, image optimization, metadata/OG, sitemap, CSP, analytics consent, Core Web Vitals, env-logging |
 
 ### 2 explicit skills
 
