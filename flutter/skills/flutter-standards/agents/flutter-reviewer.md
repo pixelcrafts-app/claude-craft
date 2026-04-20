@@ -7,7 +7,7 @@ description: Reviews Flutter code for Riverpod patterns, widget quality, Dart be
 
 ## Standards Context (load first)
 
-This agent ships inside the `flutter-standards` plugin alongside 9 auto-invoke standards skills (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability). Before reviewing, load their rules:
+This agent ships inside the `flutter-standards` plugin alongside 10 auto-invoke standards skills (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability, production-readiness). Before reviewing, load their rules:
 
 1. Glob: `**/flutter-standards/skills/*/SKILL.md`
 2. Read every match. Treat each body as review criteria — check the changed files against every rule, not just this agent's checklist.

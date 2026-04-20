@@ -4,6 +4,25 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.4.0] — 2026-04-20
+
+### Added — cross-stack
+
+- **`docs-sync` skill in `core-hooks`** — catches drift between code and docs at end-of-task moments. Auto-invokes on version bumps, plugin add/remove, new skill folders, pre-ship runs, `v*.*.*` commit messages, or when the user signals task completion ("ship / done / release"). Cross-checks README, CHANGELOG, ROADMAP, `docs/skills.md`, and plugin/skill descriptions. Flags gaps. Never rewrites prose. Never blocks.
+- **Pre-ship gates (Flutter + Web)** now include an end-of-task docs-sync step — skipped for single-file fixes and internal refactors, runs on feature/release completion.
+
+### Changed
+
+- **README rewrite** — hero section, visual architecture diagram, before/after callout, pack cards, Detect→Check→Suggest example output, audience section. Aims to be the pitch itself, not a manifest.
+- **`docs/before-after.md`** — new template for real before/after snippets per pack. Empty scaffolds; fill in over time.
+- **`core-hooks` plugin** — now hosts both safety hooks and the `docs-sync` skill. Description updated in `plugin.json` and `marketplace.json`.
+
+### Infrastructure
+
+- All four plugins bumped to `0.4.0` in lockstep.
+
+---
+
 ## [0.3.0] — 2026-04-20
 
 Smart production-readiness audits land in all three packs. Rigid "you must have X" rules are reserved for binary requirements (auth guards, no PII in logs, etc.). Contextual concerns — anything that depends on scale, audience, or infra — now follow **Detect → Check → Suggest**: the skill detects whether it's already addressed, audits depth if yes, and proposes options with tradeoffs if no. The user decides — the skill never rewrites the app.

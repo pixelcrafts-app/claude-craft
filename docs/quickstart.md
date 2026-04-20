@@ -37,7 +37,7 @@ Swap the pack to match the project:
 | NestJS + Prisma | `api-standards@pixelcrafts` |
 | Next.js | `web-standards@pixelcrafts` |
 
-Always include `core-hooks@pixelcrafts` — it's the safety net that blocks secret edits and dangerous shell commands, regardless of stack.
+Always include `core-hooks@pixelcrafts` — the cross-stack safety net (blocks secret edits + dangerous shell commands) plus the `docs-sync` skill that catches code-vs-docs drift at end-of-task moments.
 
 ---
 
@@ -99,7 +99,7 @@ Generates model, mapper, repository, remote + local data sources, providers, scr
 
 ### Flutter (`flutter-standards`)
 
-9 auto-invoke standards (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability).
+10 auto-invoke standards (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability, production-readiness).
 
 Slash commands:
 - `/flutter-standards:pre-ship` — quality gate before merge
@@ -123,13 +123,14 @@ Agents: `api-documenter`, `security-reviewer`.
 
 ### Web (`web-standards`)
 
-Auto-invoke: `nextjs`.
+Auto-invoke: `nextjs`, `production-readiness`.
 
 Slash commands: `/web-standards:pre-ship`, `/web-standards:premium-check`.
 
-### Safety (`core-hooks`)
+### Safety + Docs-sync (`core-hooks`)
 
-Registers PreToolUse hooks that block edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). No commands — runs on every edit.
+- PreToolUse hooks block edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). No commands — runs on every edit.
+- Auto-invoke `docs-sync` skill catches drift between code and docs at end-of-task moments (version bumps, new skills, "ship / done / release"). Flags deltas; never rewrites prose; never blocks.
 
 ---
 

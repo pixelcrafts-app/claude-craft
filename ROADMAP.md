@@ -4,6 +4,9 @@ Where Claude Craft is headed. Dates are directional — we ship when it's ready.
 
 ## Shipped
 
+- **v0.4.0** — `docs-sync` skill added to `core-hooks`. README overhauled. Pre-ship gates include an end-of-task docs sync step.
+- **v0.3.0** — Smart Detect → Check → Suggest production-readiness audits across all three packs. New `production-readiness` skill in Flutter and Web; expanded `code-quality` in API with 11 operational checks.
+- **v0.2.1** — Verify, don't guess — cross-boundary contract rule added to every pack.
 - **v0.2.0** — First public release. Four plugins: Flutter, API, Web, core-hooks. Repo consolidated to one bundle per stack.
 - **v0.1.1** — Review agents load their pack's standards on invocation.
 - **v0.1.0** — Internal release. Three stack packs + core-hooks, multi-tool export.
@@ -12,10 +15,10 @@ Where Claude Craft is headed. Dates are directional — we ship when it's ready.
 
 | Pack | Covers | Install |
 |---|---|---|
-| **flutter-standards** | Widgets, state, lists, forms, a11y, perf, observability | `flutter-standards@pixelcrafts` |
-| **api-standards** | NestJS + Prisma — schema workflow, controller/service/repo split, validation, error shapes | `api-standards@pixelcrafts` |
-| **web-standards** | Next.js + Tailwind + shadcn — app router, state, data fetching, responsive, dark mode, a11y | `web-standards@pixelcrafts` |
-| **core-hooks** | Cross-stack safety — block secret edits, dangerous shell | `core-hooks@pixelcrafts` |
+| **flutter-standards** | Widgets, state, lists, forms, a11y, perf, observability, smart production-readiness audit | `flutter-standards@pixelcrafts` |
+| **api-standards** | NestJS + Prisma — schema workflow, controller/service/repo split, validation, error shapes, smart production-readiness audit (rate limits, idempotency, webhooks, graceful shutdown, health, pool, env-logging) | `api-standards@pixelcrafts` |
+| **web-standards** | Next.js + Tailwind + shadcn — app router, state, data fetching, responsive, dark mode, a11y, smart production-readiness audit (CSP, Suspense, OG, consent, Web Vitals) | `web-standards@pixelcrafts` |
+| **core-hooks** | Cross-stack safety (block secret edits, dangerous shell) + `docs-sync` skill (catches code-vs-docs drift at end-of-task) | `core-hooks@pixelcrafts` |
 
 ## Next up
 

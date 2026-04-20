@@ -91,6 +91,7 @@ Before duplicating universal content (DRY, testing pyramid, observability, secur
 - [ ] Version bumped (plugin.json + marketplace.json)
 - [ ] Changelog entry added
 - [ ] `docs/skills.md` updated if behavior changed
+- [ ] README / ROADMAP reflect any user-facing change (run `core-hooks:docs-sync` if unsure)
 - [ ] No project-specific names leaked into content
 - [ ] Slash command (if new) works end-to-end in a test project
 

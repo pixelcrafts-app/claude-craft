@@ -42,7 +42,19 @@ For every API call, env var, third-party SDK, or DB query touched in this task:
 - [ ] Field names, types, and response shapes were verified against the source of truth (controller/DTO, schema, typings, `.env.example`) — not guessed
 - [ ] Any assumption that couldn't be verified is surfaced to the user in the final response, not silently coded
 
-## Step 6: Checklist
+## Step 6: Docs sync (only if this completes a feature or release — not mid-work)
+
+If this change completes a feature, a release, or adds/removes a capability users will notice, invoke `core-hooks:docs-sync` to catch drift between the code and the docs:
+
+- README reflects the current plugin count, version, and install snippet
+- CHANGELOG has an entry for the new version
+- ROADMAP moves shipped items out of "Next up"
+- `docs/skills.md` lists every skill that actually exists
+- Plugin and skill descriptions match the work they now do
+
+Skip for single-file fixes or internal refactors with no user-facing surface change.
+
+## Step 7: Checklist
 Answer each honestly:
 - [ ] I verified the UI renders REAL content, not placeholders
 - [ ] I ran `flutter analyze` — zero errors, zero warnings

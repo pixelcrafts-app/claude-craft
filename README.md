@@ -1,20 +1,43 @@
+<div align="center">
+
 # Claude Craft
 
-Software standards that live inside Claude Code. You install a plugin, Claude starts applying the standards. No `CLAUDE.md` edits, no onboarding doc, no drift between projects.
+**Standards your AI actually follows.**
 
-Three packs ship today:
+Install a plugin → Claude starts writing code the way your team wants it, on every file, in every project.
+No `CLAUDE.md` edits. No onboarding wiki. No drift.
 
-| Pack | Stack | What you get |
-|---|---|---|
-| **flutter-standards** | Flutter + Dart | 9 auto-invoke standards · 8 audit/scaffold skills · 3 review agents |
-| **api-standards** | NestJS + Prisma | 2 auto-invoke standards · sync-migrate workflow · 2 review agents |
-| **web-standards** | Next.js + Tailwind + shadcn | 1 auto-invoke standard · pre-ship + premium-check audits |
+[Quickstart](docs/quickstart.md) · [See it in action](docs/before-after.md) · [Skills](docs/skills.md) · [Roadmap](ROADMAP.md)
 
-Plus **`core-hooks`** — cross-stack safety that blocks edits to `.env`/secrets and dangerous shell commands (`rm -rf`, `git reset --hard`).
+![version](https://img.shields.io/badge/version-0.4.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
+
+</div>
 
 ---
 
-## Install in 30 seconds
+## ⚡ What is this?
+
+A **plugin marketplace for Claude Code** packed with production-grade standards for three stacks:
+
+- 📱 **Flutter** — Dart, widgets, state, design-system discipline, accessibility, performance
+- 🔌 **API** — NestJS + Prisma, controllers / services / repositories, security, operational readiness
+- 🌐 **Web** — Next.js + Tailwind + shadcn, Server Components, React Query, CSP, Core Web Vitals
+
+Claude reads the right rules automatically when it sees matching files. No manual invocation.
+
+```
+You open my-app/ in Claude Code
+   │
+   ├─ editing a .dart file  →  Flutter pack fires: craft, widget, a11y, perf...
+   ├─ editing a .ts file    →  API pack fires: nestjs, code-quality...
+   └─ editing a .tsx file   →  Web pack fires: nextjs, production-readiness...
+```
+
+The same standards export to **Cursor**, **Antigravity**, **Codex**, and **Aider** — one repo, every AI tool.
+
+---
+
+## 🚀 Install in 30 seconds
 
 Drop this into `.claude/settings.json` in your project:
 
@@ -32,9 +55,10 @@ Drop this into `.claude/settings.json` in your project:
 }
 ```
 
-Swap `flutter-standards` for `api-standards` or `web-standards` depending on the project. Commit it. Every teammate who opens the project in Claude Code auto-installs on first session.
+Swap `flutter-standards` for `api-standards` or `web-standards`. Commit the file. Every teammate who opens the repo in Claude Code auto-installs on first session — zero shell commands.
 
-Prefer slash commands? Run once:
+<details>
+<summary><strong>Prefer slash commands? One-off install</strong></summary>
 
 ```
 /plugin marketplace add pixelcrafts-app/claude-craft
@@ -43,39 +67,123 @@ Prefer slash commands? Run once:
 ```
 
 Update later with `/plugin marketplace update pixelcrafts`.
+</details>
 
 ---
 
-## How it works
+## 📦 The packs
 
-**Auto-invoke standards.** Skills inside each pack carry descriptions like "apply to NestJS + Prisma code". Claude matches them against what it's editing and loads the relevant standards automatically. Edit a `.dart` widget → craft, engineering, widget, and a11y rules kick in. Edit a NestJS controller → nestjs + code-quality kick in. You don't import, enable, or remember anything.
+<table>
+<tr>
+<td width="33%">
 
-**Explicit skills via slash commands.** For audits and scaffolds you trigger on demand:
+### 📱 `flutter-standards`
+
+Flutter + Dart.
+
+10 auto-invoke standards, 8 audit + scaffold skills, 3 review agents.
+
+**Killer feature:** `/flutter-standards:scaffold-feature` — full vertical slice (model, mapper, repository, data sources, providers, screen with 4 states, tests) in under a minute.
+
+</td>
+<td width="33%">
+
+### 🔌 `api-standards`
+
+NestJS + Prisma.
+
+2 auto-invoke standards + 11-check smart production audit, sync-migrate workflow, 2 review agents.
+
+**Killer feature:** `code-quality` runs Detect → Check → Suggest on rate limits, idempotency, webhooks, pool sizing — never blindly enforces.
+
+</td>
+<td width="33%">
+
+### 🌐 `web-standards`
+
+Next.js + Tailwind + shadcn.
+
+2 auto-invoke standards + 10-check smart production audit, pre-ship + premium-check.
+
+**Killer feature:** production-readiness catches CSP holes, missing Suspense, CLS-killer images **before** you deploy — not after Lighthouse complains.
+
+</td>
+</tr>
+</table>
+
+Plus **`core-hooks`** — cross-stack safety: blocks edits to `.env` / secrets, blocks `rm -rf`, blocks `git reset --hard`, plus an end-of-task **`docs-sync`** skill that catches drift between code and README / CHANGELOG / docs at release moments.
+
+---
+
+## 🧠 How it works
+
+**Auto-invoke standards.** Each skill carries a description like *"apply to NestJS + Prisma code — thin controllers, DTO validation, repository pattern..."*. Claude matches skill descriptions against what it's editing and loads the relevant ones automatically.
+
+- Edit a `.dart` widget → craft, engineering, widgets, a11y, performance kick in
+- Edit a NestJS controller → nestjs + code-quality (now with 11-check production audit) kick in
+- Edit a Next.js route → nextjs + production-readiness kick in
+
+You don't import, enable, or remember anything. [See the catalog →](docs/skills.md)
+
+**Smart, not rigid.** Contextual concerns (rate limiting, retries, CSP, offline sync, deep links) follow **Detect → Check → Suggest**:
 
 ```
-/flutter-standards:pre-ship           Full quality gate before merging
-/flutter-standards:scaffold-feature   Generate a feature with 4 states + data layer wired
+  Detect  →  Does the codebase already handle this?        (grep + read)
+  Check   →  If yes, is it done well?                      (depth audit)
+  Suggest →  If no, propose options with tradeoffs         (user decides)
+```
+
+The skill never rewrites your app to add a rate limiter. It tells you the gap, shows you the options, and you pick.
+
+**Explicit skills via slash commands** — for audits and scaffolds you trigger on demand:
+
+```
+/flutter-standards:pre-ship           Full quality gate before merge
+/flutter-standards:scaffold-feature   Vertical slice in under a minute
 /flutter-standards:find-hardcoded     Scan lib/ for design-system violations
-/api-standards:sync-migrate           Prisma schema change workflow + downstream consumer reminders
+/api-standards:sync-migrate           Prisma schema workflow + downstream sync
 /web-standards:premium-check          Craft review of a single component
 ```
-
-Full list: [docs/skills.md](docs/skills.md).
 
 **Review agents.** Invoke on a branch:
 
 ```
-use agent api-standards:security-reviewer to audit auth changes on this branch
+use agent api-standards:security-reviewer to audit auth on this branch
 use agent flutter-standards:flutter-reviewer to review src/features/checkout/
 ```
 
-Agents load their pack's standards before reviewing, so the review applies the full standard — not a generic checklist.
+Agents load their pack's standards before reviewing — the review applies the real standard, not a generic checklist.
 
 ---
 
-## Use with Cursor, Antigravity, Codex, Aider
+## 🎬 See it in action
 
-One script exports the same standards to every AI tool's native format:
+A full before/after gallery with real snippets from each pack lives at [docs/before-after.md](docs/before-after.md).
+
+A taste — the smart API audit:
+
+```
+Claude, is this API ready for production?
+
+  Detect → Check → Suggest — Rate limiting (J1)
+    Status: NOT DETECTED
+    Risk:   /users/search is unauthenticated and DB-backed. Scraper
+            abuse will pin a DB connection per request.
+    Options:
+      (a) @nestjs/throttler — per-route decorators, in-process
+      (b) Redis-backed limiter — shared across instances
+      (c) Handle upstream at the gateway (Cloudflare / Fly)
+    Recommendation: (a) for single-instance, (b) for HA.
+                    Will not install without your approval.
+```
+
+That's the pattern. **Detect the gap. Audit depth if present. Suggest with tradeoffs. Let you decide.** No app-rewriting behind your back.
+
+---
+
+## 🎨 Use with Cursor, Antigravity, Codex, Aider
+
+One script exports the same standards to every tool's native format:
 
 ```bash
 git clone https://github.com/pixelcrafts-app/claude-craft
@@ -83,62 +191,85 @@ git clone https://github.com/pixelcrafts-app/claude-craft
 ```
 
 Generates:
-- `.cursor/rules/*.mdc` — Cursor Rules v2, globbed to the right files
+
+- `.cursor/rules/*.mdc` — Cursor Rules v2, scoped globs per skill
 - `AGENTS.md` — concatenated standards for Antigravity / Codex / Aider / OpenAI SWE
 
-Packs: `flutter`, `api`, `web`. Regenerate anytime to pull the latest.
+Packs: `flutter`, `api`, `web`. Regenerate anytime to pull latest.
 
 ---
 
-## Why this exists
+## 👤 Who this is for
 
-Teams shipping multiple apps in the same stack hit the same problem: every project grows its own "shared" rules, and every copy drifts. A year later you have four answers to "what's the padding on a card?" — one per project, none authoritative.
+- **Solo devs / vibe coders** — you want Claude to stop writing inconsistent code across projects. Install a pack. Done.
+- **Small teams** — you want shared standards that actually get followed, not a wiki page nobody reads. Commit `.claude/settings.json`. Everyone gets the same rules on day one.
+- **Larger orgs** — you want to fork, customise, and point your team's config at your own marketplace. The repo structure is the template.
 
-Copy-paste between projects drifts. Git submodules rot. Notion docs decay. The durable fix is to put the standards in a **plugin marketplace** — install once, update with one command, and the rules your AI collaborator follows are the rules you actually wrote.
-
-Longer argument in [docs/why.md](docs/why.md). Philosophy in [docs/craft.md](docs/craft.md).
+Don't need a pack for your stack yet? Fork the repo — each plugin is a self-contained folder. Pattern is easy to extend.
 
 ---
 
-## Docs
+## 🤔 Why this exists
 
-| Audience | Start here |
+Teams shipping multiple apps in the same stack hit the same problem: every project grows its own "shared" rules, every copy drifts. A year later you have four answers to "what padding goes on a card?" — one per project, none authoritative.
+
+Copy-paste drifts. Git submodules rot. Notion docs decay. The durable fix is to put the standards in a **plugin marketplace** — install once, update with one command, and the rules your AI collaborator follows are the rules you actually wrote.
+
+Longer argument: [docs/why.md](docs/why.md). Philosophy: [docs/craft.md](docs/craft.md).
+
+---
+
+## 📚 Docs
+
+| You want to... | Read |
 |---|---|
-| Adopting for your team | [docs/why.md](docs/why.md) → [docs/craft.md](docs/craft.md) |
-| Setting up in a project | [docs/quickstart.md](docs/quickstart.md) |
-| Browsing what each skill does | [docs/skills.md](docs/skills.md) |
-| Contributing | [docs/contributing.md](docs/contributing.md) |
-| What's next | [ROADMAP.md](ROADMAP.md) |
+| Install it in a project | [docs/quickstart.md](docs/quickstart.md) |
+| See before / after examples | [docs/before-after.md](docs/before-after.md) |
+| Browse every skill | [docs/skills.md](docs/skills.md) |
+| Understand the philosophy | [docs/craft.md](docs/craft.md) |
+| Understand why it exists | [docs/why.md](docs/why.md) |
+| Contribute a pack or rule | [docs/contributing.md](docs/contributing.md) |
+| See what's next | [ROADMAP.md](ROADMAP.md) |
+| See release history | [docs/changelog.md](docs/changelog.md) |
+| Report a security issue | [SECURITY.md](SECURITY.md) |
 
 ---
 
-## Project layout
+## 🗂️ Project layout
 
 ```
 claude-craft/
-├── .claude-plugin/marketplace.json      4 plugins
-├── flutter/skills/flutter-standards/    Flutter pack
-├── api/skills/api-standards/            NestJS + Prisma pack
-├── web/skills/web-standards/            Next.js pack
-├── core/plugins/core-hooks/             Cross-stack safety hooks
+├── .claude-plugin/marketplace.json      4 plugins registered
+├── flutter/skills/flutter-standards/    Flutter pack — 10 standards + 8 skills + 3 agents
+├── api/skills/api-standards/            NestJS + Prisma pack — 2 standards + sync-migrate + 2 agents
+├── web/skills/web-standards/            Next.js pack — 2 standards + pre-ship + premium-check
+├── core/plugins/core-hooks/             Cross-stack safety + docs-sync
 ├── scripts/export.sh                    Cursor + AGENTS.md export
-├── docs/                                Guides, philosophy, changelog
-├── ROADMAP.md
-└── README.md
+├── docs/                                Guides, philosophy, before/after, changelog
+├── ROADMAP.md                           What's shipping next
+└── SECURITY.md                          Vulnerability reporting
 ```
 
 ---
 
-## Status
+## 🛣️ Status
 
-**v0.2.0** — packs consolidated, standalone per-skill plugins removed. One bundle per stack is now the only shape; every skill is still accessible via slash commands (`/flutter-standards:pre-ship`, etc.).
+**v0.4.0** — Smart Detect → Check → Suggest audits for production readiness across all three packs, plus a new `docs-sync` skill that catches README / CHANGELOG / ROADMAP drift at release time.
 
-See [docs/changelog.md](docs/changelog.md) for the release history.
+Prior releases: [docs/changelog.md](docs/changelog.md). What's next: [ROADMAP.md](ROADMAP.md).
 
-## Contributing
+## 🤝 Contributing
 
-PRs welcome. See [docs/contributing.md](docs/contributing.md).
+PRs welcome — from typo fixes to new packs. See [docs/contributing.md](docs/contributing.md).
 
-## License
+## 📝 License
 
 MIT — [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+Built by [pixelcrafts](https://github.com/pixelcrafts-app) · Keep your standards in one place · Let Claude do the rest.
+
+</div>

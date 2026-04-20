@@ -92,16 +92,26 @@ Install: `/plugin install web-standards@pixelcrafts`.
 
 ---
 
-## Safety pack (`core-hooks`) — cross-stack
+## Safety + Docs-sync pack (`core-hooks`) — cross-stack
 
 Install: `/plugin install core-hooks@pixelcrafts`.
 
-Registers `PreToolUse` hooks that run on every Edit / Write / Bash:
+### PreToolUse hooks
+
+Run on every Edit / Write / Bash:
 
 - `protect-files.sh` — blocks edits to `.env`, `*.key`, `*.pem`, `credentials.json`, and similar secret files
 - `protect-bash.sh` — blocks `rm -rf /`, `git reset --hard`, force-push to protected branches, and similar destructive commands
 
-No slash command. Runs automatically. Install it alongside any pack.
+No slash command. Runs automatically.
+
+### 1 auto-invoke skill
+
+| Skill | Fires on | Does |
+|---|---|---|
+| docs-sync | End-of-task signals (version bump, plugin added/removed, "ship / done / release", pre-ship runs, `v*.*.*` commit) | Cross-checks code vs README / CHANGELOG / ROADMAP / `docs/skills.md` / plugin descriptions. Flags deltas. Never rewrites prose. Never blocks. |
+
+Install alongside any pack — the hooks apply regardless of stack, and `docs-sync` runs on any repo whether it's one of ours or not.
 
 ---
 

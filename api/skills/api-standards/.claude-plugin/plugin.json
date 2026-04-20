@@ -1,6 +1,6 @@
 {
   "name": "api-standards",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "API pack — NestJS + Prisma. Auto-invoke nestjs + code-quality standards, sync-migrate workflow, api-documenter + security-reviewer agents.",
   "author": {
     "name": "pixelcrafts",

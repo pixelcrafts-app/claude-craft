@@ -1,6 +1,6 @@
 {
   "name": "web-standards",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs standards + smart production-readiness audit + pre-ship + premium-check audit skills.",
   "author": {
     "name": "pixelcrafts",
