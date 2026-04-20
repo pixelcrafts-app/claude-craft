@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js). Install a pack, Claude applies the standards. No CLAUDE.md edits.",
-    "version": "0.2.1"
+    "version": "0.3.0"
   },
   "plugins": [
     {
@@ -20,8 +20,8 @@
     {
       "name": "api-standards",
       "source": "./api/skills/api-standards",
-      "description": "API pack — NestJS + Prisma. 2 auto-invoke standards (nestjs, code-quality), sync-migrate workflow, api-documenter + security-reviewer agents.",
-      "version": "0.2.1",
+      "description": "API pack — NestJS + Prisma. 2 auto-invoke standards (nestjs, code-quality with smart Detect→Check→Suggest audits for rate limiting, idempotency, retries, webhooks, graceful shutdown, health, correlation IDs, soft delete, audit logs, DB pool), sync-migrate workflow, api-documenter + security-reviewer agents.",
+      "version": "0.3.0",
       "category": "backend-api",
       "tags": ["api", "nestjs", "prisma", "standards"]
     },

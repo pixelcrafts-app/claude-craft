@@ -4,6 +4,29 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.3.0] — 2026-04-20
+
+### Added — API pack
+
+- **Smart production-readiness audit — Detect → Check → Suggest.** New framework in `api-standards/code-quality`: instead of rigid "you must have X" rules, the skill detects whether a concern is already addressed, audits depth if yes, and suggests with tradeoffs if no. The user decides — the skill never blindly enforces.
+- **10 new production operational concerns** covered by the new framework:
+  - J1. Rate limiting / throttling
+  - J2. Idempotency keys on mutations
+  - J3. Retry + backoff on upstream calls
+  - J4. Webhook signature verification
+  - J5. Graceful shutdown (SIGTERM + drain)
+  - J6. Health + readiness endpoints (liveness vs readiness)
+  - J7. Correlation IDs / request tracing
+  - J8. Soft-delete vs hard-delete policy
+  - J9. Audit logs for sensitive mutations
+  - J10. DB connection pool + query timeouts
+
+### Pending
+
+- Flutter and Web packs — same Detect → Check → Suggest audit to ship in a follow-up release. Binary rules there stay binary; contextual concerns (caching, retries, error boundaries, analytics, deep linking, etc.) will move to the new framework.
+
+---
+
 ## [0.2.1] — 2026-04-20
 
 ### Added
