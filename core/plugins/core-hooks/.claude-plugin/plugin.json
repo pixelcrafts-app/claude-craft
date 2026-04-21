@@ -1,22 +1,45 @@
 {
   "name": "core-hooks",
-  "version": "0.6.0",
-  "description": "Cross-stack safety + docs-sync + subagent-brief + verify-changes — PreToolUse hooks that block edits to secrets and dangerous shell commands, a docs-sync skill that catches drift at end-of-task, a subagent-brief skill that enforces warm-brief discipline on delegation, and a verify-changes skill that runs generic cross-stack verification with dependency graph + batched execution so large changesets get checked without losing context. Pure prompt — no hooks, no MCPs, no indexing. Works on any stack with Read / Grep / Glob / Edit / TaskCreate alone.",
+  "version": "0.10.0",
+  "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics + the optional mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values (token-managed projects), and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. Stop hook blocks turn-end until each mandatory pack's gate command has passed. Pure bash + jq.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"
   },
   "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
-  "keywords": ["hooks", "safety", "secrets", "cross-stack"],
+  "keywords": ["hooks", "safety", "secrets", "cross-stack", "design-tokens", "quality"],
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/rules-discipline.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/enforcement-preamble.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-files.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/enforce-tokens.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/enforce-rules.sh"
           }
         ]
       },
@@ -26,6 +49,16 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-bash.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/stop-gate.sh"
           }
         ]
       }

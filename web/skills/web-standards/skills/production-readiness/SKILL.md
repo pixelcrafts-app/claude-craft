@@ -19,6 +19,23 @@ Skip concerns that don't apply (an internal tool behind SSO doesn't need OG tags
 
 ---
 
+## Rule Index (§R1 – §R10)
+
+Canonical enumeration. Audit skills (e.g. `verify-changes`, `pre-ship`) iterate this list. Each rule has a stable ID; splits use `§R1.a` / `§R1.b` rather than renumbering.
+
+- §R1 Error boundaries scoped per route (`error.tsx` at segment level + `global-error.tsx` + reporting)
+- §R2 Suspense boundaries for streaming (per-route `loading.tsx` + targeted `<Suspense>`)
+- §R3 Optimistic updates + rollback on failure (low-risk only, not money / identity / destructive)
+- §R4 Image optimization (`next/image` universal, explicit dimensions, `sizes`, blur, priority on LCP only, remote allowlist)
+- §R5 Metadata / OG / Twitter cards (per-route, canonical, robots, dynamic OG)
+- §R6 Sitemap + robots.txt (dynamic, auth-gated routes excluded, submitted to search consoles)
+- §R7 CSP + security headers (CSP allowlist, HSTS, nosniff, frame-ancestors, Permissions-Policy)
+- §R8 Analytics consent / cookie handling (GDPR / UK / CA — pre-consent no load, categories, withdraw path)
+- §R9 Core Web Vitals budgets (LCP / INP / CLS targets + real-user + alerts + per-route)
+- §R10 Env-aware logging (env-driven level + structured prod format + redaction at logger + no request-body in prod)
+
+---
+
 ## R1. Error boundaries scoped per route
 
 - **Detect** — `error.tsx` at route and sub-route levels, root `global-error.tsx`, or client-side `<ErrorBoundary>` in feature layouts.

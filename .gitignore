@@ -8,3 +8,7 @@ node_modules/
 .vscode/
 *.swp
 *.swo
+
+# Local test fixtures — not part of the marketplace
+test/
+

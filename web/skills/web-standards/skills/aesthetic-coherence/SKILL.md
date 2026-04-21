@@ -1,6 +1,6 @@
 ---
 name: aesthetic-coherence
-description: Detect aesthetic mixing — a screen committing to two design languages at once (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial) is the #1 "assembled, not designed" tell. This skill identifies the signals of each aesthetic, flags mixed signatures, and recommends a single aesthetic commitment. Use on any surface that feels "off" but passes token and contrast audits.
+description: Detect aesthetic mixing — a screen committing to two design languages at once (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial) is the #1 "assembled, not designed" tell. This skill identifies the signals of each aesthetic, flags mixed signatures, and then hands the per-aesthetic spec walk to the audit engine. Use on any surface that feels "off" but passes token and contrast audits.
 disable-model-invocation: true
 argument-hint: [component-file-path | page-path | "app"]
 ---
@@ -9,20 +9,24 @@ argument-hint: [component-file-path | page-path | "app"]
 
 An app with perfect tokens, perfect contrast, perfect motion — and two aesthetics fighting — still reads as amateur. This skill catches that.
 
+Unlike the other web audit commands, this one is **not** a pure thin wrapper: aesthetic *detection* (classify the signature) has no rule-by-rule equivalent — it's a signal-scoring pass. After detection, aesthetic *compliance* (does this committed aesthetic meet the spec in `craft-guide §9.x`?) is a standard rule walk — that part delegates to `core-skills:verify-changes`.
+
+So: this command runs detection itself, then hands spec-checking to the engine.
+
 ---
 
 ## Step 0 — Load inputs
 
-1. Read `$ARGUMENTS` (file, page, or whole app)
-2. If whole app, enumerate public routes under `app/` (App Router) or `pages/` (Pages Router)
-3. Read `design-tokens.md` if present — check for a declared aesthetic
-4. Load `craft-guide` §9 (Aesthetic Coherence) as the authoritative list
+1. Read `$ARGUMENTS` (file, page, or whole app).
+2. If whole app, enumerate public routes under `app/` (App Router) or `pages/` (Pages Router).
+3. Read `design-tokens.md` if present — check for a declared aesthetic.
+4. Load `craft-guide` (the §9 Rule Index is the canonical aesthetic list).
 
 ---
 
 ## Step 1 — Detect aesthetic signals per file
 
-Every aesthetic has a fingerprint — a combination of CSS patterns, component shapes, and motion/color choices. For each file, score presence of each aesthetic:
+Every aesthetic has a fingerprint — a combination of CSS patterns, component shapes, and motion / color choices. For each file, score presence of each aesthetic. The goal is **classification**, not compliance.
 
 ### Minimalist — signals
 - `backdrop-filter` usage = 0
@@ -100,7 +104,7 @@ Every aesthetic has a fingerprint — a combination of CSS patterns, component s
 - Hero-image or video-forward compositions
 
 ### AI-native — signals
-- Animated mesh gradients (CSS `@property` + animated gradient stops, or Canvas/WebGL)
+- Animated mesh gradients (CSS `@property` + animated gradient stops, or Canvas / WebGL)
 - 3D orb elements
 - Soft particle motion
 - Dark with bright accent bloom
@@ -116,7 +120,7 @@ Every aesthetic has a fingerprint — a combination of CSS patterns, component s
 
 Per file, pick top 2 aesthetic scores. If the gap between #1 and #2 is **large**, the file commits — healthy.
 
-If the gap is **small** (≤ 30% difference), the file is **mixed** — a FAIL.
+If the gap is **small** (≤ 30% difference), the file is **mixed** — a FAIL against `craft-guide §9.1` (single aesthetic committed).
 
 Output:
 
@@ -131,7 +135,7 @@ File: <path>
     - <aesthetic B>: <signal found at file:line>
 ```
 
-`UNCLEAR` means no aesthetic signals strong enough to classify — often the file is plain-enough that any aesthetic could drop in. Not necessarily a FAIL.
+`UNCLEAR` = no aesthetic signals strong enough to classify — often the file is plain-enough that any aesthetic could drop in. Not necessarily a FAIL.
 
 ---
 
@@ -147,117 +151,80 @@ Mixed files:
   - <file> with gap <Z%>
 ```
 
-Cross-file mixing is worse than in-file mixing. A modal in glassmorphism inside a brutalist app reads broken.
+Cross-file mixing is worse than in-file mixing. A modal in glassmorphism inside a brutalist app reads broken — still a FAIL against `craft-guide §9.1`.
 
 ---
 
-## Step 4 — Check per-aesthetic specs (from craft-guide §9)
+## Step 4 — Delegate spec compliance to the engine
 
-For the **declared** or **detected** app-level aesthetic, iterate the sub-spec list and output PASS / FAIL per rule:
+Once the dominant aesthetic is classified (Step 2 per file, Step 3 cross-file), hand spec compliance to the engine. The rule index at the top of `craft-guide` numbers every §9.x rule, and the per-aesthetic specs live in §9 prose — the engine reads both.
 
-### If Minimalist
-- [ ] ≤ 2 brand colors + neutrals
-- [ ] Whitespace ≥ 40%
-- [ ] ≤ 3 type weights app-wide
-- [ ] No ornamental elements
-- [ ] ≤ 1 signature detail per screen
+```
+verify-changes brief:
+  scope: <files classified COMMITTED or MIXED from Steps 1–3>
+  dimensions: [craft-guide §9]
+  depth: direct
+  fix: no
+  source: web-standards:aesthetic-coherence
+  context:
+    aesthetic: <dominant detected or user-confirmed>
+```
 
-### If Glassmorphism
-- [ ] `backdrop-blur` 8–24px
-- [ ] Background opacity 0.1–0.3
-- [ ] Subtle border 0.05–0.15 alpha
-- [ ] Text legibility — solid layer behind OR opacity ≥ 0.5
-- [ ] `prefers-reduced-transparency` fallback
-- [ ] ≤ 3 blur elevation tiers
+The engine walks §9.1 (single aesthetic), §9.2 (per-aesthetic specs for the declared aesthetic), §9.3 / §9.4 (glass-specific legibility and reduced-transparency), and §9.5 (per-aesthetic numeric specs) rule-by-rule and reports PASS / FAIL / N_A against the committed aesthetic.
 
-### If Neumorphism
-- [ ] Dual shadow on interactive elements only
-- [ ] Never on text
-- [ ] Contrast audit pass (primary failure mode)
-
-### If Bento
-- [ ] Radius 16–24px
-- [ ] ≤ 4 tile-size classes
-- [ ] Per-tile hover interaction
-- [ ] Consistent internal padding
-
-### If Editorial
-- [ ] Type ratio ≥ 1.5
-- [ ] Body measure 55–70ch
-- [ ] Serif + sans or two contrasting sans
-
-### If Brutalist
-- [ ] Pure black/white OR near-black/white allowed
-- [ ] System / mono fonts
-- [ ] Radius = 0
-- [ ] Shadow = 0
-- [ ] Deliberate asymmetry
-
-### If Utility-brutalist
-- [ ] Monochromatic + single accent
-- [ ] Monospace for metadata
-- [ ] Dense tables with horizontal rules
-- [ ] Minimal motion
-- [ ] Dark-first
-
-### If Liquid Glass
-- [ ] `backdrop-filter` present
-- [ ] Specular highlight motion
-- [ ] Spring motion throughout
-
-### If AI-native
-- [ ] Mesh gradient present
-- [ ] Content surface still readable over gradient (contrast check)
-- [ ] Over-decoration guard (≤ 2 decorative layers per surface)
+**Critical:** aesthetic choice is user taste — don't invoke the engine with an undetermined aesthetic. If Step 2 leaves the app UNCLEAR or classifications conflict, surface the ambiguity to the user and ask before delegating. Running §9 compliance against a guessed aesthetic is noise.
 
 ---
 
 ## Step 5 — Aggregate
 
+After detection (Steps 1–3) and compliance (Step 4), produce one combined report:
+
 ```
 Aesthetic audit — <scope>
 
-Detected app aesthetic: <X> (from <count> committed files)
-Declared (if any): <Y — from design-tokens.md>
-Match: YES | NO — if NO, which wins? (ask user)
+DETECTION (Steps 1–3)
+  App aesthetic (detected): <X> (from <count> committed files)
+  Declared (if any): <Y — from design-tokens.md>
+  Match: YES | NO — if NO, which wins? (ask user)
 
-Mixed files: <count>
-  [list with signal breakdown]
+  Mixed files (§9.1 FAIL): <count>
+    [list with signal breakdown]
 
-Outlier files: <count>
-  [list of files committed to off-brand aesthetic]
+  Outlier files: <count>
+    [list of files committed to off-brand aesthetic]
 
-Per-aesthetic spec: X PASS / Y FAIL
-  [list of failing specs with file:line]
+COMPLIANCE (from verify-changes §9 walk)
+  [engine's per-rule PASS / FAIL / N_A output]
 
 Verdict:
-  - 0 mixed + 0 outliers + 0 spec FAIL → COHERENT
+  - 0 mixed + 0 outliers + 0 §9 FAIL → COHERENT
   - any mixed or outliers → FRAGMENTED
-  - only spec FAILs → COMMITTED-BUT-UNFINISHED
+  - only §9 FAILs → COMMITTED-BUT-UNFINISHED
 ```
 
 ---
 
-## Step 6 — Fix loop (if `--fix`)
+## Step 6 — Fix loop (never automatic)
 
 Aesthetic fixes are **high-blast-radius** — converting a screen from glassmorphism to minimalist touches most elements. This skill proposes; user approves; only then writes.
 
-1. For each mixed file, propose which aesthetic to keep (strongest signal wins by default; user overrides)
-2. List the exact removals / changes per file
-3. Wait for user confirmation per file
-4. Apply only confirmed changes
-5. Re-run Step 1 — confirm no new mixing introduced
+1. For each mixed file, propose which aesthetic to keep (strongest signal wins by default; user overrides).
+2. List the exact removals / changes per file.
+3. Wait for user confirmation per file.
+4. Apply only confirmed changes.
+5. Re-run Steps 1–3 — confirm no new mixing introduced.
 
-**Do not** rewrite components the user didn't confirm. Aesthetic is a taste call; this skill flags, user decides.
+Do **not** invoke the engine with `fix: yes` for this command. Aesthetic is a taste call; rule-driven auto-fix is the wrong loop for this shape of decision.
 
 ---
 
 ## Scope boundaries
 
-- Does **not** pick an aesthetic for the user
-- Does **not** rewrite files without per-file confirmation
-- Does **not** block a deliberately-chosen "signature mix" if the user documents it (e.g. "editorial body + bento hero is intentional for this landing page")
-- Does **not** impose the taste of any one aesthetic (no "minimalist is better than bento")
+- Does **not** pick an aesthetic for the user.
+- Does **not** rewrite files without per-file confirmation.
+- Does **not** block a deliberately-chosen "signature mix" if the user documents it (e.g. "editorial body + bento hero is intentional for this landing page" noted in `CLAUDE.md`).
+- Does **not** impose the taste of any one aesthetic ("minimalist is better than bento" is not a claim this skill makes).
 
 Aesthetics are equal. Coherence within a chosen one is the standard.
 
@@ -268,5 +235,5 @@ Aesthetics are equal. Coherence within a chosen one is the standard.
 - **Signal detection is heuristic** — a single `backdrop-filter` doesn't prove glassmorphism. Low-signal files return `UNCLEAR`, not a forced classification.
 - **Aesthetic labels drift** — "AI-native" in 2026 will likely rename by 2028. The signals outlive the labels.
 - **Cross-file signal requires reading many files** — expensive on large apps. Scope to `components/ui` or a feature folder for faster runs.
-- **Spec-list is opinionated but not exhaustive** — each aesthetic has deeper communities of practice; this audit catches the 80% giveaways, not every nuance.
+- **The §9 spec list is opinionated but not exhaustive** — each aesthetic has deeper communities of practice; this audit catches the 80% giveaways, not every nuance.
 - **Fix loop is manual-confirmation** — unlike token or contrast fixes, aesthetic rewrites need designer judgment. This skill will not auto-rewrite.

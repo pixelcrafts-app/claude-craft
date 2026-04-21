@@ -4,6 +4,128 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.10.0] — 2026-04-22
+
+Enforcement mode. Auto-invoke skills are advisory — Claude decides when to load them. Teams who want hard guarantees (rules that cannot be quietly skipped, gates that cannot be bypassed) now opt in by committing one file. Existing installs are unaffected; enforcement is strictly additive.
+
+### Added — opt-in enforcement mode
+
+**Project config — `.claude/enforcement.json`** (new file; commit it):
+
+```json
+{
+  "mandatory": ["flutter-standards"],
+  "disabled_rules": ["flutter.perf.listview-unbounded"],
+  "gate_required": true
+}
+```
+
+Three knobs — flat JSON, no DSL:
+
+- `mandatory` — packs to enforce (reads each pack's default from `core-hooks/enforcement/<pack>.json`)
+- `disabled_rules` — rule IDs to skip (for project-specific exceptions)
+- `gate_required` — set `false` for advisory-only (PreToolUse still blocks, Stop hook becomes a nudge)
+
+**New hooks — `core-hooks`**
+
+- `enforcement-preamble.sh` (SessionStart, startup + compact matcher) — when the project has opted in, injects a pinned preamble listing each mandatory pack's required skills, deterministic rule IDs, and gate command. Re-injects after context compaction.
+- `enforce-rules.sh` (PreToolUse, Edit|Write|MultiEdit) — reads each mandatory pack's rule registry, runs every rule's regex against tool content, exit 2 with message on any violation. Also marks `<pack>.touched` in the session ledger so the Stop hook can enforce the gate.
+- `stop-gate.sh` (Stop) — if any mandatory pack is `touched` but not `gate_passed`, exit 2 with a message telling Claude to run the pack's gate command. Stop hook exit 2 keeps the turn open; Claude cannot say "done" until the ledger flips.
+- `session-ledger.sh` — shared helper. Session-scoped flags under `/tmp/claude-craft-session-$CLAUDE_SESSION_ID/<pack>.<flag>`. CLI mode: `mark-pass`, `mark-touched`, `has-touched`.
+
+**Default rule registries — one JSON file per pack**
+
+- `core-hooks/enforcement/flutter-standards.json` — mandatory skills: craft-guide, widget-rules, accessibility, performance. Gate: `/flutter-standards:pre-ship`. Rules: IconButton without a11y label, `print()` in `lib/**`, un-virtualized ListView.
+- `core-hooks/enforcement/web-standards.json` — mandatory skills: nextjs, craft-guide, production-readiness. Gate: `/web-standards:pre-ship`. Rules: raw `<img>` without alt, `console.log` in source, `dangerouslySetInnerHTML`.
+- `core-hooks/enforcement/api-standards.json` — mandatory skills: nestjs, code-quality. No gate (audit-only pack). Rules: empty `catch { }`, `console.log` in `src/**`, Prisma `$queryRawUnsafe` / `$executeRawUnsafe`.
+
+Rule count is deliberately small at v0.10.0 — rules must be deterministic (regex-level) to avoid false positives. Craft / aesthetic / architecture concerns stay in standards skills and get enforced at the gate stage via the engine.
+
+**Gate commands write the ledger**
+
+`pre-ship` SKILL.md (Flutter + Web) instructs Claude to run `session-ledger.sh mark-pass <pack>` on SAFE TO COMMIT. On FAIL, the ledger is not touched — Stop hook stays firm.
+
+### Design rationale — generic runner, declarative config
+
+Before v0.10.0, enforcement was limited to the hardcoded token/secret blocks in `enforce-tokens.sh` + `protect-files.sh` + `protect-bash.sh`. Adding a new rule meant editing bash. v0.10.0 inverts that:
+
+- Core-hooks ships a **generic rule runner** — `enforce-rules.sh` reads JSON, runs regex, blocks.
+- Each pack ships a **declarative rule registry** — `enforcement/<pack>.json`.
+- Adding a rule = one JSON entry. No bash changes in `core-hooks`.
+- Adding a new pack's enforcement = one JSON file. Core-hooks discovers it via the `mandatory` array.
+
+This matches the claude-craft pattern: generic infrastructure in `core-*`, per-pack content owned by the pack.
+
+### Limitations — honest, not hidden
+
+- **Hooks don't fire inside subagents.** Work delegated via `Agent` / `Task` bypasses enforcement. Mitigation: `subagent-brief` should carry the pack's contract; brief the delegate explicitly.
+- **PostToolUse cannot undo writes.** The block happens at PreToolUse or not at all. Rules that need post-write validation (lint errors, type errors) belong in the gate, not the rule registry.
+- **Rule authoring is regex-only.** AST-level checks (unused variables, control-flow analysis) are not supported in v0.10.0 — use existing tooling (`flutter analyze`, `npm run lint`, `prisma validate`) via the gate's pre-flight step.
+- **Claude can ignore preambles.** SessionStart `additionalContext` is text, not enforcement. The hard guarantees come from PreToolUse (blocks) and Stop (gate). Preambles tell Claude *what* to do; blocks + gates enforce *that* it did.
+
+### Infrastructure
+
+- `core-hooks` bumped to `0.10.0`.
+- Marketplace metadata version bumped to `0.10.0`.
+- Other plugins unchanged (`flutter-standards` `0.9.0`, `web-standards` `0.9.0`, `core-skills` `0.9.0`, `api-standards` `0.5.0`).
+- New doc: `docs/enforcement.md` — global + project setup, rule authoring, rollout pattern.
+- `README.md`, `docs/quickstart.md`, `docs/skills.md`, `docs/contributing.md`, `ROADMAP.md` updated.
+
+---
+
+## [0.9.0] — 2026-04-21
+
+Thin-wrapper architecture. Audit commands become ≤50-line scope + dimension pickers; iteration, batching, and the fix loop live once in the engine. Rules stay in standards skills. Hooks stay deterministic. Three owners, one architecture.
+
+### Changed — isolated ownership
+
+Every audit slash command now parses `$ARGUMENTS`, optionally runs a stack-specific pre-flight (`npm run lint`, `flutter analyze`), emits a structured brief to `core-skills:verify-changes`, and stops. The engine owns the dependency walk, the batched rule-by-rule iteration, the PASS / FAIL / N_A accounting, the 3-retry oscillation detection, and the optional fix loop. One iteration implementation instead of seven drifting copies.
+
+**Web pack (`web-standards`)** — thin-wrapped:
+- `/web-standards:pre-ship` — dimensions: every web-standards skill. Depth: direct+consumers. Pre-flight: `npm run lint`.
+- `/web-standards:premium-check` — dimensions: `craft-guide §1 – §15`. Depth: direct. Asks aesthetic + density if ambiguous before delegating.
+- `/web-standards:theme-audit` — dimensions: `craft-guide §13 + §1.5 + §11.3 + §11.5 + §12.7–§12.9`. Pre-flight: halts if `design-tokens.md` missing, suggesting `extract-tokens` first.
+- `/web-standards:aesthetic-coherence` — hybrid. Keeps its own signal-detection + classification pass (Steps 1–3, no engine equivalent), then delegates `craft-guide §9` compliance to the engine. Fix loop stays manual-confirmation — aesthetic is a taste call, not rule-driven.
+
+**Flutter pack (`flutter-standards`)** — thin-wrapped:
+- `/flutter-standards:pre-ship` — dimensions: every flutter-standards skill. Depth: direct+consumers. Pre-flight: `flutter analyze`.
+- `/flutter-standards:premium-check` — dimensions: `[craft-guide, widget-rules, accessibility, performance]`. Depth: direct.
+- `/flutter-standards:verify-screens` — dimensions: `[api-data, widget-rules, craft-guide]`. Depth: full-ripple (follows screen → provider → repository → data source).
+
+**Flutter pack — rename:**
+- `accessibility-audit` → **`audit-a11y-patterns`**. The old name implied it was THE a11y audit; it's actually a fast Flutter-specific regex sweep for 10 recurring bugs. The engine-walked `accessibility` auto-invoke skill is the comprehensive audit. The rename reflects what the skill actually does.
+
+### Added — rule IDs
+
+- `craft-guide` (web) now has a canonical Rule Index at the top (§1.1 – §15.5) listing every rule with stable IDs grouped by section. Commands scope to subsets (`theme-audit` → `§13`) instead of duplicating iteration. §16 and §17 flagged as summary sections, not iteration targets.
+- `production-readiness` (web) now has a §R1 – §R10 Rule Index for its 10 readiness concerns.
+- Flutter standards keep whole-skill scoping (no fine §N.M IDs added) — thin-wrappers pass skill names as dimensions.
+
+### Added — engine + contributing
+
+- `core-skills:verify-changes` gains an **Invocation — interactive vs delegated** section defining the structured brief format (`scope`, `dimensions`, `depth`, `fix`, `source`, optional `context`) that thin-wrappers emit.
+- **Iteration-loop discipline** inlined into `verify-changes` Phase 4.1 (previously backref'd to premium-check): record per (rule × file) with rule ID + evidence (path:line or "no occurrence") + PASS/FAIL/N_A verdict (N_A requires reason) + suggested fix on FAIL; never skip, never collapse; 3-retry cap on (rule × file) fix attempts.
+- **`docs/contributing.md`** gains an "Adding an audit slash command — the thin-wrapper pattern" section with a skeleton template, dimension-picking examples, guidance on when NOT to thin-wrap (detection-only passes, scaffolds that generate files), and a "Rule IDs in standards skills" subsection.
+
+### Design rationale — three owners
+
+Before v0.9.0, audit commands mixed ownership: each one defined its own iteration loop, batching strategy, and fix-retry policy. When one command improved (e.g., 3-retry oscillation cap) the others drifted. Thin-wrappers solve this by isolating responsibilities:
+
+- **Standards skills** own *rules* (content: what "correct" means, with stable IDs).
+- **Core engine** owns *orchestration* (iteration, batching, graph walk, fix loop).
+- **Core hooks** own *deterministic enforcement* (regex-level blocks that don't need reasoning).
+
+Each owner has one reason to change. Adding a rule doesn't touch orchestration; adding a new stack pack doesn't touch the fix loop.
+
+### Infrastructure
+
+- `web-standards`, `flutter-standards`, `core-skills` bumped to `0.9.0`.
+- `api-standards` stays at `0.5.0` and `core-hooks` stays at `0.8.0` (no behavior change; marketplace allows plugin versions to drift independently).
+- Marketplace metadata version bumped to `0.9.0`.
+- `docs/skills.md`, `docs/quickstart.md`, `README.md`, `ROADMAP.md` updated to describe the thin-wrapper shape.
+
+---
+
 ## [0.6.0] — 2026-04-21
 
 ### Added — core-hooks

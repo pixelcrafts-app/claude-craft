@@ -22,7 +22,8 @@ Commit `.claude/settings.json` to your project:
   },
   "enabledPlugins": {
     "flutter-standards@pixelcrafts": true,
-    "core-hooks@pixelcrafts": true
+    "core-hooks@pixelcrafts": true,
+    "core-skills@pixelcrafts": true
   }
 }
 ```
@@ -37,7 +38,9 @@ Swap the pack to match the project:
 | NestJS + Prisma | `api-standards@pixelcrafts` |
 | Next.js | `web-standards@pixelcrafts` |
 
-Always include `core-hooks@pixelcrafts` — the cross-stack safety net (blocks secret edits + dangerous shell commands) plus three workflow skills: `docs-sync` (code-vs-docs drift at end-of-task), `verify-changes` (cross-stack dependency-aware verification of any changeset), and `subagent-brief` (warm-brief discipline on delegation).
+Two cross-stack plugins to include:
+- `core-hooks@pixelcrafts` — hooks only. Blocks secret-file edits and dangerous shell in every project; blocks raw design values only when the project has a detected token system (self-gates on stack + tokens-file presence).
+- `core-skills@pixelcrafts` — three auto-invoke skills that self-gate: `docs-sync` (fires only when docs exist to drift from), `verify-changes` (fires only on "verify my changes" intent), `subagent-brief` (fires only when Claude is about to delegate). Install cost when unused is zero.
 
 ---
 
@@ -47,6 +50,7 @@ Always include `core-hooks@pixelcrafts` — the cross-stack safety net (blocks s
 /plugin marketplace add pixelcrafts-app/claude-craft
 /plugin install flutter-standards@pixelcrafts
 /plugin install core-hooks@pixelcrafts
+/plugin install core-skills@pixelcrafts
 ```
 
 To pull later updates: `/plugin marketplace update pixelcrafts`.
@@ -101,17 +105,17 @@ Generates model, mapper, repository, remote + local data sources, providers, scr
 
 10 auto-invoke standards (craft-guide, engineering, widget-rules, api-data, testing, accessibility, performance, forms, observability, production-readiness).
 
-Slash commands:
-- `/flutter-standards:pre-ship` — quality gate before merge
-- `/flutter-standards:premium-check` — craft review of a screen
-- `/flutter-standards:verify-screens` — trace data source → UI
+Audit slash commands (**thin wrappers** — delegate iteration to `core-skills:verify-changes`):
+- `/flutter-standards:pre-ship` — full quality gate before merge. Dimensions: every flutter-standards skill. Runs `flutter analyze` as pre-flight.
+- `/flutter-standards:premium-check` — craft review of a screen. Dimensions: `[craft-guide, widget-rules, accessibility, performance]`. Depth: direct.
+- `/flutter-standards:verify-screens` — trace data source → UI. Dimensions: `[api-data, widget-rules, craft-guide]`. Depth: full-ripple.
+- `/flutter-standards:audit-a11y-patterns` — fast Flutter-specific regex scan for 10 recurring a11y bugs (regex sweep, not engine-driven).
+
+Scan + scaffold slash commands (standalone — no engine delegation):
 - `/flutter-standards:find-hardcoded` — scan for design-system violations
 - `/flutter-standards:find-duplicates` — scan for DRY violations
-- `/flutter-standards:accessibility-audit` — 10 a11y patterns
 - `/flutter-standards:scaffold-screen` — generate screen with 4 states
 - `/flutter-standards:scaffold-feature` — generate feature folder
-
-Agents: `flutter-reviewer`, `security-reviewer`, `test-writer`.
 
 ### API (`api-standards`)
 
@@ -119,25 +123,60 @@ Auto-invoke: `nestjs`, `code-quality`.
 
 Slash command: `/api-standards:sync-migrate` — Prisma schema change workflow, reminds you to sync downstream consumers.
 
-Agents: `api-documenter`, `security-reviewer`.
-
 ### Web (`web-standards`)
 
-Auto-invoke: `nextjs`, `production-readiness`, `craft-guide` (17-section universal design formulas — color, spacing, type, shadow/radius, motion, state, responsive, aesthetic coherence, iconography, chrome, a11y, theme, microcopy, brand moments; enforces discipline, never picks brand values).
+Auto-invoke: `nextjs`, `production-readiness` (10 readiness concerns, numbered `§R1–§R10`), `craft-guide` (17-section universal design formulas with stable `§N.M` rule IDs — color, spacing, type, shadow/radius, motion, state, responsive, aesthetic coherence, iconography, chrome, a11y, theme, microcopy, brand moments; enforces discipline, never picks brand values).
 
-Slash commands:
-- `/web-standards:pre-ship` — quality gate before merge
-- `/web-standards:premium-check` — 17-section iteration-loop craft audit (rule-by-rule PASS/FAIL, loops to zero)
-- `/web-standards:extract-tokens` — establish `design-tokens.md` as single source of truth
-- `/web-standards:theme-audit` — light/dark parity, hydration flash, switch coverage
-- `/web-standards:aesthetic-coherence` — flag mixed design languages in one surface
+Slash commands (**all are thin wrappers** — they pick scope + dimensions, then delegate to `core-skills:verify-changes` for iteration, batching, and the fix loop):
+- `/web-standards:pre-ship` — quality gate before merge. Dimensions: every web-standards skill. Depth: direct+consumers.
+- `/web-standards:premium-check` — craft audit of a screen. Dimensions: `craft-guide §1 – §15`. Depth: direct. Rule-by-rule PASS/FAIL/N_A.
+- `/web-standards:extract-tokens` — establish `design-tokens.md` as single source of truth (not an audit — this one writes).
+- `/web-standards:theme-audit` — dimensions: `craft-guide §13` + related light/dark rules. Depth: direct.
+- `/web-standards:aesthetic-coherence` — hybrid: runs its own signal-detection pass, then delegates `craft-guide §9` compliance to the engine.
 
-### Safety + workflow skills (`core-hooks`)
+### Hooks (`core-hooks`)
 
-- PreToolUse hooks block edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). No commands — runs on every edit.
-- Auto-invoke `docs-sync` — catches drift between code and docs at end-of-task moments (version bumps, new skills, "ship / done / release"). Flags deltas; never rewrites prose; never blocks.
-- Auto-invoke `verify-changes` — generic cross-stack verification. Fires on "verify my changes" / "cross-check" / end of a non-trivial branch. Asks scope + dimensions + depth, walks a dependency graph of the changeset (finds every consumer of every changed file), runs batched rule-by-rule audits using whichever SKILL.md standards packs are installed, records batch results in task metadata so context doesn't blow on large changesets, emits critical / polish / consumer-break verdict. Pure prompt — no external tools.
-- Auto-invoke `subagent-brief` — warm-brief discipline when you (or another skill) delegate work to an Agent / Task / Explore subagent. Enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET so the spawn starts warm instead of re-discovering context.
+- PreToolUse blocks edits to `.env`/secret files and dangerous shell commands (`rm -rf`, `git reset --hard`). Runs on every edit.
+- PreToolUse blocks raw design values in projects with a token system. Deterministic regex, not advisory.
+- SessionStart surfaces plugin-hook mechanics to Claude (notably: hooks don't fire inside subagent writes).
+- **Enforcement mode (v0.10.0, opt-in)** — when a project commits `.claude/enforcement.json`, SessionStart pins a mandatory-skills preamble, PreToolUse runs the packs' rule registries as hard blocks, and Stop hook blocks turn-end until each pack's gate command has passed. See [docs/enforcement.md](enforcement.md).
+
+### Cross-stack skills (`core-skills`)
+
+- Auto-invoke `docs-sync` — catches drift between code and docs at end-of-task moments. Flags deltas; never rewrites prose; never blocks.
+- Auto-invoke `verify-changes` — generic cross-stack verification. Fires on "verify my changes" / "cross-check" / end of a non-trivial branch. Asks scope + dimensions + depth, walks a dependency graph, runs batched rule-by-rule audits using whichever SKILL.md standards packs are installed. Pure prompt — no external tools.
+- Auto-invoke `subagent-brief` — warm-brief discipline on Agent / Task / Explore delegation. Enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET.
+
+---
+
+## Make standards mandatory (opt-in)
+
+By default, auto-invoke skills are advisory — Claude follows them because the descriptions match. If you want **hard enforcement** (blocked edits on rule violations, can't end a turn without running the gate), commit one file:
+
+```json
+// .claude/enforcement.json
+{
+  "mandatory": ["flutter-standards"]
+}
+```
+
+That's the whole setup. On the next session, Claude Code:
+
+1. Loads a pinned preamble listing the mandatory skills and rule IDs.
+2. Hard-blocks any edit that violates a pack-registered rule (e.g. `IconButton` missing a semantic label on a Flutter project).
+3. Refuses to end the turn until `/flutter-standards:pre-ship` reports SAFE TO COMMIT.
+
+Three knobs, all optional:
+
+```json
+{
+  "mandatory": ["flutter-standards", "web-standards"],
+  "disabled_rules": ["flutter.perf.listview-unbounded"],
+  "gate_required": true
+}
+```
+
+Full guide including rule authoring and rollout pattern: [docs/enforcement.md](enforcement.md).
 
 ---
 
@@ -177,7 +216,8 @@ If you work across several projects that live under one parent folder (e.g. `my-
     "flutter-standards@pixelcrafts": true,
     "api-standards@pixelcrafts": true,
     "web-standards@pixelcrafts": true,
-    "core-hooks@pixelcrafts": true
+    "core-hooks@pixelcrafts": true,
+    "core-skills@pixelcrafts": true
   },
   "hooks": {
     "PostToolUse": [

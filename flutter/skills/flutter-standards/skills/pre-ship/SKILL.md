@@ -1,68 +1,68 @@
 ---
 name: pre-ship
-description: Full quality gate checklist before marking any feature complete
+description: Full quality gate before marking any Flutter feature complete — runs `flutter analyze` then delegates to the cross-stack audit engine with every installed Flutter standard as a dimension.
 disable-model-invocation: true
+argument-hint: [optional: path or "task" for just-touched files]
 ---
 
-# Pre-Ship Quality Gate
+# Pre-Ship Quality Gate — Flutter
 
-Run this before declaring any feature or task complete.
+Run before declaring any feature or task complete. Widest scope of the audit engine: every installed Flutter standard becomes a dimension; consumers of changed files get checked too.
 
-## Step 1: Compile Check
-Run `flutter analyze` in the project root.
-- Must be zero errors AND zero warnings
-- If any exist, fix them before proceeding
+This command is a thin wrapper over the cross-stack audit engine (`core-skills:verify-changes`). It adds a Flutter-specific pre-check (`flutter analyze`) and picks dimensions / depth. Iteration, batching, report format — all owned by the engine.
 
-## Step 2: Data Pipeline Verification
-For every data-related change in this task:
-- Confirm source data exists and is accessible (DB published, API returns it)
-- Confirm mapper handles the actual response shape (not assumed shape)
-- Confirm model fields match mapper output
-- Confirm provider exposes data correctly
-- Confirm UI screen renders the data — read the screen file and trace the data binding
+## How this runs
 
-## Step 3: Screen Quality Audit
-For every screen modified in this task:
-- Loading state exists and matches final layout (skeleton, not spinner)
-- Empty state is inviting with a clear action
-- Error state provides guidance and retry
-- All design system tokens used (no hardcoded values)
-- Touch targets are 48px minimum
-- Text has maxLines + overflow protection
+1. **Pre-flight: `flutter analyze`.** Run in the project root before delegating. The gate halts on any error **or** warning — the iteration loop doesn't start while the analyzer is unhappy. Fix analyzer output first, then rerun `pre-ship`.
 
-## Step 4: Edge Cases
-- What happens if the user has no internet?
-- What happens if the API returns an empty list?
-- What happens if the API returns an error?
-- What happens if the user kills the app mid-operation?
-- What happens on sign-out and sign-in with a different account?
+2. Parse `$ARGUMENTS`:
+   - A path / folder → that's the scope.
+   - `"task"` or empty → scope defaults to `"uncommitted working tree"`.
 
-## Step 5: Cross-Boundary Contracts
-For every API call, env var, third-party SDK, or DB query touched in this task:
-- [ ] Field names, types, and response shapes were verified against the source of truth (controller/DTO, schema, typings, `.env.example`) — not guessed
-- [ ] Any assumption that couldn't be verified is surfaced to the user in the final response, not silently coded
+3. Emit the brief and delegate:
 
-## Step 6: Docs sync (only if this completes a feature or release — not mid-work)
+   ```
+   verify-changes brief:
+     scope: $ARGUMENTS                       # or "uncommitted working tree" if empty
+     dimensions: [ALL flutter-standards]     # every auto-invoke skill in the pack:
+                                             # craft-guide, engineering, widget-rules,
+                                             # api-data, testing, accessibility,
+                                             # performance, forms, observability,
+                                             # production-readiness
+     depth: direct+consumers                 # catches breakage in files that import changed code
+     fix: no                                 # pre-ship reports; it does not auto-fix
+     source: flutter-standards:pre-ship
+   ```
 
-If this change completes a feature, a release, or adds/removes a capability users will notice, invoke `core-hooks:docs-sync` to catch drift between the code and the docs:
+4. Stop. The engine runs discovery → plan → batched rule walk → consolidated report. On finish:
 
-- README reflects the current plugin count, version, and install snippet
-- CHANGELOG has an entry for the new version
-- ROADMAP moves shipped items out of "Next up"
-- `docs/skills.md` lists every skill that actually exists
-- Plugin and skill descriptions match the work they now do
+   - If the scope includes `.md` / version-bump changes, the engine hands off to `docs-sync` for drift check.
+   - Verdict `SAFE TO COMMIT` with zero critical failures → feature is ready.
 
-Skip for single-file fixes or internal refactors with no user-facing surface change.
+5. **If the verdict is SAFE TO COMMIT and enforcement mode is active** (the project has `.claude/enforcement.json` listing `flutter-standards` as mandatory), mark the gate passed in the session ledger so the Stop hook lifts its block:
 
-## Step 7: Checklist
-Answer each honestly:
-- [ ] I verified the UI renders REAL content, not placeholders
-- [ ] I ran `flutter analyze` — zero errors, zero warnings
-- [ ] Every screen I touched is screenshot-worthy
-- [ ] No "remaining steps" or "TODO" items are left unfinished
-- [ ] I did not add unrequested features or refactoring
-- [ ] I did not guess any cross-boundary contract (API shape, env var, SDK method, DB column)
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT_core_hooks:-$HOME/.claude/plugins/pixelcrafts/core-hooks}/hooks/session-ledger.sh" mark-pass flutter-standards
+   ```
 
-## Verdict
-If all boxes are checked: task is complete.
-If ANY box is unchecked: list what's remaining and do it.
+   On FAIL, do **not** mark the ledger — the Stop hook should stay firm until the feature actually passes.
+
+## What you get back
+
+- Per-dimension PASS / FAIL counts across every installed Flutter standard.
+- Critical failures listed first (hardcoded secrets, missing analyzer fixes before gate ran, failed data-pipeline contract checks, cross-boundary contract guesses).
+- Polish failures listed second (craft-guide violations, accessibility misses, performance hints, test coverage gaps).
+- Consumer-impact section: any Dart file that imports a changed file and now fails a rule because of the change.
+
+## Scope boundaries
+
+- Reports only — does not auto-fix. For focused craft fixes, use `flutter-standards:premium-check` (with fix intent) instead.
+- `flutter analyze` is the only stack-specific tool invoked. Everything else is the generic engine reading installed Flutter SKILL.md files.
+- Integration / widget tests are not executed by this gate. If the project has a test command (`flutter test`), run it separately — or bundle it into the project's CI.
+
+## Relationship to other skills
+
+- `pre-ship` → **before merge**, widest scope, every installed standard, reports only.
+- `premium-check` → craft-focused audit with optional fix loop.
+- `verify-screens` → data-pipeline trace (screen → provider → repo → data source → API) as a narrower scope.
+- `find-hardcoded` / `find-duplicates` → stack-specific regex scans, run standalone.

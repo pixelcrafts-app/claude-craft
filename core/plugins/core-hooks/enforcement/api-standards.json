@@ -1,0 +1,29 @@
+{
+  "pack": "api-standards",
+  "mandatory_skills": [
+    "api-standards:nestjs",
+    "api-standards:code-quality"
+  ],
+  "gate_command": null,
+  "file_glob_touched": "*.ts",
+  "rules": [
+    {
+      "id": "api.err.empty-catch",
+      "pattern": "catch[[:space:]]*\\([^)]*\\)[[:space:]]*\\{[[:space:]]*\\}",
+      "message": "Empty catch block — errors swallowed silently. Log, rethrow, or comment the intentional swallow.",
+      "applies_to": "src/**/*.ts"
+    },
+    {
+      "id": "api.obs.console-log",
+      "pattern": "^[[:space:]]*console\\.log\\(",
+      "message": "console.log in source — use the NestJS Logger or a configured structured logger.",
+      "applies_to": "src/**/*.ts"
+    },
+    {
+      "id": "api.sec.raw-sql",
+      "pattern": "\\$queryRawUnsafe\\(|\\$executeRawUnsafe\\(",
+      "message": "Prisma raw-unsafe query — SQL injection risk. Use $queryRaw (tagged template) or a parameterized safe variant.",
+      "applies_to": "src/**/*.ts"
+    }
+  ]
+}

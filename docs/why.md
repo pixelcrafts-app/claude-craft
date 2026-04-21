@@ -35,7 +35,7 @@ Where checklists rot (nobody runs them), skills execute:
 
 - `find-hardcoded` finds every `Color(0xFF...)` in `lib/` and suggests the design-system token
 - `find-duplicates` finds every pair of widgets that render the same structure
-- `accessibility-audit` finds every `IconButton` without a Semantics label
+- `audit-a11y-patterns` finds every `IconButton` without a Semantics label
 - `pre-ship` runs the full gate before you open a PR
 
 ### Scaffolds that save hours per feature
@@ -53,7 +53,7 @@ For tools that aren't Claude Code, `scripts/export.sh` generates `.cursor/rules/
 These are estimates based on internal use. Real numbers depend on team size and starting state — measure on your own codebase and share back.
 
 - **~2–3 hours per new feature** saved via `scaffold-feature` — no manual wiring of the same seven files
-- **~40% fewer regressions caught in review** when `pre-ship` and `accessibility-audit` run before PR
+- **~40% fewer regressions caught in review** when `pre-ship` and `audit-a11y-patterns` run before PR
 - **~80% drop in hardcoded colors/spacing** after one `find-hardcoded` sweep + a CI gate
 - **~0 duplicate widgets** after a `find-duplicates` refactor pass
 
@@ -77,4 +77,4 @@ None of these claim to transform a team overnight. They compound. A pattern that
 
 - Teams shipping **one** app in a single stack — copy the rules you like into your own `.claude/rules/` until the plugin install is worth the ceremony
 - Teams with **custom in-house frameworks** that contradict idiomatic patterns — the rules will argue with your framework and both will lose
-- Teams with **strong existing design-system + audit tooling** — you likely already have 70% of what this provides; picking individual skills (`find-hardcoded`, `accessibility-audit`) may be enough
+- Teams with **strong existing design-system + audit tooling** — you likely already have 70% of what this provides; picking individual skills (`find-hardcoded`, `audit-a11y-patterns`) may be enough

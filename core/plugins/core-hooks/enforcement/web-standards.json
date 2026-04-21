@@ -1,0 +1,30 @@
+{
+  "pack": "web-standards",
+  "mandatory_skills": [
+    "web-standards:nextjs",
+    "web-standards:craft-guide",
+    "web-standards:production-readiness"
+  ],
+  "gate_command": "/web-standards:pre-ship",
+  "file_glob_touched": "*.tsx,*.ts,*.jsx,*.js",
+  "rules": [
+    {
+      "id": "web.a11y.raw-img",
+      "pattern": "<img[[:space:]]",
+      "message": "Raw <img> tag — prefer next/image for automatic optimization. If using <img>, confirm alt= is set (empty alt='' for decorative).",
+      "applies_to": "*.tsx,*.jsx"
+    },
+    {
+      "id": "web.obs.console-log",
+      "pattern": "^[[:space:]]*console\\.log\\(",
+      "message": "console.log in source — route through a logger or gate behind process.env.NODE_ENV !== 'production'.",
+      "applies_to": "app/**/*.ts*,components/**/*.ts*,lib/**/*.ts*,src/**/*.ts*"
+    },
+    {
+      "id": "web.sec.dangerously-set-inner-html",
+      "pattern": "dangerouslySetInnerHTML",
+      "message": "dangerouslySetInnerHTML — XSS risk. Sanitize input or use a safer alternative. If intentional, add a short comment explaining the source-of-truth and sanitization.",
+      "applies_to": "*.tsx,*.jsx"
+    }
+  ]
+}

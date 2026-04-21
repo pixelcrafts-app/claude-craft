@@ -1,68 +1,63 @@
 ---
 name: pre-ship
-description: Full quality gate checklist before marking any web feature complete
+description: Full quality gate before marking any web feature complete — delegates to the cross-stack audit engine with every installed web standard as a dimension.
 disable-model-invocation: true
+argument-hint: [optional: path or "task" for just-touched files]
 ---
 
-# Pre-Ship Quality Gate (Web)
+# Pre-Ship Quality Gate — Web
 
-Run this before declaring any feature or task complete.
+Run before declaring any web feature or task complete. This is the widest scope of the audit engine: every installed web standard becomes a dimension; consumers of changed files get checked too.
 
-## Step 1: Lint Check
-Run your project's lint command (e.g., `npm run lint`).
-- Must be zero errors AND zero warnings
-- If any exist, fix them before proceeding
+This command is a thin wrapper. The engine (`core-skills:verify-changes`) owns iteration, batching, metadata, and reporting. This command picks the dimensions and the depth.
 
-## Step 2: Data Pipeline Verification
-For every data-related change in this task:
-- Confirm API client fetches correct data
-- Confirm React Query hook uses correct query key and options
-- Confirm component receives and renders the data
-- Confirm loading/error/empty states are handled
+## How this runs
 
-## Step 3: Component Quality Audit
-For every component modified in this task:
-- Loading state: skeleton/shimmer matching final layout
-- Empty state: inviting message with clear action
-- Error state: specific message with retry
-- All design system tokens used (no hardcoded hex, no arbitrary Tailwind values)
-- Responsive across breakpoints (mobile → desktop)
-- Dark mode works correctly
+1. **Pre-flight: lint.** Before delegating, run the project's lint command if one exists (`npm run lint` / `pnpm lint` / `yarn lint`). A lint failure halts the gate — fix lint errors / warnings first, then rerun `pre-ship`. Lint is cheap and catches mechanical issues the rule walk won't.
 
-## Step 4: Edge Cases
-- What happens if the API returns an empty list?
-- What happens if the API returns an error?
-- What happens if the user has no internet (offline / PWA)?
-- What happens on slow network?
-- What happens at 320px width? At 2560px?
+2. Parse `$ARGUMENTS`:
+   - A path / folder → that's the scope.
+   - `"task"` or empty → scope defaults to `"uncommitted working tree"` (the engine will interpret).
 
-## Step 5: Cross-Boundary Contracts
-For every API call, env var, third-party SDK, or shared type touched in this task:
-- [ ] Field names, types, and response shapes were verified against the source of truth (controller/DTO, OpenAPI spec, typings, `.env.example`) — not guessed
-- [ ] Any assumption that couldn't be verified is surfaced to the user in the final response, not silently coded
+3. Emit the brief and delegate:
 
-## Step 6: Docs sync (only if this completes a feature or release — not mid-work)
+   ```
+   verify-changes brief:
+     scope: $ARGUMENTS                 # or "uncommitted working tree" if empty
+     dimensions: [ALL web-standards]   # every auto-invoke skill in the pack:
+                                       # nextjs, production-readiness, craft-guide
+     depth: direct+consumers           # catches breakage in files that import changed code
+     fix: no                           # pre-ship reports; it does not auto-fix
+     source: web-standards:pre-ship
+   ```
 
-If this change completes a feature, a release, or adds/removes a capability users will notice, invoke `core-hooks:docs-sync` to catch drift between the code and the docs:
+4. Stop. The engine runs discovery → plan → batched rule walk → consolidated report. On finish:
 
-- README reflects the current plugin count, version, and install snippet
-- CHANGELOG has an entry for the new version
-- ROADMAP moves shipped items out of "Next up"
-- `docs/skills.md` lists every skill that actually exists
-- Plugin and skill descriptions match the work they now do
+   - If the scope includes `.md` / version-bump changes, the engine emits a follow-up line: *"Next: running docs-sync for drift check."* Let `docs-sync` run.
+   - If the verdict is SAFE TO COMMIT with zero critical failures, the feature is ready.
 
-Skip for single-component fixes or internal refactors with no user-facing surface change.
+5. **If the verdict is SAFE TO COMMIT and enforcement mode is active** (the project has `.claude/enforcement.json` listing `web-standards` as mandatory), mark the gate passed in the session ledger so the Stop hook lifts its block:
 
-## Step 7: Checklist
-Answer each honestly:
-- [ ] I verified the UI renders REAL content, not placeholders
-- [ ] Lint passes with zero errors, zero warnings
-- [ ] Every component I touched is screenshot-worthy
-- [ ] No "remaining steps" or "TODO" items are left unfinished
-- [ ] Dark mode looks intentionally designed, not just "tolerable"
-- [ ] Keyboard navigation works on all interactive elements
-- [ ] I did not guess any cross-boundary contract (API shape, env var, SDK method, shared type)
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT_core_hooks:-$HOME/.claude/plugins/pixelcrafts/core-hooks}/hooks/session-ledger.sh" mark-pass web-standards
+   ```
 
-## Verdict
-If all boxes are checked: task is complete.
-If ANY box is unchecked: list what's remaining and do it.
+   On FAIL, do **not** mark the ledger — the Stop hook should stay firm until the feature actually passes.
+
+## What you get back
+
+- Per-dimension PASS / FAIL counts across every installed web standard.
+- Critical failures grouped and listed first (hardcoded secrets, missing auth checks, broken contracts, failed prod-readiness R1–R10 items).
+- Polish failures listed second (craft-guide §1–§15 violations that ship-unfinished).
+- Consumer-impact section: any file that imports a changed file and now fails a rule because of the change (e.g. a renamed export still referenced).
+
+## Scope boundaries
+
+This command is a gate, not a fix loop. It reports. If you want the engine to apply fixes, use `premium-check --fix` (craft-only) or invoke `verify-changes` directly with `fix: yes`. Pre-ship stays read-only so the gate's verdict is reproducible.
+
+## Relationship to other skills
+
+- `pre-ship` → **before merge**, widest scope, every installed standard.
+- `premium-check` → craft-only audit with optional fix loop.
+- `theme-audit` → craft-guide §13 subset.
+- `verify-changes` called directly → multi-file dependency-aware verification (same engine, custom dimensions).

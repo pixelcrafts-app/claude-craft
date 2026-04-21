@@ -9,7 +9,7 @@ No `CLAUDE.md` edits. No onboarding wiki. No drift.
 
 [Quickstart](docs/quickstart.md) · [See it in action](docs/before-after.md) · [Skills](docs/skills.md) · [Roadmap](ROADMAP.md)
 
-![version](https://img.shields.io/badge/version-0.6.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
+![version](https://img.shields.io/badge/version-0.10.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-4-orange) ![stack](https://img.shields.io/badge/stack-flutter%20%7C%20api%20%7C%20web-purple)
 
 </div>
 
@@ -81,7 +81,7 @@ Update later with `/plugin marketplace update pixelcrafts`.
 
 Flutter + Dart.
 
-10 auto-invoke standards, 8 audit + scaffold skills, 3 review agents.
+10 auto-invoke standards, 8 audit + scaffold skills.
 
 **Killer feature:** `/flutter-standards:scaffold-feature` — full vertical slice (model, mapper, repository, data sources, providers, screen with 4 states, tests) in under a minute.
 
@@ -92,7 +92,7 @@ Flutter + Dart.
 
 NestJS + Prisma.
 
-2 auto-invoke standards + 11-check smart production audit, sync-migrate workflow, 2 review agents.
+2 auto-invoke standards + 11-check smart production audit, sync-migrate workflow.
 
 **Killer feature:** `code-quality` runs Detect → Check → Suggest on rate limits, idempotency, webhooks, pool sizing — never blindly enforces.
 
@@ -103,20 +103,25 @@ NestJS + Prisma.
 
 Next.js + Tailwind + shadcn.
 
-3 auto-invoke standards (nextjs, production-readiness, craft-guide) + pre-ship, premium-check (17-section iteration-loop), extract-tokens, theme-audit, aesthetic-coherence.
+3 auto-invoke standards (nextjs, production-readiness, craft-guide — now with stable `§N.M` rule IDs) + 5 explicit commands (pre-ship, premium-check, extract-tokens, theme-audit, aesthetic-coherence). Every audit command is a thin wrapper: iteration, batching, and the fix loop live once in the cross-stack engine (`core-skills:verify-changes`).
 
-**Killer feature:** `craft-guide` enforces universal design formulas (contrast math, harmony, 60-30-10, aesthetic coherence) without ever picking brand values — paired with `premium-check`'s rule-by-rule audit loop that guarantees every rule is checked, not just the obvious ones.
+**Killer feature:** `craft-guide` enforces universal design formulas (contrast math, harmony, 60-30-10, aesthetic coherence) without ever picking brand values. Every rule has a stable ID — commands scope to subsets (`theme-audit` → `§13` only) or run the full set (`premium-check` → `§1 – §15`). One iteration-loop implementation, not one per command.
 
 </td>
 </tr>
 </table>
 
-Plus **`core-hooks`** — cross-stack safety + workflow skills:
+Plus two cross-stack plugins — the default companion to any stack pack. Both self-gate, so install cost when unused is zero:
 
-- **PreToolUse hooks** — block edits to `.env` / secrets; block `rm -rf`, `git reset --hard`, and other destructive shell commands
-- **`docs-sync`** — end-of-task skill that catches drift between code and README / CHANGELOG / docs at release moments
-- **`verify-changes`** — generic cross-stack verification workflow. Asks scope + dimensions + depth, builds a dependency-aware task tree, runs batched rule-by-rule audits across any installed standards pack, emits critical / polish / consumer-break verdict. Pure prompt — no external tools, no indexing, works on any stack
-- **`subagent-brief`** — warm-brief discipline for delegation. When a spawn is warranted, enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET so subagents start warm instead of re-discovering context you already have
+**`core-hooks`** — hooks only, deterministic enforcement:
+- 🔒 **PreToolUse hooks** — block edits to `.env` / secrets (every project); block `rm -rf`, `git reset --hard`, and other destructive shell (every project); block raw design values **only** in projects with a detected token system
+- 🧭 **SessionStart hook** — surfaces plugin-hook mechanics to Claude (e.g. hooks don't fire inside subagent writes — brief accordingly)
+- 🛡️ **Enforcement mode (v0.10.0, opt-in)** — commit `.claude/enforcement.json` listing mandatory packs → SessionStart pins a mandatory-skills preamble, PreToolUse hard-blocks per-pack rule violations, Stop hook blocks turn-end until each pack's gate command has passed. One-file opt-in, three-tier config, zero change to existing installs if you don't create the file. Full guide: [docs/enforcement.md](docs/enforcement.md)
+
+**`core-skills`** — three auto-invoke skills, pure prompts:
+- 📝 **`docs-sync`** — fires at end-of-task only when docs exist to drift from. Silent on projects without a README/CHANGELOG to maintain
+- ✅ **`verify-changes`** — fires only on "verify my changes" / "cross-check" intent. Asks scope + dimensions + depth, walks a dependency graph of the changeset, runs batched rule-by-rule audits using whichever standards packs you have installed. Stack-agnostic
+- 🎯 **`subagent-brief`** — fires only when Claude is about to delegate. Enforces GOAL / CONTEXT / SCOPE / TASK / OUTPUT SHAPE / BUDGET so the spawn starts warm instead of re-discovering context
 
 ---
 
@@ -150,26 +155,18 @@ The skill never rewrites your app to add a rate limiter. It tells you the gap, s
 /web-standards:premium-check          Craft review of a single component
 ```
 
-**Review agents.** Invoke on a branch:
-
-```
-use agent api-standards:security-reviewer to audit auth on this branch
-use agent flutter-standards:flutter-reviewer to review src/features/checkout/
-```
-
-Agents load their pack's standards before reviewing — the review applies the real standard, not a generic checklist.
-
 ---
 
 ## 🎬 See it in action
 
 A full before/after gallery with real snippets from each pack lives at [docs/before-after.md](docs/before-after.md).
 
-A taste — the smart API audit:
+**Taste 1 — the smart API audit:**
 
 ```
-Claude, is this API ready for production?
+You:  Claude, is this API ready for production?
 
+Claude:
   Detect → Check → Suggest — Rate limiting (J1)
     Status: NOT DETECTED
     Risk:   /users/search is unauthenticated and DB-backed. Scraper
@@ -182,7 +179,29 @@ Claude, is this API ready for production?
                     Will not install without your approval.
 ```
 
-That's the pattern. **Detect the gap. Audit depth if present. Suggest with tradeoffs. Let you decide.** No app-rewriting behind your back.
+**Detect the gap. Audit depth if present. Suggest with tradeoffs. Let you decide.** No app-rewriting behind your back.
+
+**Taste 2 — `verify-changes` catching a consumer break before the PR:**
+
+```
+You:  I renamed <Button /> and touched 8 files. Verify before I commit.
+
+Claude (verify-changes):
+  Scope: 10 uncommitted files. Dimensions: SMART. Depth: direct + consumers.
+  Dependency graph: Button.tsx → 12 consumers (3 via barrel file).
+  Plan: 34 tasks in 5 batches. Proceed? [y]
+
+  ... batches run, summaries posted to task metadata ...
+
+  Verdict: BLOCK — 2 consumer breaks + 1 polish.
+    ✗  app/checkout/page.tsx:42    imports old name `Button`, renamed to `PrimaryButton`
+    ✗  app/settings/form.tsx:18    barrel `components/index.ts` not updated
+    ·  components/hero.tsx:7       button label "Click here" — generic (polish)
+
+  Say "fix" to apply suggested patches, or commit at your own risk.
+```
+
+That's the pattern. **Diff → graph → batched audit → verdict with evidence.** Consumer breakage gets caught *before* it ships, not after the hotfix.
 
 ---
 
@@ -236,6 +255,7 @@ Longer argument: [docs/why.md](docs/why.md). Philosophy: [docs/craft.md](docs/cr
 | Contribute a pack or rule | [docs/contributing.md](docs/contributing.md) |
 | See what's next | [ROADMAP.md](ROADMAP.md) |
 | See release history | [docs/changelog.md](docs/changelog.md) |
+| Enforce rules so Claude can't bypass them | [docs/enforcement.md](docs/enforcement.md) |
 | Report a security issue | [SECURITY.md](SECURITY.md) |
 
 ---
@@ -246,9 +266,10 @@ Longer argument: [docs/why.md](docs/why.md). Philosophy: [docs/craft.md](docs/cr
 claude-craft/
 ├── .claude-plugin/marketplace.json      4 plugins registered
 ├── flutter/skills/flutter-standards/    Flutter pack — 10 standards + 8 skills + 3 agents
-├── api/skills/api-standards/            NestJS + Prisma pack — 2 standards + sync-migrate + 2 agents
+├── api/skills/api-standards/            NestJS + Prisma pack — 2 standards + sync-migrate
 ├── web/skills/web-standards/            Next.js pack — 3 standards + pre-ship, premium-check, extract-tokens, theme-audit, aesthetic-coherence
-├── core/plugins/core-hooks/             Cross-stack safety + docs-sync + verify-changes + subagent-brief
+├── core/plugins/core-hooks/             Hooks — secret/shell/token-value blocks + SessionStart mechanics
+├── core/plugins/core-skills/            Cross-stack skills — docs-sync, verify-changes, subagent-brief
 ├── scripts/export.sh                    Cursor + AGENTS.md export
 ├── docs/                                Guides, philosophy, before/after, changelog
 ├── ROADMAP.md                           What's shipping next
@@ -258,6 +279,12 @@ claude-craft/
 ---
 
 ## 🛣️ Status
+
+**v0.10.0** — Enforcement mode. Commit `.claude/enforcement.json` → SessionStart pins a mandatory-skills preamble, PreToolUse hard-blocks per-pack rule violations (regex-level), Stop hook refuses turn-end until each pack's gate command passes. Generic runner + per-pack declarative rule registries; new packs ship rules by dropping one JSON file. Fully opt-in — existing installs see zero change until they create the config.
+
+**v0.9.0** — Thin-wrapper architecture. Audit commands become ≤50-line scope + dimension pickers; iteration, batching, and the fix loop live once in `core-skills:verify-changes`. `craft-guide` (§1–§15) and `production-readiness` (§R1–§R10) gain stable rule IDs so commands can scope to subsets. `aesthetic-coherence` becomes hybrid (signal detection + engine-driven §9 compliance). `accessibility-audit` → `audit-a11y-patterns` to match what it actually is.
+
+**v0.8.0** — Isolated ownership cleanup. Split `core-hooks` into two plugins: `core-hooks` (hooks only) and `core-skills` (the three cross-stack skills `docs-sync`, `verify-changes`, `subagent-brief`). Removed invented skip-paths, magic-comment escape hatch, and the pre-defined review-agent personas.
 
 **v0.6.0** — `verify-changes` skill lands in `core-hooks`. Generic cross-stack verification — asks scope + dimensions + depth, walks a dependency graph of the changeset, runs batched rule-by-rule audits using whatever SKILL.md files are installed, records results in task metadata to preserve context on large changesets. Pure prompt, no hooks, no MCPs, no indexing. Also ships `subagent-brief` — warm-brief discipline on Agent / Task / Explore delegation.
 

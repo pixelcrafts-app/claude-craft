@@ -1,15 +1,17 @@
 ---
-name: accessibility-audit
-description: Scan lib/ for accessibility violations — missing Semantics labels, color-alone signals, tiny touch targets, placeholder-only form fields, missing autofill hints, broken text scaling, unannounced errors
+name: audit-a11y-patterns
+description: Flutter-specific accessibility pattern scanner — fast regex-based sweep across lib/ for the 10 most common a11y bugs in Dart widget code (missing Semantics labels, color-alone signals, tiny touch targets, placeholder-only form fields, missing autofill hints, broken text scaling, unannounced errors, RTL violations, reduced-motion misses).
 disable-model-invocation: true
 argument-hint: [optional-directory]
 ---
 
-# Accessibility Audit
+# Flutter A11y Pattern Scan
 
-Scan `$ARGUMENTS` (default: `lib/`) against the rules in `accessibility.md`. Report violations grouped by severity with file:line and a concrete fix.
+Scan `$ARGUMENTS` (default: `lib/`) for ten recurring accessibility bugs that only appear in Flutter/Dart widget code. Report violations grouped by severity with file:line and a concrete fix.
 
-This skill doesn't test — it reads code and flags patterns that break for screen readers, low-vision users, motor-impaired users, and users with larger text sizes. Dynamic runtime checks (actual contrast ratios, actual touch target sizes in rendered UI) need the accessibility scanner in DevTools — this skill covers what's visible in source.
+**This is not THE accessibility audit — it's a fast, regex-based pattern scan** that catches the top recurring offenders with Flutter-specific greps. The full-rule a11y audit (contrast math, semantic-HTML-equivalent checks, rule-by-rule pass/fail against `accessibility.md`) runs as the `accessibility` dimension inside `premium-check` / `pre-ship` / `verify-changes` — the cross-stack engine handles iteration and reporting there. Use this command when you want a quick Dart-specific sweep; use `premium-check` when you want the full audit with fix loop.
+
+Runtime checks (actual contrast ratios, actual touch target sizes in the rendered UI) still need the accessibility scanner in DevTools — this skill covers what's visible in source.
 
 ## Scan Targets
 
@@ -288,6 +290,6 @@ Violations: <total>
 
 ## Pairs With
 
-- `accessibility.md` — the rules this skill enforces
-- `find-hardcoded` — overlaps on some patterns (hardcoded colors often carry color-alone issues)
-- `premium-check` — the craft audit; accessibility issues usually show up there too
+- `accessibility` (auto-invoke standard) — the full rule set; the engine iterates this rule-by-rule inside `premium-check` / `pre-ship`. This pattern scan is a fast subset focused on Flutter-specific gotchas.
+- `find-hardcoded` — overlaps on some patterns (hardcoded colors often carry color-alone issues).
+- `premium-check` — the full craft + widget + a11y + perf audit; invokes the engine with `accessibility` as one of its dimensions. Use that for the complete walk; use this command when you want speed.

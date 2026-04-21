@@ -9,208 +9,53 @@ argument-hint: [optional: scope — "app" | "components" | "<directory>"]
 
 Premium apps don't have "light mode" and "dark mode tolerable." They have two themes, each independently designed, each verified.
 
-Runs in iteration-loop style — every rule explicitly evaluated, no sweep-and-skip.
+This command is a thin wrapper. It's the theme subset of the craft audit — everything under `craft-guide §13` (plus the theme-adjacent rules §1.5, §11.3, §11.5, §12.7, §12.8, §12.9). The iteration-loop and fix-loop live in `core-skills:verify-changes`; this command supplies the scope and the rule subset.
 
----
+## How this runs
 
-## Step 0 — Load tokens
+1. Parse `$ARGUMENTS`:
+   - If a path / directory is given, that's the scope.
+   - If empty, scope defaults to the app's `app/` and `components/` roots.
+   - `--fix` intent in the user message → `fix: yes`; otherwise `fix: no`.
 
-1. Read `design-tokens.md` if present (written by `/web-standards:extract-tokens`)
-2. If absent, fall back to scanning `tailwind.config.*`, `app/globals.css`, and CSS vars in `:root` + `.dark`
-3. If neither theme has any tokens, stop and tell the user to run `/web-standards:extract-tokens` first
+2. Pre-flight — check tokens exist:
+   - Read `design-tokens.md` if present (written by `/web-standards:extract-tokens`).
+   - Otherwise scan `tailwind.config.*`, `app/globals.css`, and CSS vars in `:root` + `.dark`.
+   - If neither theme has any tokens, **stop and tell the user** to run `/web-standards:extract-tokens` first. Do not delegate — there's nothing to audit against.
 
----
+3. Emit the brief and delegate:
 
-## Step 1 — Token discipline (themeable values come from tokens)
+   ```
+   verify-changes brief:
+     scope: $ARGUMENTS                 # or "app/ + components/" if empty
+     dimensions:
+       - craft-guide §13               # theme tokens, semantic naming, parity, hydration, color-scheme
+       - craft-guide §1.5              # dark-mode contrast verified separately
+       - craft-guide §11.3             # ::selection customized (theme-aware)
+       - craft-guide §11.5             # caret-color set per theme
+       - craft-guide §12.7             # color-scheme CSS property set
+       - craft-guide §12.8             # forced-colors mode honored
+       - craft-guide §12.9             # prefers-reduced-transparency honored
+     depth: direct
+     fix: <yes | no>
+     source: web-standards:theme-audit
+   ```
 
-For each rule, output `[RULE] PASS | FAIL` with file:line evidence.
+4. Stop. The engine runs discovery → plan → rule walk → report → optional fix loop. The report groups results by craft-guide rule ID.
 
-**T1.1 — No hardcoded colors in `.tsx` / `.ts`**
-```
-rg "(?:#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()" --type tsx --type ts
-```
-Every match not inside a comment is a FAIL. Acceptable: `currentColor`, `transparent`, `inherit`, CSS vars.
+## What you get back
 
-**T1.2 — No hardcoded colors in CSS outside of theme declarations**
-```
-rg "(?:#[0-9a-fA-F]{3,8}|rgba?\()" --type css --glob '!**/globals.css' --glob '!**/theme*.css'
-```
-
-**T1.3 — Every shadow uses a token**
-```
-rg "box-shadow:" --type css --type tsx
-```
-Match any value that's not `var(--shadow-*)` or a Tailwind token alias → FAIL.
-
-**T1.4 — Every radius uses a token**
-Grep for inline `border-radius:` with numeric values in CSS, and `rounded-[...]` arbitrary in Tailwind.
-
-**T1.5 — Every font-size uses a scale step**
-Grep `text-[...]` arbitrary in Tailwind; any `font-size:` with numeric in CSS outside theme.
-
-**T1.6 — Every spacing uses a scale step**
-```
-rg "(?:p|m|gap|space|inset)-\[[0-9]+(?:px|rem)\]" --type tsx
-```
-
----
-
-## Step 2 — Semantic naming (tokens describe role, not value)
-
-**T2.1 — No value-named tokens used in components**
-```
-rg "(?:--blue-500|--gray-100|--red-500)" --type tsx --type css
-```
-Token names like `--primary`, `--muted-foreground`, `--border-subtle` are correct. Value names like `--blue-500` leak into components → FAIL.
-
-**T2.2 — Token prefix consistent**
-All tokens share one prefix (`--app-*`, no prefix, or project-specific). Mixed prefixes = token lineage broken.
-
----
-
-## Step 3 — Light / dark parity
-
-**T3.1 — Every token defined in `:root` has a `.dark` counterpart**
-Parse both blocks. Set-diff keys. Any token in one block but not the other = FAIL.
-
-**T3.2 — Dark mode is not a computed invert**
-Heuristic: if every dark value is `100% − light value` (for HSL lightness, or exact RGB invert), that's a FAIL — dark was not independently designed.
-
-**T3.3 — Contrast verified in both modes**
-For every fg/bg token pair used in components, compute contrast in both modes. Both must meet threshold (body 4.5:1, UI 3:1). Failures listed with evidence.
-
-**T3.4 — Images with baked-in contrast have theme variants**
-```
-rg "<img|next/image" --type tsx -A 3 | rg "src="
-```
-Any `src` pointing to a PNG/JPG with visible chrome (logos on white, screenshots with light UI) needs a dark counterpart — flag for human check.
-
-**T3.5 — Third-party embeds theme correctly**
-`iframe`, `<Map>`, `<Stripe>`, `<Chart>` components often need explicit theme prop. Flag embeds without theme prop for human check.
-
----
-
-## Step 4 — `color-scheme` CSS property
-
-**T4.1 — `color-scheme` declared on `:root` or per theme class**
-Without it, native form controls (checkbox, radio, date-picker, scrollbar) flash light in dark mode.
-
-Check:
-```
-rg "color-scheme:" --type css
-```
-Must have either `color-scheme: light` on `:root` + `color-scheme: dark` on `.dark`, OR `color-scheme: light dark` on `html`.
-
----
-
-## Step 5 — SSR hydration flash (Next.js App Router)
-
-Light-mode flash before stored theme applies is a premium-killing bug.
-
-**T5.1 — `suppressHydrationWarning` on `<html>`**
-Check `app/layout.tsx` for `<html lang="en" suppressHydrationWarning>`.
-
-**T5.2 — Theme script runs blocking, before first paint**
-Either:
-- `next-themes` `<ThemeProvider>` wraps the tree with `attribute="class"`, OR
-- Inline `<Script>` in `<head>` reads cookie/localStorage and sets `html.classList` synchronously
-
-Both use an inline blocking script — confirm present.
-
-**T5.3 — Initial theme class rendered server-side**
-If theme is stored in cookie, the `<html className>` should reflect the cookie on first render. Check server component reads `cookies()` and sets class.
-
-**T5.4 — Reduced-motion + preferred-color-scheme fallback**
-If user has no preference stored, honor `prefers-color-scheme` — don't force one default.
-
----
-
-## Step 6 — Theme switch coverage
-
-Toggle theme, walk every route. For each discovered screen:
-
-**T6.1 — Backgrounds change**
-**T6.2 — Text colors change**
-**T6.3 — Borders change**
-**T6.4 — Shadows change or adapt**
-**T6.5 — Form inputs themed (not browser-default)**
-**T6.6 — Icons use `currentColor` (inherit theme)**
-**T6.7 — Charts / data-viz themed**
-**T6.8 — Skeleton shimmer visible in both modes**
-
-Any screen where a rule fails → FAIL with file:line.
-
----
-
-## Step 7 — Multi-theme readiness (optional — premium)
-
-**T7.1 — High-contrast theme token set present**
-Declared via extra class or `prefers-contrast: more` media query.
-
-**T7.2 — Forced-colors mode**
-```
-rg "forced-colors" --type css
-```
-Premium sites honor Windows High Contrast mode. Check.
-
-**T7.3 — `prefers-reduced-transparency` fallback (for glassmorphism apps)**
-If any component uses `backdrop-filter: blur`, check for a `@media (prefers-reduced-transparency: reduce)` opaque fallback.
-
----
-
-## Step 8 — Aggregate
-
-```
-Theme audit — <scope>
-
-Token discipline:      X PASS / Y FAIL
-Semantic naming:       X PASS / Y FAIL
-Light/dark parity:     X PASS / Y FAIL
-color-scheme:          PASS | FAIL
-SSR hydration:         X PASS / Y FAIL
-Switch coverage:       X screens PASS / Y FAIL
-Multi-theme (opt):     X PASS / Y FAIL
-
-Critical failures:
-  [list — hydration flash, contrast misses, computed-invert dark mode]
-
-Polish failures:
-  [list — forced-colors, reduced-transparency, third-party embeds]
-
-Verdict:
-  - 0 critical → THEMES SHIP
-  - any critical → BLOCK
-```
-
----
-
-## Fix loop (if `--fix`)
-
-1. Fix every FAIL — smallest change per rule
-2. Re-run Step 1 from top
-3. Loop until zero FAILs
-4. Report what changed
-
-Fixes **never** invent token values. If a hardcoded color should become a token but the token doesn't exist, ask the user for the value or skip with `NEEDS_USER_INPUT`.
-
----
+- Per-rule verdict for the theme dimensions above (PASS / FAIL / N_A with evidence).
+- Critical failures highlighted: hydration-flash present, contrast miss in dark mode, computed-invert dark mode (heuristic).
+- Polish failures: forced-colors, reduced-transparency, third-party embeds without theme prop.
+- Verdict: `THEMES SHIP` (zero critical) / `BLOCK` (any critical).
 
 ## Scope boundaries
 
-This skill does not:
-
-- Decide which colors go in dark mode — independent design is the user's job
-- Rewrite dark mode values when `extract-tokens` detected computed-invert (flags only)
-- Invent tokens where drift was found
-- Refactor themes architecture beyond what rules FAILed
-
-When in doubt, ask — don't silently choose a default.
-
----
+This command does **not** decide which colors go in dark mode — independent theme design is the user's job. It flags computed-invert patterns; it never rewrites them. It never invents token values. If a hardcoded color should become a token but the token doesn't exist, the engine records `NEEDS_USER_INPUT` rather than picking a value.
 
 ## Tradeoffs
 
-- **Slow on large codebases** — grep passes across every `.tsx`/`.css` file. Scope with argument: `theme-audit components/ui` faster than full repo.
-- **Contrast check is heuristic** — token pairing is inferred from usage; borderline cases may need human review with axe/Lighthouse.
-- **Computed-invert detection** — heuristic math; designer who legitimately chose inversion can override and document.
-- **Switch coverage needs live screens** — static audit catches most, but hydration bugs and layout shifts often only surface in a real browser. Run static first, then toggle the app.
+- **Slow on large codebases** — grep passes across every `.tsx` / `.css` file. Scope with the argument (`theme-audit components/ui` is faster than full repo).
+- **Contrast check is heuristic** — token pairing is inferred from usage; borderline cases need axe / Lighthouse in a real browser.
+- **Switch coverage needs live screens** — static audit catches most, but hydration bugs and layout shifts often only surface at runtime. Run this static audit first, then toggle the app in a browser.

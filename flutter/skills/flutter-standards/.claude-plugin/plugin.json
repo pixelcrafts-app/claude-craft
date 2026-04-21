@@ -1,7 +1,7 @@
 {
   "name": "flutter-standards",
-  "version": "0.5.0",
-  "description": "Flutter pack — 10 auto-invoke standards (incl. smart production-readiness audit) + 8 audit/scaffold skills + 3 review agents. Claude applies the standards automatically on Flutter code.",
+  "version": "0.9.0",
+  "description": "Flutter pack — 10 auto-invoke standards (incl. smart production-readiness audit). Audit commands (pre-ship, premium-check, verify-screens) are thin wrappers that delegate iteration to core-skills:verify-changes; audit-a11y-patterns is a fast regex sweep; scan + scaffold commands remain standalone. Claude applies the standards automatically on Flutter code.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

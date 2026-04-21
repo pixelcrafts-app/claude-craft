@@ -1,0 +1,31 @@
+{
+  "pack": "flutter-standards",
+  "mandatory_skills": [
+    "flutter-standards:craft-guide",
+    "flutter-standards:widget-rules",
+    "flutter-standards:accessibility",
+    "flutter-standards:performance"
+  ],
+  "gate_command": "/flutter-standards:pre-ship",
+  "file_glob_touched": "*.dart",
+  "rules": [
+    {
+      "id": "flutter.a11y.icon-button",
+      "pattern": "IconButton\\([[:space:]]*icon:[[:space:]]*Icon\\(",
+      "message": "IconButton(icon: Icon(...)) — confirm a tooltip: or semanticLabel: is also set, otherwise screen readers announce nothing.",
+      "applies_to": "*.dart"
+    },
+    {
+      "id": "flutter.obs.print",
+      "pattern": "^[[:space:]]*print\\(",
+      "message": "print() in production code — route through the observability logger in lib/shared/ or gate behind kDebugMode.",
+      "applies_to": "lib/**/*.dart"
+    },
+    {
+      "id": "flutter.perf.listview-unbounded",
+      "pattern": "ListView\\([[:space:]]*children:[[:space:]]*\\[",
+      "message": "ListView(children: [...]) builds every child eagerly — use ListView.builder for lists > 10 items, or confirm the list is short.",
+      "applies_to": "*.dart"
+    }
+  ]
+}

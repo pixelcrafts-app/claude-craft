@@ -1,60 +1,54 @@
 ---
 name: premium-check
-description: Audit a screen or widget against the premium mobile craft standard
+description: Audit a screen or widget against the premium mobile craft standard — walks craft, widget, accessibility, and performance rules rule-by-rule and records PASS / FAIL / N_A with evidence.
 disable-model-invocation: true
 argument-hint: [screen-file-path]
 ---
 
-# Premium Craft Audit
+# Premium Craft Audit — Flutter
 
-Audit `$ARGUMENTS` against the premium mobile standard. Read the file, then evaluate every point below.
+Audit `$ARGUMENTS` against the premium mobile standard. This is a focused visual + interaction-quality review — wider than `find-hardcoded` (which scans a single concern) and narrower than `pre-ship` (which runs the whole pack).
 
-## Design System Discipline
-- [ ] All colors reference the design system — zero hardcoded hex/RGBA
-- [ ] All text uses the typography scale — zero inline font sizes or TextStyle
-- [ ] All spacing uses named constants — zero magic number padding/margin
-- [ ] All radii use named constants — zero inline BorderRadius values
-- [ ] Icon sizes are consistent with the system (standard sizes only)
+This command is a thin wrapper. Iteration, batching, report format, and the optional fix loop live in `core-skills:verify-changes`. This command supplies the scope and the dimensions.
 
-## Interaction Quality
-- [ ] Every tappable element has a minimum 48px touch target
-- [ ] Tap feedback is immediate (scale, color change, or ripple)
-- [ ] Buttons disable and show loading state during async operations
-- [ ] Destructive actions require confirmation
-- [ ] Swipe-to-dismiss has undo capability where appropriate
+## How this runs
 
-## State Design
-- [ ] Loading state: skeleton/shimmer matching final layout shape
-- [ ] Empty state: illustration or icon + inviting message + single clear action
-- [ ] Error state: specific message + retry action (never "Error occurred")
-- [ ] Transition between states is animated, not a hard cut
+1. Parse `$ARGUMENTS`:
+   - A Dart file / folder → that's the scope.
+   - If empty, scope defaults to `"uncommitted working tree"` — the engine will take it from there.
+   - `--fix` in the user message → `fix: yes`; otherwise `fix: no`.
 
-## Visual Polish
-- [ ] Squint test passes — hierarchy is clear when blurred
-- [ ] No orphaned pixels — consistent alignment across all elements
-- [ ] Consistent spacing rhythm throughout the screen
-- [ ] Shadows/elevation follow the depth system (no arbitrary values)
-- [ ] Safe area respected (notch, home indicator, system UI)
+2. Emit the brief and delegate:
 
-## Performance
-- [ ] Lists over 20 items use virtualized builders (ListView.builder)
-- [ ] Images load progressively (placeholder → blur → full)
-- [ ] No unnecessary rebuilds — only changed widgets rebuild
-- [ ] Controllers and subscriptions are properly disposed
+   ```
+   verify-changes brief:
+     scope: $ARGUMENTS                 # or "uncommitted working tree" if empty
+     dimensions:
+       - craft-guide                   # premium mobile craft — color, typography, motion, state, density
+       - widget-rules                  # widget discipline — keys, const, rebuilds, lifecycle
+       - accessibility                 # semantic labels, contrast, reduced motion, color-alone
+       - performance                   # list virtualization, image progressive loading, disposal
+     depth: direct
+     fix: <yes | no>
+     source: flutter-standards:premium-check
+   ```
 
-## Accessibility
-- [ ] Text contrast ratio: 4.5:1 minimum
-- [ ] Semantic labels on interactive elements
-- [ ] Doesn't rely on color alone to convey meaning
-- [ ] Respects reduced motion settings
+3. Stop. The engine walks each rule in those four dimensions, records PASS / FAIL / N_A with file:line evidence, and emits the consolidated report (plus the fix loop if requested).
 
-## Report
-```
-File: [path:line]
-Score: [X/6 categories pass]
-Critical Issues:
-  - [issue with fix suggestion]
-Polish Issues:
-  - [issue with fix suggestion]
-Verdict: SHIP / NEEDS WORK
-```
+## What you get back
+
+- Per-rule verdict across the four dimensions.
+- Critical failures first: data-pipeline gaps, missing empty / error / loading states, touch targets < 48px, accessibility violations, obvious perf bombs (un-virtualized large lists, missing dispose).
+- Polish failures second: design-system drift (hardcoded colors / spacing / radii), inconsistent motion, visual hierarchy misses.
+- Verdict: `SHIP` / `NEEDS WORK`. If `fix: yes`, the engine applies minimal fixes, reruns the fixed rules, and reports the final state with a stuck-rule list for anything that oscillated.
+
+## Scope boundaries
+
+This command enforces discipline — it does not impose aesthetic choices. Colors, typography, motion values come from the user's design system; the audit checks that whatever the user chose is applied consistently. `find-hardcoded` and `find-duplicates` remain available standalone for focused scans of those single concerns.
+
+## Relationship to other skills
+
+- `premium-check` → focused craft / widget / a11y / perf audit, optional fix.
+- `pre-ship` → widest scope, every installed Flutter standard, report only.
+- `verify-screens` → data-pipeline trace (screen → data source) as a narrower scope.
+- `find-hardcoded` / `find-duplicates` → regex-based standalone scans.

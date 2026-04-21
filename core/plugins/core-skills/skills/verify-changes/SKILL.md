@@ -25,7 +25,38 @@ Five phases always run in order. Phase 6 (fix loop) is optional and only runs if
 
 ---
 
+## Invocation — interactive vs delegated
+
+This skill runs in one of two modes, distinguished by how it was invoked:
+
+### Interactive mode (default)
+
+User said "verify my changes" or similar. Run **Phase 1** to ask scope / dimensions / depth. This is the normal flow.
+
+### Delegated mode — called by another skill or slash command
+
+A stack command (e.g. `/web-standards:premium-check`, `/flutter-standards:pre-ship`) or another skill invokes this engine with a pre-filled scope. In that case, Phase 1 is **skipped** — the caller supplies a structured brief at the top of the request, in this shape:
+
+```
+verify-changes brief:
+  scope: <file | folder | "uncommitted" | "last N commits" | "$ARGUMENTS">
+  dimensions: [<skill-name>, <skill-name>, ...]   # e.g. [craft-guide], [craft-guide §13], [ALL web]
+  depth: <direct | direct+consumers | full-ripple>
+  fix: <yes | no>          # if yes, Phase 6 runs; if no, stop after Phase 5
+  source: <caller name>    # e.g. "web-standards:premium-check"
+```
+
+Treat every field as authoritative. Do not re-prompt. Echo the brief back once as the audit trail ("Running verify-changes delegated by <source>: scope=…, dimensions=…, depth=…") then jump straight to Phase 2.
+
+If the brief is malformed (missing a required field, unknown dimension name), fall back to interactive mode — ask the user to fix or clarify. Don't guess.
+
+**Dimension scoping.** A dimension may be a whole skill (`craft-guide`) or a subset (`craft-guide §13`, `craft-guide §9.1-§9.5`). When scoped, iterate only the matching rule IDs from that skill's SKILL.md — not the whole file. This is how `theme-audit` becomes "craft-guide §13 only" without duplicating §13's rules.
+
+---
+
 ## Phase 1 — Scope dialogue
+
+(Interactive mode only. Skip if running delegated — see Invocation above.)
 
 Before planning or doing anything, ask the user three specific questions. Don't guess; asking is cheaper than redoing.
 
@@ -237,7 +268,13 @@ For each batch:
 
 1. **Mark batch tasks in_progress** via TaskUpdate
 2. **Load only what's needed** — read the files in this batch, load only the standards skill relevant to this batch's dimension. Don't pre-load the whole pack.
-3. **Iterate rule-by-rule** (from the `premium-check` iteration-loop pattern) — for each rule in the dimension, quote evidence, record PASS / FAIL / N_A per file.
+3. **Iterate rule-by-rule** — for every rule in the loaded dimension's SKILL.md, produce one record per (rule × file):
+   - **Rule ID or heading** — the section/rule identifier from the skill (e.g. `craft-guide §4.2` or `nestjs — controller split`). Never collapse multiple rules into one record.
+   - **Evidence** — a direct quote from the file with `path:line`, or the literal string `no occurrence` if the rule does not apply to anything in this file.
+   - **Verdict** — exactly one of `PASS`, `FAIL`, `N_A`. `N_A` **requires** a one-line reason (e.g. "file has no color tokens — rule about color harmony doesn't apply"). Bare `N_A` without reason is invalid and must be re-run.
+   - **Suggested fix** — only on `FAIL`. One line. The minimum change that resolves the rule.
+   
+   Walk every rule in order. Never skip a rule because it "seems unrelated" — record `N_A` with reason instead. Never stop mid-dimension on the first FAIL; collect them all.
 4. **Record results in task metadata**:
    ```
    TaskUpdate: status=completed, metadata={ pass_count, fail_count, fails: [{ rule, file, line, evidence, suggested_fix }] }
@@ -323,6 +360,24 @@ If user said "verify and fix" rather than "just verify":
 
 ---
 
+## For plugin authors — the thin-wrapper pattern
+
+Stack-specific audit commands (`premium-check`, `pre-ship`, `theme-audit`, `verify-screens`, etc.) should **not** reimplement the iterate-rule-by-rule loop, the batching logic, the task metadata discipline, or the PASS/FAIL report format. All of that lives here.
+
+A stack command is a thin wrapper that:
+
+1. Parses its slash-command `$ARGUMENTS` (or defaults to "uncommitted working tree").
+2. Emits the structured brief shown in the Invocation section above, pre-filling:
+   - `scope` — from `$ARGUMENTS` or the command's natural default
+   - `dimensions` — the subset of installed skills this command cares about (e.g. premium-check → `[craft-guide]`; theme-audit → `[craft-guide §13]`; pre-ship → `[ALL stack pack]`)
+   - `depth` — usually `direct` for focused audits, `direct+consumers` for pre-ship
+   - `fix` — `yes` if the command is named with "fix" in the intent; `no` otherwise
+3. Delegates to this skill.
+
+That's the whole wrapper. Stack commands add value by **picking the right dimensions** for their audience — not by reimplementing the engine. See `contributing.md` for the full pattern and examples.
+
+---
+
 ## Principles
 
 **Generic over specific.** This skill does not care whether the stack is Flutter, NestJS, Next.js, or anything else. It reads whatever SKILL.md files are installed and applies them. Adding a new stack requires no change to this skill.
@@ -341,10 +396,9 @@ If user said "verify and fix" rather than "just verify":
 
 Several skills auto-invoke on similar triggers. Collisions and double-runs waste tokens. Use these rules:
 
-- **`verify-changes` takes precedence when the scope is multi-file or cross-boundary.** If the user says "verify my changes" and more than ~3 files are touched, run this skill. `pre-ship` covers single-file quality gates (lint, per-component polish, pack-specific checklists); `verify-changes` composes similar per-file checks across many files and adds cross-file consumer impact. Running both over the same scope duplicates the per-file checks — pick one: `verify-changes` for the multi-file scope, `pre-ship` on a single file before shipping it.
-- **`pre-ship` runs instead of `verify-changes`** when the work is clearly single-file or single-feature polish within one pack.
-- **`docs-sync` runs *after* `verify-changes` completes**, not as a dimension inside it. When `verify-changes` finishes and the scope included `.md` edits or a version bump, emit a line at the end of Phase 5: *"Next: running docs-sync for drift check."* Let `docs-sync` handle it — don't duplicate.
-- **`premium-check`** (Web) is a single-file iteration-loop audit. This skill composes it as one dimension across many files; don't re-run `premium-check` separately after `verify-changes`.
+- **Stack-pack audit commands delegate to this skill.** `/web-standards:pre-ship`, `/web-standards:premium-check`, `/web-standards:theme-audit`, `/web-standards:aesthetic-coherence`, `/flutter-standards:pre-ship`, `/flutter-standards:premium-check`, `/flutter-standards:verify-screens` are thin wrappers that pick a scope + dimensions + depth and invoke this skill. They do not re-implement iteration, batching, or fix loops. If a user runs one of those commands, treat it as a `verify-changes` invocation with the brief that command supplied — don't re-run either side.
+- **When invoked directly** (user says "verify my changes" / "cross-check" without a pack-specific command), run the interactive-mode Phase 1 scope dialogue.
+- **`docs-sync` runs *after* this skill completes**, not as a dimension inside it. When `verify-changes` finishes and the scope included `.md` edits or a version bump, emit a line at the end of Phase 5: *"Next: running docs-sync for drift check."* Let `docs-sync` handle it — don't duplicate.
 - **`subagent-brief`** is not a trigger peer — it governs delegation discipline. If, and only if, this skill delegates a batch to a subagent, the Agent prompt follows `subagent-brief`'s template.
 
 If the user explicitly invokes a specific skill by name, respect that — don't override their choice with this skill.

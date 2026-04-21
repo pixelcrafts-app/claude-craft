@@ -36,15 +36,9 @@ Install: `/plugin install flutter-standards@pixelcrafts` — or enable in `.clau
 | [/flutter-standards:verify-screens](#verify-screens) | Trace data source → UI |
 | [/flutter-standards:find-hardcoded](#find-hardcoded) | Scan for design-system violations |
 | [/flutter-standards:find-duplicates](#find-duplicates) | Scan for DRY violations |
-| [/flutter-standards:accessibility-audit](#accessibility-audit) | 10 a11y patterns scanned |
+| [/flutter-standards:audit-a11y-patterns](#audit-a11y-patterns) | 10 Flutter-specific a11y patterns scanned (regex sweep) |
 | [/flutter-standards:scaffold-screen](#scaffold-screen) | Generate a screen with 4 states |
 | [/flutter-standards:scaffold-feature](#scaffold-feature) | Generate a feature folder |
-
-### 3 agents
-
-- **flutter-reviewer** — reviews a diff against every Flutter standard
-- **test-writer** — generates widget + unit tests matching the project's framework
-- **security-reviewer** — flags PII/secret leaks, insecure storage, unsafe deep links
 
 ---
 
@@ -65,11 +59,6 @@ Install: `/plugin install api-standards@pixelcrafts`.
 |---|---|
 | [/api-standards:sync-migrate](#sync-migrate) | Prisma schema change workflow — generate, migrate, type-check, sync consumers |
 
-### 2 agents
-
-- **api-documenter** — generates OpenAPI-style docs from controllers
-- **security-reviewer** — reviews endpoints/services for auth, validation, PII gaps
-
 ---
 
 ## Web pack (`web-standards`) — Next.js + Tailwind + shadcn
@@ -89,14 +78,14 @@ Install: `/plugin install web-standards@pixelcrafts`.
 | Slash command | What it does |
 |---|---|
 | [/web-standards:pre-ship](#pre-ship-web) | Quality gate before merge |
-| [/web-standards:premium-check](#premium-check-web) | 17-section iteration-loop craft audit (rule-by-rule PASS/FAIL, loops to zero FAIL) |
+| [/web-standards:premium-check](#premium-check-web) | Craft audit — delegates `craft-guide §1 – §15` to the engine; rule-by-rule PASS/FAIL, optional fix loop |
 | [/web-standards:extract-tokens](#extract-tokens) | Extract design tokens from codebase or input; write `design-tokens.md` single source of truth |
 | [/web-standards:theme-audit](#theme-audit) | Verify theme completeness — light/dark parity, hydration flash, `color-scheme`, switch coverage |
 | [/web-standards:aesthetic-coherence](#aesthetic-coherence) | Detect aesthetic mixing — flag screens committing to two design languages at once |
 
 ---
 
-## Safety + Docs-sync pack (`core-hooks`) — cross-stack
+## Hooks plugin (`core-hooks`) — cross-stack
 
 Install: `/plugin install core-hooks@pixelcrafts`.
 
@@ -105,19 +94,34 @@ Install: `/plugin install core-hooks@pixelcrafts`.
 Run on every Edit / Write / Bash:
 
 - `protect-files.sh` — blocks edits to `.env`, `*.key`, `*.pem`, `credentials.json`, and similar secret files
-- `protect-bash.sh` — blocks `rm -rf /`, `git reset --hard`, force-push to protected branches, and similar destructive commands
+- `protect-bash.sh` — blocks destructive shell commands (`rm -rf /`, `git reset --hard`, force-push to protected branches, etc.)
+- `enforce-tokens.sh` — blocks raw design values in projects with a token system. Rules live in the stack skill packs; this hook enforces deterministically.
+- `enforce-rules.sh` — **enforcement mode (opt-in)**. When a project commits `.claude/enforcement.json` listing mandatory packs, this hook runs each pack's rule registry against every Edit / Write / MultiEdit and hard-blocks on violation. See [docs/enforcement.md](enforcement.md).
 
-No slash command. Runs automatically.
+### SessionStart hook
 
-### 3 auto-invoke skills
+- `rules-discipline.sh` — surfaces plugin-hook mechanics to Claude. Notably: hooks run in the main session only, not inside subagent writes.
+- `enforcement-preamble.sh` — when enforcement mode is active, injects a pinned preamble listing mandatory skills, rule IDs, and the gate command per pack.
+
+### Stop hook (v0.10.0)
+
+- `stop-gate.sh` — when enforcement mode is active, blocks turn-end if a mandatory pack's files were edited but the pack's gate command (e.g. `/flutter-standards:pre-ship`) has not passed. Claude cannot say "done" until each gate reports SAFE TO COMMIT.
+
+No slash commands. Runs automatically.
+
+---
+
+## Cross-stack skills plugin (`core-skills`)
+
+Install: `/plugin install core-skills@pixelcrafts`.
 
 | Skill | Fires on | Does |
 |---|---|---|
 | docs-sync | End-of-task signals (version bump, plugin added/removed, "ship / done / release", pre-ship runs, `v*.*.*` commit) | Cross-checks code vs README / CHANGELOG / ROADMAP / `docs/skills.md` / plugin descriptions. Flags deltas. Never rewrites prose. Never blocks. |
-| subagent-brief | Any time the model considers delegating to Agent / Task / Explore / Plan / general-purpose subagent | Enforces warm-brief discipline: goal + known context (paths + lines) + hard scope + output shape + budget. A subagent given "figure it out" burns 3–10× the tokens of one given specifics. This skill keeps spawns cheap and stops subagents from re-discovering what you already know. |
-| verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph (finds consumers of every changed file). Creates a TaskCreate tree batched 5–10 tasks per batch. Verifies rule-by-rule from whichever SKILL.md files are installed. Records batch results in task metadata so context doesn't blow on large changesets. Emits critical / polish / consumer-break verdict. Pure prompt — no hooks, no external tools. |
+| subagent-brief | Any time the model considers delegating to Agent / Task / Explore / Plan / general-purpose subagent | Enforces warm-brief discipline: goal + known context (paths + lines) + hard scope + output shape + budget. A subagent given "figure it out" burns 3–10× the tokens of one given specifics. |
+| verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph. Verifies rule-by-rule from whichever SKILL.md files are installed. Emits critical / polish / consumer-break verdict. Pure prompt — no hooks, no external tools. |
 
-Install alongside any pack — the hooks apply regardless of stack, and `docs-sync` runs on any repo whether it's one of ours or not.
+Install either / both alongside any pack — they apply regardless of stack.
 
 ---
 
@@ -144,9 +148,9 @@ Re-run anytime to refresh.
 
 `/flutter-standards:pre-ship`
 
-Closes the gap between "I wrote the code" and "ready to merge". Catches craft, engineering, a11y, perf, and test gaps in one pass.
+Closes the gap between "I wrote the code" and "ready to merge". Thin wrapper: runs `flutter analyze` as a pre-check, then delegates the audit to `core-skills:verify-changes` with every installed Flutter standard as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
 
-**Checks:** all 4 states wired (loading / empty / error / content), design tokens used (no hex, no magic spacing, no inline TextStyle), `Semantics` labels on interactive elements, touch targets ≥ 48dp, no `print()`, no unrequested features, `maxLines` + overflow protection on user-generated text, tests present for core flows, no new TODO/FIXME.
+**Covers:** craft, engineering, widget discipline, api-data pipeline, testing, accessibility, performance, forms, observability, production-readiness. One engine, every rule, consumer-break detection in one run.
 
 **Sample output:**
 ```
@@ -156,12 +160,16 @@ Critical
     - IconButton at line 42 has no Semantics label
     - Color(0xFF1E88E5) at line 18 — use AppColors.primary
 
-Nice-to-have
+Polish
   lib/features/profile/widgets/avatar.dart
     - Image.network has no cacheWidth — decodes at source resolution
+
+Consumer impact
+  lib/features/profile/provider.dart → lib/features/profile/screen.dart:18
+    - rename of `fetchUser` → `loadUser` broke the consumer import
 ```
 
-Catches 3–8 issues on a typical feature before review.
+Catches 3–8 issues per feature before review, plus any consumer breakage from renames or signature changes.
 
 ---
 
@@ -169,9 +177,11 @@ Catches 3–8 issues on a typical feature before review.
 
 `/flutter-standards:premium-check <screen-file>`
 
+Focused craft + widget + a11y + perf audit on a single screen. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [craft-guide, widget-rules, accessibility, performance]`, `depth: direct`. Optional fix loop with `--fix`.
+
 Catches screens that technically work but feel off. Typography scale adherence, spacing rhythm (4/8/12/16/24), motion timing, state transitions (skeleton, not spinner), empty-state CTAs, error-state actionability, interactive feedback within 100ms.
 
-Pairs with `accessibility-audit`.
+Pairs with `audit-a11y-patterns` for the quick Dart-specific regex sweep.
 
 ---
 
@@ -179,9 +189,9 @@ Pairs with `accessibility-audit`.
 
 `/flutter-standards:verify-screens <feature>`
 
-Finds the mock-data-leftover bug — a screen that looks fine in dev because it still reads from a fixture.
+Finds the mock-data-leftover bug — a screen that looks fine in dev because it still reads from a fixture. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [api-data, widget-rules, craft-guide]` and `depth: full-ripple` so the engine walks screen → provider → repo → data source.
 
-**Checks:** every widget traces back to a real provider/repository, no `fake`/`mock`/`fixture` imports in production paths, API calls flow through the repository layer, loading/error states map to real async sources, no hardcoded data in screen files.
+**Checks:** every widget traces back to a real provider / repository, no `fake` / `mock` / `fixture` imports in production paths, API calls flow through the repository layer, loading / error states map to real async sources, no hardcoded data in screen files.
 
 Pairs with `scaffold-feature` — after scaffolding, verify end-to-end wiring.
 
@@ -209,11 +219,13 @@ Typically 3–10 duplicate groups per mid-size app. 5–15% LoC reduction is com
 
 ---
 
-### accessibility-audit
+### audit-a11y-patterns
 
-`/flutter-standards:accessibility-audit`
+`/flutter-standards:audit-a11y-patterns`
 
-10 pattern categories: missing `Semantics`, color-alone indicators, sub-48dp touch targets, placeholder-only fields, missing autofill hints, fixed heights clipping scaled text, missing focus indicators, unannounced state changes, hardcoded left/right (breaks RTL), animations without motion-preference check.
+Fast Flutter-specific regex scan covering 10 pattern categories: missing `Semantics`, color-alone indicators, sub-48dp touch targets, placeholder-only fields, missing autofill hints, fixed heights clipping scaled text, missing focus indicators, unannounced state changes, hardcoded left/right (breaks RTL), animations without motion-preference check.
+
+This is the *pattern scanner*, not THE accessibility audit. The full rule-by-rule a11y audit runs inside `premium-check` / `pre-ship` / `verify-changes` as the `accessibility` dimension. Use this command for a quick Dart-specific sweep; use `premium-check` for the complete walk with fix loop.
 
 WCAG compliance work. EAA (EU) + ADA (US) risk reduction.
 
@@ -264,11 +276,11 @@ Removes the four-step dance from human memory.
 
 `/web-standards:pre-ship`
 
-Closes the gap between "I finished the component" and "ready to ship". Catches lint warnings, broken data pipelines, missing states, broken dark mode, broken responsive — in one pass.
+Closes the gap between "I finished the component" and "ready to ship". Thin wrapper: runs `npm run lint` as a pre-check, then delegates to `core-skills:verify-changes` with every installed web standard (`nextjs`, `production-readiness`, `craft-guide`) as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
 
-**Checks:** lint (zero errors + warnings), data pipeline traced API → hook → component, 4 states per data-driven component, design tokens (no hex, no `p-[13px]`), responsive 320–1440px, dark mode independently designed, a11y basics (semantic HTML, alt text, keyboard focus).
+**Covers:** lint pre-check, data pipeline traced API → hook → component, state coverage per data-driven component, design-token discipline, responsive 320–1440px, dark mode independently designed, a11y, production-readiness R1–R10 (error boundaries, Suspense, optimistic UI, images, OG, sitemap, CSP, consent, CWV, logging).
 
-3–10 issues per feature before review.
+3–10 issues per feature before review, plus any consumer breakage from renames or contract changes.
 
 ---
 
@@ -276,7 +288,7 @@ Closes the gap between "I finished the component" and "ready to ship". Catches l
 
 `/web-standards:premium-check <component-file>`
 
-Iterates every rule across 17 craft-guide sections against a single file. For each rule: quotes evidence, records PASS / FAIL / N_A, suggests fix. Aggregates into critical vs polish failures. With `--fix`, loops: fix → re-audit → fix → re-audit until zero FAILs.
+Walks every rule in `craft-guide §1 – §15` against a single file. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [craft-guide §1 – §15]`, `depth: direct`. Before delegating, detects the app's aesthetic (§9) and density target (§8.5) — asks the user when ambiguous rather than guessing. With `--fix`, the engine loops: fix → re-audit → fix → re-audit until zero FAILs (or a rule hits the 3-retry stuck cap).
 
 Catches long-tail craft rules that single-pass audits skip. Expensive per-file — scope to one component or page at a time.
 
@@ -304,18 +316,11 @@ Never invents brand values. Asks the user when ambiguous.
 
 `/web-standards:theme-audit [optional-scope]`
 
-Iterates eight sections of theme completeness:
+Thin wrapper: delegates to `core-skills:verify-changes` with the theme subset of craft rules — `craft-guide §13` (tokens, semantic naming, parity, hydration, color-scheme) plus `§1.5` (dark-mode contrast), `§11.3` (::selection), `§11.5` (caret-color), `§12.7` (color-scheme), `§12.8` (forced-colors), `§12.9` (reduced-transparency). Pre-flight: checks tokens exist (`design-tokens.md` or Tailwind / CSS var scan); if neither theme has tokens, halts and asks for `extract-tokens` first.
 
-1. Token discipline — no hardcoded values leaking through
-2. Semantic naming — `--primary` not `--blue-500` in components
-3. Light/dark parity — every token defined in both; dark is not computed invert
-4. `color-scheme` property set (prevents native-form-flash in dark)
-5. SSR hydration flash — `suppressHydrationWarning`, blocking theme script, server-side initial class
-6. Switch coverage — toggle theme, walk every route; flag screens with unchanged backgrounds or unthemed embeds
-7. Multi-theme readiness — forced-colors, reduced-transparency, high-contrast
-8. Reports critical vs polish failures
+Catches theme completeness issues the full craft audit would catch too — faster because scope is narrower.
 
-Pairs with `extract-tokens` — re-runs after tokens land.
+Pairs with `extract-tokens` — re-run after tokens land.
 
 ---
 
@@ -325,8 +330,8 @@ Pairs with `extract-tokens` — re-runs after tokens land.
 
 Detects the #1 "assembled, not designed" tell: mixing two design languages in one surface (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial).
 
-Scores 14 aesthetic signatures per file (minimalist, flat, material, utility-brutalist, glassmorphism, neumorphism, claymorphism, liquid glass, bento, editorial, brutalist, dark-cinematic, AI-native, retro/Y2K). Flags files where top 2 scores are within 30% — the classic mix.
+Hybrid pattern: runs **detection itself** (scoring 14 aesthetic signatures per file, flagging MIXED / OUTLIER / UNCLEAR) because that's a signal-scoring task, not a rule walk. After classification, delegates **spec compliance** to `core-skills:verify-changes` with `dimensions: [craft-guide §9]` — the engine walks §9.1 (single aesthetic), §9.2 (per-aesthetic specs), §9.3 / §9.4 (glass-specific legibility + reduced-transparency), §9.5 (numeric specs).
 
 Cross-file: detects outlier screens committed to a different aesthetic than the app.
 
-Fix loop is **manual-confirmation** — aesthetic rewrites are taste calls, not automatic. This skill flags and proposes; user approves per file.
+Fix loop is **manual-confirmation** — aesthetic rewrites are taste calls, not automatic. This skill flags and proposes; user approves per file. Never invokes the engine with `fix: yes`.
