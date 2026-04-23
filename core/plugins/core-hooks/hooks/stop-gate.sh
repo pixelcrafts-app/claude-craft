@@ -38,8 +38,10 @@ fi
 PACKS=$(jq -r '.mandatory // [] | .[]' "$CONFIG" 2>/dev/null)
 [ -z "$PACKS" ] && exit 0
 
-GATE_REQUIRED=$(jq -r '.gate_required // true' "$CONFIG" 2>/dev/null)
-# Treat any non-"false" as required.
+# Read raw — jq's `//` treats null AND false as "absent", so `// true` would
+# silently ignore an explicit `false`. A missing key emits "null" which does
+# not match "false" below, so the default-on behaviour is preserved.
+GATE_REQUIRED=$(jq -r '.gate_required' "$CONFIG" 2>/dev/null)
 [ "$GATE_REQUIRED" = "false" ] && exit 0
 
 DEFAULTS_DIR="${CLAUDE_PLUGIN_ROOT}/enforcement"

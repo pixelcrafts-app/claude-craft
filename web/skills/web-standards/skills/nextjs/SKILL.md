@@ -60,8 +60,20 @@ Concrete code patterns for Next.js app router, React components, Tailwind CSS, a
 
 ## State Management
 
-### Server State (React Query / TanStack Query)
-- All API data fetched and cached via React Query
+### Server State
+
+**Decide first: Server Component fetch or React Query?**
+
+| Use Server Component fetch (no React Query) | Use React Query (requires `"use client"`) |
+|---|---|
+| Data needed at initial render, can block | Data needed after interaction or on user action |
+| Data is auth-scoped and must not be cached client-side | Data benefits from client-side cache / stale-while-revalidate |
+| SEO-sensitive content | Optimistic updates, background refetch, dependent queries |
+| Page-level data that rarely changes per-session | User-specific dynamic data that changes during the session |
+
+Never add `"use client"` solely to use React Query when a Server Component fetch would work — that removes Server Component benefits (no client bundle, no loading flash for initial data).
+
+**React Query rules (when applicable):**
 - Query keys: structured arrays `['entity', 'list', { filter }]` — never plain strings
 - `staleTime` and `gcTime` set per query based on data volatility
 - Mutations use `useMutation` with `onSuccess` invalidation
@@ -81,10 +93,12 @@ Concrete code patterns for Next.js app router, React components, Tailwind CSS, a
 
 ## Data Fetching
 
-- Server components: fetch directly (no React Query needed)
-- Client components: React Query hooks
+- Fetch strategy: use the decision table in State Management above before choosing Server Component fetch vs React Query
+- Server Components: fetch directly — no React Query, no `useEffect`, no client state
+- Client Components: React Query hooks — never raw `fetch` in `useEffect`
+- New routes require sibling files: `loading.tsx` (Suspense boundary), `error.tsx` (error boundary), and `not-found.tsx` — all three are required for every new route, not optional
 - API client: centralized HTTP client class with timeout + abort signals
-- Cache manager: TTL-based with stale-while-revalidate and request deduplication
+- Server Component cache semantics: use `cache()` for deduplication within a request, `revalidatePath()` / `revalidateTag()` after mutations, `fetch` `revalidate` option for time-based invalidation — never leave Server Component fetches uncached by default
 - Handle loading, error, empty states for every data-driven component — no exceptions
 
 ---

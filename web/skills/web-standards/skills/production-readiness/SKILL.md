@@ -5,6 +5,8 @@ description: Apply when auditing a Next.js app for production readiness — smar
 
 # Next.js Production Readiness
 
+Universal engineering, security, testing, and observability rules — see core-standards:rules §1–§4. This skill covers Next.js-specific patterns only.
+
 These are the concerns that decide whether a Next.js app survives contact with real traffic, search engines, ad networks, and privacy regulators. None are universally required — each depends on audience, regulatory scope, and deployment model. Every item follows Detect → Check → Suggest.
 
 ## How to read this audit

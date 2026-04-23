@@ -94,39 +94,8 @@ Concrete code patterns for NestJS modules, controllers, services, DTOs, and midd
 
 ## TypeScript Standards
 
-- `interface` for object shapes, `type` for unions/intersections
+NestJS-specific type constraints only — general TypeScript rules are in `core-standards:rules`.
+
 - Prefer `readonly` properties on DTOs and config objects
-- Use `enum` for finite value sets that map to DB/API values
-- Avoid `any` — use `unknown` when type is genuinely uncertain, then narrow
-- Prefer `const` over `let` — immutability by default
-- Named parameters via options objects for functions with more than 2 parameters
-
----
-
-## Code Quality Patterns
-
-### No String-Based Dispatch
-- Don't use `if/else` chains or `switch` on raw strings for routing logic
-- Use `Record<string, Handler>` maps, enums, or strategy pattern instead
-- String dispatch is fragile — typos compile, refactors miss branches, new cases get forgotten
-
-### Single Responsibility
-- One function does one thing. If you need "and" to describe it, extract
-- Services: one domain concern. Controllers: one resource. Repositories: one entity/table
-- Long functions (30+ lines) are a smell — decompose into well-named private methods
-
-### Defensive at Boundaries
-- Validate shape and type of all external data: API responses, DB results, user input, config values
-- Don't trust that a database response has the shape you expect — check for `null`, missing fields, wrong types
-- Use type guards or validation at system edges — internal code can trust validated data
-
-### Constants Over String Literals
-- Shared strings (status values, event names, config keys) live in constants or config files
-- Never repeat the same string literal in more than one file
-- Enum or `as const` object for finite sets
-
-### Testability by Design
-- Dependencies are injectable — no `new Service()` inside other services
-- Prefer pure functions for business logic — input in, output out, no side effects
-- No hidden state: if a function depends on something, it's a parameter or injected dependency
-- Side effects (DB writes, API calls, logging) at the edges — core logic stays pure
+- Use `enum` for finite value sets that map to DB/API values — not raw string literals
+- Avoid `any` — use `unknown` when type is genuinely uncertain, then narrow with type guards at the boundary

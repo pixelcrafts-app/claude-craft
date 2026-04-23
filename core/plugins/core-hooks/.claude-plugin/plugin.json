@@ -1,7 +1,7 @@
 {
   "name": "core-hooks",
-  "version": "0.10.0",
-  "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics + the optional mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values (token-managed projects), and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. Stop hook blocks turn-end until each mandatory pack's gate command has passed. Pure bash + jq.",
+  "version": "0.11.0",
+  "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics, delegation-quality nudge, and the optional mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values (token-managed projects), cold Task/Agent spawns that fail a scope-scaled warmth score (labeled sections + pasted excerpts + file paths — trivial prompts pass through), and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. Stop hook blocks turn-end until each mandatory pack's gate command has passed. Pure bash + jq.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"
@@ -49,6 +49,15 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/protect-bash.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Task|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/enforce-subagent-brief.sh"
           }
         ]
       }

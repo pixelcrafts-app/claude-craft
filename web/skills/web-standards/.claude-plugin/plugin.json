@@ -1,7 +1,7 @@
 {
   "name": "web-standards",
-  "version": "0.9.0",
-  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke nextjs + production-readiness (§R1–§R10) + craft-guide (§1–§15 with stable rule IDs) standards. Audit commands (pre-ship, premium-check, theme-audit, aesthetic-coherence) are thin wrappers that delegate iteration to core-skills:verify-changes. extract-tokens writes the token source of truth. Universal formulas enforced; brand values from user.",
+  "version": "0.10.0",
+  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke: nextjs + production-readiness (§R1–§R10) + craft-guide (§1–§15) standards; premium-signals (market-sourced precise values — shadow formula, OKLCH dark grays, easing, tabular-nums); i18n (conditional on next-i18next/react-i18next or locales/ dir: t() coverage, plural rules, RTL, next.config.js locale routing). Audit commands delegate to core-standards:verify-changes. extract-tokens writes token source of truth.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

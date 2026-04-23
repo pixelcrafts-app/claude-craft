@@ -5,49 +5,57 @@
     "url": "https://github.com/pixelcrafts-app"
   },
   "metadata": {
-    "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js). Install a pack, Claude applies the standards. No CLAUDE.md edits.",
-    "version": "0.10.0"
+    "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js), Mobile-universal. Install a pack, Claude applies the standards. No CLAUDE.md edits.",
+    "version": "0.12.0"
   },
   "plugins": [
     {
       "name": "flutter-standards",
       "source": "./flutter/skills/flutter-standards",
-      "description": "Flutter pack — 10 auto-invoke standards (craft, engineering, widgets, data, testing, a11y, perf, forms, observability, production-readiness with smart Detect→Check→Suggest audits). Audit commands (pre-ship, premium-check, verify-screens) are thin wrappers that delegate iteration to core-skills:verify-changes; audit-a11y-patterns is a fast regex sweep; find-hardcoded, find-duplicates, and scaffolds remain standalone.",
+      "description": "Flutter pack — 10 auto-invoke standards (craft, engineering, widgets, data, testing, a11y, perf, forms, observability, production-readiness with smart Detect→Check→Suggest audits). Audit commands (pre-ship, premium-check, verify-screens) are thin wrappers that delegate iteration to core-standards:verify-changes; audit-a11y-patterns is a fast regex sweep; find-hardcoded, find-duplicates, and scaffolds remain standalone.",
       "version": "0.9.0",
       "category": "mobile-flutter",
       "tags": ["flutter", "dart", "mobile", "standards"]
     },
     {
+      "name": "mobile-standards",
+      "source": "./mobile/skills/mobile-standards",
+      "description": "Mobile-universal pack — craft quality (iOS Liquid Glass, Material You, tonal elevation, haptic timing), production readiness, forms, observability, testing, premium-signals (Spring animation values, bottom-sheet detents, scroll-linked animation). Applies to Flutter, React Native, SwiftUI, Jetpack Compose. Auto-invoked by description triggers.",
+      "version": "1.0.0",
+      "category": "mobile",
+      "tags": ["mobile", "ios", "android", "flutter", "react-native", "swiftui", "jetpack-compose", "standards"]
+    },
+    {
       "name": "api-standards",
       "source": "./api/skills/api-standards",
-      "description": "API pack — NestJS + Prisma. 2 auto-invoke standards (nestjs, code-quality with smart Detect→Check→Suggest audits for rate limiting, idempotency, retries, webhooks, graceful shutdown, health, correlation IDs, soft delete, audit logs, DB pool), sync-migrate workflow.",
-      "version": "0.5.0",
+      "description": "API pack — NestJS + Prisma. Auto-invoke: nestjs + code-quality standards; cross-stack-contracts (active when craft.json stacks has 2+ entries: unified error shape, cursor pagination, Bearer header, versioned routes, OpenAPI spec); websockets (conditional on socket.io/ws usage: connection auth, backoff reconnect, event enum, schema versioning). Sync-migrate workflow.",
+      "version": "0.6.0",
       "category": "backend-api",
-      "tags": ["api", "nestjs", "prisma", "standards"]
+      "tags": ["api", "nestjs", "prisma", "standards", "websockets", "cross-stack"]
     },
     {
       "name": "web-standards",
       "source": "./web/skills/web-standards",
-      "description": "Web pack — Next.js + Tailwind + shadcn. 3 auto-invoke standards (nextjs, production-readiness with §R1–§R10 rule IDs, craft-guide with §1–§15 rule IDs — universal design formulas across color+contrast+harmony, spacing, type, shadow, radius, motion, state, responsive, aesthetic coherence, iconography, chrome, a11y, theme, microcopy, brand moments). Audit commands (pre-ship, premium-check, theme-audit, aesthetic-coherence) are thin wrappers that delegate iteration to core-skills:verify-changes; extract-tokens writes the token source of truth. Universal formulas enforced; brand values come from user.",
-      "version": "0.9.0",
+      "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke: nextjs + production-readiness (§R1–§R10) + craft-guide (§1–§15 rule IDs); premium-signals (market-sourced precise values — 2-layer shadow formula, OKLCH dark gray scale, Linear easing, tabular-nums, display tracking); i18n (conditional on next-i18next/react-i18next or locales/ dir: t() coverage, plural rules, RTL, locale routing). Audit commands delegate to core-standards:verify-changes. extract-tokens writes token source of truth.",
+      "version": "0.10.0",
       "category": "frontend-web",
-      "tags": ["web", "nextjs", "react", "tailwind", "shadcn", "standards", "design-system", "craft"]
+      "tags": ["web", "nextjs", "react", "tailwind", "shadcn", "standards", "design-system", "craft", "i18n"]
     },
     {
       "name": "core-hooks",
       "source": "./core/plugins/core-hooks",
-      "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics + (opt-in) mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values in token-managed projects, and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. Stop hook blocks turn-end until each mandatory pack's gate has passed. Rules live in the stack skill packs; this plugin enforces them deterministically.",
-      "version": "0.10.0",
+      "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics and (opt-in) a mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values in token-managed projects, cold Task/Agent spawns below warmth threshold, and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. Stop hook blocks turn-end until each mandatory pack's gate has passed. Configurable via allowed_files and allowed_commands in .claude/enforcement.json.",
+      "version": "0.12.0",
       "category": "core",
       "tags": ["hooks", "safety", "secrets", "design-tokens"]
     },
     {
-      "name": "core-skills",
-      "source": "./core/plugins/core-skills",
-      "description": "Cross-stack skills. docs-sync catches code/doc drift at end-of-task. verify-changes is the canonical audit engine — accepts a structured brief from stack-pack thin-wrappers and owns iteration, batching, and the fix loop. subagent-brief enforces warm-brief discipline when delegating. Pure prompts — no hooks.",
-      "version": "0.9.0",
+      "name": "core-standards",
+      "source": "./core/plugins/core-standards",
+      "description": "Cross-stack engine and universal skills. Engine skill (verify-changes) owns orchestration — plan, delegate, cross-check, report. Universal skills: principles, planning (structured plan block with measurable deliverables + craft.json auto-generation), rules (§1 Security ALWAYS-MANDATORY, §2–§5 universal), verification (4-tier detection: ALWAYS/PROJECT/TASK-SCOPED/FLAGGED, adversarial verifier mindset, restart-after-fix), auth-flows (conditional on craft.json features.auth: JWT lifecycle, refresh rotation, PKCE, guard composition), craft-config (craft.json schema + auto-generation), agents, mcp-integration, docs-sync, subagent-brief.",
+      "version": "0.2.0",
       "category": "core",
-      "tags": ["skills", "cross-stack", "docs-sync", "verify-changes", "subagent-brief"]
+      "tags": ["skills", "cross-stack", "engine", "standards", "orchestration", "auth", "craft-config"]
     }
   ]
 }

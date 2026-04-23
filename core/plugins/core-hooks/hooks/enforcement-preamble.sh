@@ -58,7 +58,7 @@ while IFS= read -r PACK; do
   BODY="${BODY}**Mandatory skills you MUST apply:**\n${SKILLS}\n\n"
   BODY="${BODY}**Deterministic blocks (PreToolUse — will reject your edit if triggered):**\n${RULES}\n\n"
   if [ -n "$GATE" ] && [ "$GATE" != "null" ]; then
-    BODY="${BODY}**Gate:** After edits to \`$TOUCHED\`, you MUST run \`$GATE\` before the turn ends. The Stop hook will block \"done\" until the gate passes. The gate runs the engine (\`core-skills:verify-changes\`) across every rule in this pack and reports PASS / FAIL with evidence.\n\n"
+    BODY="${BODY}**Gate:** After edits to \`$TOUCHED\`, you MUST run \`$GATE\` before the turn ends. The Stop hook will block \"done\" until the gate passes. The gate runs the engine (\`core-standards:verify-changes\`) across every rule in this pack and reports PASS / FAIL with evidence.\n\n"
   fi
 done <<< "$PACKS"
 

@@ -1,12 +1,12 @@
 {
   "name": "flutter-standards",
-  "version": "0.9.0",
-  "description": "Flutter pack — 10 auto-invoke standards (incl. smart production-readiness audit). Audit commands (pre-ship, premium-check, verify-screens) are thin wrappers that delegate iteration to core-skills:verify-changes; audit-a11y-patterns is a fast regex sweep; scan + scaffold commands remain standalone. Claude applies the standards automatically on Flutter code.",
+  "version": "1.0.0",
+  "description": "Flutter-specific standards — engineering patterns (Dart, widget rules, data layer), accessibility (Semantics, screen readers), performance (DevTools, frame budget, const). Scan, audit, and scaffold commands. Pair with mobile-standards for craft, production-readiness, forms, observability, and testing.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"
   },
   "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
-  "keywords": ["flutter", "dart", "mobile", "standards", "audit", "scaffold", "accessibility", "performance", "craft", "design-system"]
+  "keywords": ["flutter", "dart", "mobile", "standards", "audit", "scaffold", "accessibility", "performance"]
 }

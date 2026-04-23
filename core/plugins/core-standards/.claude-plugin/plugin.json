@@ -1,0 +1,9 @@
+{
+  "name": "core-standards",
+  "version": "0.2.0",
+  "description": "Cross-stack engine and universal skills. Principles (detect→check→suggest, evidence required, separate plan/execute/verify phases, adversarial verifier mindset). Planning (structured plan block with measurable deliverables, craft.json auto-generation). Rules (§1 Security ALWAYS-MANDATORY, §2–§5 universal). Verification (4-tier detection: ALWAYS/PROJECT/TASK-SCOPED/FLAGGED, reads craft.json, restart-after-fix, adversarial framing). Auth-flows (JWT lifecycle, refresh rotation, PKCE, guard composition — active when craft.json features.auth set). Craft-config (craft.json schema and auto-generation).",
+  "author": { "name": "pixelcrafts", "url": "https://github.com/pixelcrafts-app" },
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
+  "license": "MIT",
+  "keywords": ["skills", "cross-stack", "standards", "engine", "orchestration", "verification", "planning", "auth", "craft-config"]
+}

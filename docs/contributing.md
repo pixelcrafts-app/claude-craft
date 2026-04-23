@@ -8,8 +8,8 @@ Thanks for considering a contribution. This is a short guide — edit flow, nami
 flutter/skills/flutter-standards/     Flutter pack — bundle plugin
 api/skills/api-standards/             API pack — bundle plugin
 web/skills/web-standards/             Web pack — bundle plugin
-core/plugins/core-hooks/              Cross-stack hooks plugin (enforcement only)
-core/plugins/core-skills/             Cross-stack skills plugin (docs-sync, verify-changes, subagent-brief)
+core/plugins/core-hooks/              Cross-stack hooks — secret/shell/token-value blocks, enforcement-mode gate, delegation warmth check, session-start mechanics
+core/plugins/core-standards/             Engine + universal skills — verify-changes, principles, planning, agents, rules, verification, mcp-integration, docs-sync, subagent-brief
 scripts/export.sh                     Export to Cursor / AGENTS.md
 .claude-plugin/marketplace.json       Marketplace index (5 plugins)
 ```
@@ -20,16 +20,19 @@ Rules live **inside** `SKILL.md` bodies — not as separate `*.md` files. The fr
 
 - **Marketplace source** — `pixelcrafts-app/claude-craft`
 - **Plugin per stack** — `<stack>-standards` (`flutter-standards`, `api-standards`, `web-standards`)
-- **Cross-stack** — `core-hooks` (hooks only) and `core-skills` (skills only); neither has a stack prefix — both apply to every language
+- **Cross-stack** — `core-hooks` (hooks only) and `core-standards` (skills only); neither has a stack prefix — both apply to every language
 - **Slash commands** — namespaced per pack: `/flutter-standards:pre-ship`, `/api-standards:sync-migrate`, `/web-standards:premium-check`
 
 ## Editing a skill
 
 One copy. No build step. Edit and commit:
 
-1. Edit `<stack>/skills/<stack>-standards/skills/<name>/SKILL.md`
+1. Edit the skill file — the path depends on which plugin owns it:
+   - Stack pack: `<stack>/skills/<stack>-standards/skills/<name>/SKILL.md`
+   - Cross-stack skill: `core/plugins/core-standards/skills/<name>/SKILL.md`
+   - Cross-stack hook: `core/plugins/core-hooks/hooks/<name>.sh` (plus registration in `core/plugins/core-hooks/.claude-plugin/plugin.json`)
 2. Bump `version` in:
-   - `<stack>/skills/<stack>-standards/.claude-plugin/plugin.json`
+   - The owning plugin's `.claude-plugin/plugin.json`
    - `.claude-plugin/marketplace.json` (both `metadata.version` and the plugin entry)
 3. Add a line to [docs/changelog.md](changelog.md)
 4. Update the skill row in [docs/skills.md](skills.md) if behavior changed
@@ -52,7 +55,7 @@ Then: add a row to `docs/skills.md`, bump versions, add a changelog line.
 
 ## Adding an audit slash command — the thin-wrapper pattern
 
-**Audit commands do not reimplement the engine.** If the command's job is "walk the rules, report pass/fail, maybe fix" (e.g. `premium-check`, `pre-ship`, `theme-audit`), it must delegate to `core-skills:verify-changes`. Reimplementing iteration loops, batching, task metadata, or report formatting is a correctness regression — keep that in one place.
+**Audit commands do not reimplement the engine.** If the command's job is "walk the rules, report pass/fail, maybe fix" (e.g. `premium-check`, `pre-ship`, `theme-audit`), it must delegate to `core-standards:verify-changes`. Reimplementing iteration loops, batching, task metadata, or report formatting is a correctness regression — keep that in one place.
 
 A thin-wrapper audit command is ~20-40 lines. The body:
 
@@ -70,7 +73,7 @@ argument-hint: [path or file to audit]
 
 ## How to run
 
-This command delegates to `core-skills:verify-changes` (the cross-stack audit engine) with a pre-filled brief. Emit the brief and hand off:
+This command delegates to `core-standards:verify-changes` (the cross-stack audit engine) with a pre-filled brief. Emit the brief and hand off:
 
     verify-changes brief:
       scope: $ARGUMENTS                        # or a sensible default if $ARGUMENTS is empty
@@ -111,22 +114,22 @@ Per-pack default registries live at `core/plugins/core-hooks/enforcement/<pack>.
 
 ```json
 {
-  "id": "web.sec.no-target-blank-without-rel",
-  "pattern": "target=\"_blank\"(?![^>]*rel=\"[^\"]*noopener)",
-  "message": "<a target=\"_blank\"> without rel=\"noopener noreferrer\" — tab-napping risk.",
+  "id": "web.sec.no-dangerous-html",
+  "pattern": "dangerouslySetInnerHTML",
+  "message": "dangerouslySetInnerHTML is an XSS vector — sanitize input upstream or render safely.",
   "applies_to": "*.tsx,*.jsx"
 }
 ```
 
 - `id` — unique within the pack. Convention `<pack-shortcut>.<category>.<slug>` (shortcuts: `flutter`, `web`, `api`). Used by projects in `disabled_rules` overrides — changing the ID breaks overrides, so pick a good one up front.
-- `pattern` — bash grep ERE regex. Escape `\`, `$`, `"` per JSON rules.
+- `pattern` — bash grep ERE regex. Escape `\`, `$`, `"` per JSON rules. ERE does not support lookaround — rules requiring "X without Y" context cannot be expressed here; keep those in standards skills.
 - `message` — one line, action-oriented. Shown to Claude in the block stderr.
 - `applies_to` — comma-separated file globs. Matched against both full path and basename.
 
 Test locally:
 
 ```bash
-echo '{"tool_name":"Write","tool_input":{"file_path":"/tmp/test.tsx","content":"<a target=\"_blank\">x</a>"}}' \
+echo '{"tool_name":"Write","tool_input":{"file_path":"/tmp/test.tsx","content":"<div dangerouslySetInnerHTML={{__html:x}} />"}}' \
   | CLAUDE_PLUGIN_ROOT=/abs/path/to/core-hooks \
     CLAUDE_PROJECT_DIR=/tmp/fake-project \
     bash /abs/path/to/core-hooks/hooks/enforce-rules.sh
@@ -163,22 +166,24 @@ A new pack is a new top-level folder (`database/`, `rust/`, etc.) mirroring the 
 4. Document the pack in `docs/skills.md`
 5. Bump minor version, add a changelog entry
 
-Before duplicating universal content (DRY, testing pyramid, observability, security) into a new pack, check if it should be extracted to a shared `core-standards` plugin first.
+Before duplicating universal content (DRY, testing pyramid, observability, security) into a new pack, check if it should be extracted to a shared cross-stack plugin first. A `core-standards` plugin is planned for this purpose — see [ROADMAP](../ROADMAP.md). Until it exists, flag the duplication in the PR so it can be lifted in one pass later.
 
 ## Design principles
 
-- **Universally applicable within its pack** — if a rule only applies to some apps, it belongs in the consumer app's `CLAUDE.md`, not here
-- **Actionable** — cite patterns with good/bad examples, not vague principles
-- **Self-contained** — a SKILL.md must stand alone; don't rely on other skills being installed
-- **No PII, no company-specific names** — this is a public repo
-- **One concern per skill** — if a standards skill feels like two, split it
+- **Pack-universal** — a rule belongs in a pack only if every project using that stack would reasonably want it. Anything narrower (one client's style, one app's workflow) belongs in the consumer project's `CLAUDE.md`, not here.
+- **Non-destructive by default** — a standards skill reports and suggests, it does not silently rewrite. Follow Detect → Check → Suggest: name the gap, show options with tradeoffs, let the user decide. Skills that *do* mutate code (scaffolds, fix passes) must be explicit slash commands with `disable-model-invocation: true`, never auto-invoke standards.
+- **Principle-first** — state the rule abstractly enough that a capable reader can apply it to any codebase in the pack's stack. Reach for a concrete example only when the abstraction alone is genuinely ambiguous; default is no example. Avoid "Bad: X / Good: Y" dialogs, named-API illustrations, and scenario narratives — they bias readers toward the illustrated case and read as condescending.
+- **Description as trigger** — an auto-invoke skill's `description` frontmatter is what Claude matches against to load the skill. Write it as a condition Claude can recognise from file type or task intent ("Apply when editing …", "Use when …"), not as marketing copy. If the description can't be phrased as a matcher, the skill probably wants to be an explicit slash command instead.
+- **Self-contained** — a SKILL.md must stand alone. Do not assume other skills are installed, and do not cross-reference skill internals by `§N.M` from outside the owning skill unless that ID is explicitly documented as stable.
+- **No PII, no downstream-consumer names** — this is a public repo. The marketplace owner (`pixelcrafts`) is part of the repo identity and fine to use. What must never appear: real client names, internal product codenames, names/emails of real users, or any data that could be traced to a specific consumer project.
+- **One concern per skill** — if a standards skill reads like two rulebooks glued together, split it. A skill's `description` should be expressible in one sentence without an "and".
 
 ## Review checklist
 
 - [ ] Version bumped (plugin.json + marketplace.json)
 - [ ] Changelog entry added
 - [ ] `docs/skills.md` updated if behavior changed
-- [ ] README / ROADMAP reflect any user-facing change (run `core-skills:docs-sync` if unsure)
+- [ ] README / ROADMAP reflect any user-facing change (run `core-standards:docs-sync` if unsure)
 - [ ] No project-specific names leaked into content
 - [ ] Slash command (if new) works end-to-end in a test project
 

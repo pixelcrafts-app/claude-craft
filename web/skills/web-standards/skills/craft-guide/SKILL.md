@@ -5,28 +5,23 @@ description: Apply when designing, reviewing, or polishing web UI — color + co
 
 # Premium Web Craft Guide
 
-> Universal principles for Next.js + React + Tailwind + shadcn. Adaptable to any brand.
-> **Formulas are universal. Values come from the user.** We enforce discipline, not aesthetics.
-
 ---
 
-## THE PROMISE
-
-Premium isn't a feeling added at the end. It's the absence of errors the user would only notice subconsciously: a misaligned pixel, a gray that's too dead, a focus ring that went missing, a `#FF0000` error that shouts. This guide is how we earn the verdict before the user realizes they're giving it.
-
----
-
-## THE ONLY REAL RULE
-
-**Design formulas are universal — brand values are yours.**
-
-We enforce *whatever you chose is applied consistently*. If a rule fights your brand, your brand wins. But "it fights our brand" is not the same as "we skipped the discipline."
-
----
-
-## Rule Index (§1.1 – §15.5)
+## Rule Index (§0 – §15.5)
 
 This is the canonical enumeration of every enforceable rule in this guide. Each rule has a stable `§N.M` ID. Audit skills (e.g. `verify-changes`, `pre-ship`) iterate this list. Prose sections below carry the full context — the index is the machine-readable entrypoint. When a rule is split, use `§N.M.a` / `§N.M.b` rather than renumbering; IDs are stable.
+
+**§0 Visual System Foundations** — the concrete numeric baseline every other section references.
+- §0.1 Base unit: 8px — every spacing value is a multiple of 4 or 8
+- §0.2 Breakpoints: mobile 375px / tablet 768px / desktop 1280px / wide 1536px
+- §0.3 Content max-widths: standard 1200px / reading 720px / focused (auth, dialog) 480px
+- §0.4 Column gutters: 16px mobile / 24px tablet / 32px desktop
+- §0.5 Typography scale uses rem — exact step values defined in §0 prose; no intermediates invented between steps
+- §0.6 No size invented between scale steps — weight carries hierarchy within a step gap
+- §0.7 Color slots: exactly 1 primary, 1 secondary, neutral 50–900 scale, 4 semantic states only
+- §0.8 Elevation: 3 levels only (flat / card / dropdown); dark mode replaces shadows with 1px border at 12% white opacity
+- §0.9 Interactive states: hover shifts surface 8%; focus is 2px outline / 2px offset / primary color; active is scale(0.98) 80ms; disabled is 40% opacity + cursor:not-allowed + pointer-events:none
+- §0.10 Dark mode surfaces: no pure black — warm-neutral dark (zinc-900 or equivalent); text at 87% opacity or warm off-white (not #fff); higher elevation = lighter surface (inverse of light mode)
 
 **§1 Color**
 - §1.1 Contrast — body text ≥ 4.5:1
@@ -116,9 +111,9 @@ This is the canonical enumeration of every enforceable rule in this guide. Each 
 **§9 Aesthetic Coherence**
 - §9.1 Single aesthetic committed (not mixed)
 - §9.2 Aesthetic-specific specs honored (per the chosen aesthetic's sub-list below)
-- §9.3 If glassmorphism — text legibility strategy present (solid layer OR opacity ≥ 0.5)
-- §9.4 If glassmorphism — `prefers-reduced-transparency` fallback
-- §9.5 Per-aesthetic numeric specs within range (blur, opacity, radius) — see section 9 prose
+- §9.3 If glassmorphism — text legibility strategy present (solid layer OR background-opacity ≥ 0.5)
+- §9.4 If glassmorphism — `prefers-reduced-transparency` fallback present
+- §9.5 Per-aesthetic numeric specs within range (blur, opacity, radius, shadow) — see §9 prose; Claymorphism = 40–60px radius + triple shadow; Bento = 16–24px; Glass = blur 8–24px + bg-opacity 0.1–0.3
 
 **§10 Iconography**
 - §10.1 One icon family app-wide
@@ -177,7 +172,110 @@ This is the canonical enumeration of every enforceable rule in this guide. Each 
 - §15.4 Offline branded (not browser error)
 - §15.5 First-run empty state designed as moment
 
-§16 (Premium Checklist) and §17 (Ultimate Test) are summary / verdict sections — they do not introduce new rules. Don't iterate them as rules; use them as final-verdict prompts after §1–§15 pass.
+§16 (Premium Checklist) and §17 (Ultimate Test) are summary / verdict sections — they do not introduce new rules. Don't iterate them as rules; use them as final-verdict prompts after §0–§15 pass.
+
+---
+
+## 0. VISUAL SYSTEM FOUNDATIONS
+
+These are the concrete numeric values every other section references. When a prose section says "use the scale" or "use tokens" — this is the scale.
+
+### Grid & Layout
+
+**Base unit: 8px.** Every spacing value is a multiple of 4 or 8. No 13px padding. No 7px gaps. This single constraint eliminates most spacing inconsistency.
+
+**Breakpoints:**
+
+| Name | Min-width | Tailwind prefix |
+|---|---|---|
+| mobile | 375px | (default, no prefix) |
+| tablet | 768px | `md:` |
+| desktop | 1280px | `lg:` |
+| wide | 1536px | `2xl:` |
+
+**Content max-widths** (choose per surface, not per component):
+
+| Mode | Max-width | Use |
+|---|---|---|
+| Standard | 1200px | General app layouts, dashboards, product pages |
+| Reading | 720px | Long-form content, documentation, blog posts |
+| Focused | 480px | Auth flows, single-task forms, dialog content |
+
+**Column gutters** (gap between grid columns):
+
+| Breakpoint | Gutter |
+|---|---|
+| Mobile | 16px |
+| Tablet | 24px |
+| Desktop | 32px |
+
+### Typography Scale
+
+Every size step is named. No intermediates. If two adjacent steps feel too close, differentiate with weight — not a new size.
+
+| Step | rem | Line-height | Default weight | Role |
+|---|---|---|---|---|
+| xs | 0.75rem | 1.4 | 500 | Labels, captions, badges |
+| sm | 0.875rem | 1.5 | 400 | Body small, helper text, secondary UI |
+| base | 1rem | 1.6 | 400 | Body text, default paragraph |
+| lg | 1.125rem | 1.5 | 400 | Body large, lead / intro text |
+| xl | 1.25rem | 1.4 | 600 | Card headings, component titles |
+| 2xl | 1.5rem | 1.3 | 600–700 | Section headings |
+| 3xl | 1.875rem | 1.2 | 700 | Page headings |
+| 4xl+ | 2.25rem+ | 1.1 | 700–800 | Hero text, display copy |
+
+The line-height column is the default for that size. Override only for intentional display contexts (e.g. a `2xl` tagline at 1.1 rather than 1.3 in a hero block).
+
+### Color Palette Constraints
+
+The color system has exactly these slots. No tertiary brand colors. No per-component accent colors invented on the fly.
+
+- **Primary (1)** — interactive elements, CTAs, focus rings, active links
+- **Secondary (1)** — accents, supporting highlights, secondary actions
+- **Neutral scale** — 10 steps: 50 / 100 / 200 / 300 / 400 / 500 / 600 / 700 / 800 / 900
+- **Semantic slots (4 only):**
+  - `error-500` — destructive actions, validation failure, negative data
+  - `success-500` — confirmations, positive completions
+  - `warning-500` — caution states, degraded but functional
+  - `info-500` — neutral informational, not actionable
+
+When a new UI need arises, map it to an existing slot. If it does not map, question whether the need is real or whether the design is drifting.
+
+### Elevation (Web)
+
+Three levels. Each maps to a specific use case. No ad-hoc shadow values.
+
+| Level | Token | Box-shadow | Use |
+|---|---|---|---|
+| 0 — flat | `shadow-none` | none | Page surface, inline content |
+| 1 — card | `shadow-sm` | `0 1px 3px rgba(0,0,0,0.12)` | Cards, raised sections, hover lift |
+| 2 — dropdown | `shadow-md` | `0 4px 16px rgba(0,0,0,0.16)` | Dropdowns, popovers, tooltips, modals |
+
+**Implementation rule:** Always use `box-shadow`, never `filter: drop-shadow()`. Drop-shadow applies to the alpha mask including child elements and causes bleed on transparent-background components.
+
+**Dark mode elevation:** Shadows disappear into dark surfaces. Replace with `border: 1px solid rgba(255,255,255,0.12)` (12% white). Higher elevation = slightly lighter surface — the inverse of light mode logic.
+
+### Interactive States
+
+Apply these consistently to every interactive element. Inconsistent state handling is one of the most detectable amateur tells.
+
+| State | Rule |
+|---|---|
+| Hover | Surface lightens or darkens 8%. Always `cursor: pointer`. |
+| Focus | `outline: 2px solid var(--primary); outline-offset: 2px;` — never remove. Accessibility floor. |
+| Active / pressed | `transform: scale(0.98)` with `transition: transform 80ms ease-out`. Provides tactile feedback. |
+| Disabled | `opacity: 0.4; cursor: not-allowed; pointer-events: none;` — no hover state. Add tooltip explaining why (premium). |
+
+The 8% hover delta is a relative formula — it works across any palette because it adapts to the current surface value, not a fixed color.
+
+### Dark Mode Rules
+
+Dark mode is designed independently — not computed by inverting light mode.
+
+- **No pure black surfaces.** `#000000` as a surface makes shadows invisible and contrast uncontrollable. Use a warm-neutral dark: `zinc-900` (`hsl(240 5% 8%)`), `slate-900`, or equivalent hue-tinted near-black.
+- **No pure white text.** `#ffffff` on dark creates harsh shimmer (excessive contrast is a legibility problem as much as insufficient contrast). Use text at 87% opacity (`rgba(255,255,255,0.87)`) or a slightly warm off-white like `zinc-50`.
+- **Elevation reversal.** In light mode, higher elevation reads via darker shadow. In dark mode, higher elevation reads via lighter surface color — a dropdown sits on a lighter background than the base surface without needing a visible shadow.
+- **Contrast audited independently.** A token combination that passes in light mode can fail in dark mode. Verify both themes separately.
 
 ---
 
@@ -226,12 +324,7 @@ The brand color lives in the logo and hero. The UI primary lives everywhere else
 
 ### Neutrals are never pure gray
 
-Pure `hsl(0 0% 50%)` reads as dead. Premium grays are **single-hue tinted** — 5–15% saturation of a chosen hue (usually the primary or a muted neighbor). This is the largest pixel-level premium/amateur split at the neutral level.
-
-```
-Amateur neutral:  hsl(0 0% 50%)      dead gray
-Premium neutral:  hsl(222 10% 50%)   tinted gray — same hue family as brand
-```
+Pure `hsl(0 0% 50%)` reads as dead. Neutrals must be **single-hue tinted** — 5–15% saturation of a chosen hue (usually the primary or a muted neighbor).
 
 All neutrals (from background to border to muted text) share one underlying hue with varied lightness.
 
@@ -267,19 +360,8 @@ Different math from UI colors. Categorical (distinct, equal-weight), sequential 
 
 - Never hardcode hex/RGB in components. Tokens only (`var(--foreground)`, Tailwind theme values).
 - Max three accent colors per screen
-- Dark mode is independently designed (see §9 Theme)
+- Dark mode is independently designed (see §13 Theme)
 - Colorblind safe — don't rely on color alone for meaning (pair red/green error/success with an icon or label; 8% of men have red-green CVD)
-
-### What we enforce / what you provide
-
-| Enforce | Provide |
-|---|---|
-| Contrast math (AA + AAA awareness + APCA) | Brand hue(s) |
-| Harmony coherence | Palette values |
-| 60-30-10 distribution | Which color is dominant / accent |
-| Neutrals must be hue-tinted | Chosen neutral hue |
-| Brand → UI derivation rules | Brand color |
-| Semantic token naming | Token values |
 
 ---
 
@@ -351,6 +433,8 @@ Every font-size derives from one ratio from base.
 Example — base 16, ratio 1.25: `12.8 → 16 → 20 → 25 → 31.25 → 39 → 48.8 → 61`.
 
 **Bonus:** match type-scale ratio to spacing-scale ratio (both 1.25, or both 1.5) for mathematical harmony across both axes.
+
+The named steps in §0 (xs through 4xl+) are the canonical web scale. Use them as-is, or derive from your chosen ratio and map to those names — but never add a new step between two existing ones.
 
 ### Units
 
@@ -454,19 +538,11 @@ shadow-lg       — floating (modals, command palette)
 shadow-xl       — prominent overlay (toasts, top-layer)
 ```
 
+The concrete values for the web's three required levels are defined in §0. Levels 4–5 (`shadow-lg`, `shadow-xl`) may be added for modal and toast depth but must come from the named scale — never ad-hoc.
+
 ### Shadow shape
 
-Premium shadows are **multi-layered** (stacked shadows with different blur/offset). Single-layer shadows look cheap.
-
-```css
-/* Cheap */
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
-/* Premium */
-box-shadow:
-  0 1px 2px rgba(0,0,0,0.04),
-  0 4px 12px rgba(0,0,0,0.08);
-```
+Shadows must be **multi-layered** — stacked shadows with different blur/offset values. Single-layer shadows are not permitted.
 
 - Soft shadows on light surfaces (low alpha, wide blur)
 - **Darker, tinted shadows on dark surfaces** — dark-mode shadows need more alpha or switch to luminance-based depth (inner glow, border-highlight) since shadows disappear into dark backgrounds
@@ -506,7 +582,8 @@ radius-full  — 9999 (avatars, pills)
 - Brutalist — 0
 - Flat — small (4–8px)
 - Material — medium (8–12px)
-- Claymorphism / Bento — exaggerated (16–32px)
+- Bento — exaggerated (16–24px)
+- Claymorphism — extreme (40–60px, continuous curve style)
 - Glassmorphism — medium-large (12–20px)
 
 ---
@@ -597,21 +674,15 @@ Every data-driven surface renders these states. Missing any is a bug, not "not a
 
 **Empty**
 - Illustration / icon + inviting message + single clear action
-- *Wrong:* "No items found"
-- *Right:* "Your collection is ready for its first addition" + `[Add item]`
 
 **Error**
 - Specific + actionable + retry
-- *Wrong:* "Error occurred"
-- *Right:* "Can't reach the server. Check your connection and try again." + `[Retry]`
 - Never blame user. Never vague. Never dead-end.
 
 **Content**
 - The happy path. Most-designed state but cannot exist without the other three.
 
-### The edge states (premium tier)
-
-Most apps ship without these. Premium apps cover them.
+### Edge states
 
 **Sparse (1–3 items on a screen built for 20)**
 - Don't center a lonely card in a vast void — abandoned, not minimal
@@ -675,6 +746,8 @@ Always confirmation for delete, cancel subscription, leave team, discard draft. 
 - **Container queries** (`@container` in Tailwind v4) for component responsiveness — more accurate than viewport queries
 - **No horizontal overflow at 320px** — ever. Test at 320 first, then scale.
 - **Wide screens (≥ 1920px)** — constrain to `max-w-screen-xl` or similar; don't let content stretch to 2560px line width
+
+The concrete breakpoint px values and content max-widths are defined in §0.
 
 ### Safe-area insets (iOS, modern Android)
 
@@ -749,7 +822,7 @@ Premium sites have `@media print` CSS: strip nav/footer, respect page breaks, bl
 
 ## 9. AESTHETIC COHERENCE
 
-Every app belongs to an aesthetic family. Premium apps commit to one. Amateur apps mix two or three without realizing.
+Every app belongs to an aesthetic family. Committing to exactly one is required.
 
 ### Named aesthetics (pick ONE as identity)
 
@@ -795,6 +868,13 @@ Every app belongs to an aesthetic family. Premium apps commit to one. Amateur ap
 - **Critical:** text on glass requires either a solid layer behind the text OR backdrop opacity ≥ 0.5 (lower fails contrast on varied backgrounds). Most glass designs fail here.
 - Respect `prefers-reduced-transparency` — fall back to opaque surfaces
 - Layer blur strengths: 2-3 elevation tiers max
+
+**Claymorphism**
+- `border-radius: 40–60px` on primary surfaces (continuous curve style, not geometric corner)
+- Triple-layer shadow: outer-spread (0 8px 24px rgba(0,0,0,0.12)), mid-depth (0 4px 12px rgba(0,0,0,0.08)), inner-highlight (inset 0 1px 2px rgba(255,255,255,0.4))
+- Saturated-but-soft fills — HSL saturation 40–65%, lightness 70–85% in light mode
+- Applies to buttons, cards, hero elements — not the page background
+- Consumer / playful context only — mismatches with utility or professional aesthetic
 
 **Neumorphism**
 - Dual shadow (light top-left + dark bottom-right) on same-surface color
@@ -1025,30 +1105,11 @@ Can a VoiceOver / NVDA user complete every core task? If unknown, you haven't ve
 
 ### Single source of truth
 
-Every themeable value from CSS custom properties or Tailwind `@theme`:
-
-```css
-/* right */
-color: var(--foreground);
-background: var(--surface-1);
-
-/* wrong */
-color: #1a1a1a;
-background: hsl(0 0% 98%);
-```
+Every themeable value from CSS custom properties or Tailwind `@theme`. No hardcoded hex or HSL values in components.
 
 ### Semantic naming
 
-Token names describe **role**, not value.
-
-```
-✓ --primary
-✓ --surface-muted
-✓ --border-subtle
-
-✗ --blue-500
-✗ --gray-100
-```
+Token names describe **role**, not value — e.g. `--primary`, `--surface-muted`, `--border-subtle` rather than `--blue-500`, `--gray-100`.
 
 Role names survive a rebrand.
 
@@ -1119,7 +1180,7 @@ Premium apps obsess over words. Users read UI — UI should be worth reading.
 - **Error messages explain + suggest** — "We couldn't process that card. Check the number or try another card."
 - **Empty states are invitations** — "Your first habit is one tap away."
 - **Confirmations name the action** — "Delete 3 items?" not "Are you sure?"
-- **Success is understated** — "Saved." Not "🎉 Your changes have been successfully saved!"
+- **Success is understated** — "Saved." Not "Your changes have been successfully saved!"
 - **Loading text, when shown, is specific** — "Generating report…" beats "Loading…"
 - **No jargon the user didn't opt into** — "Sync failed" instead of "HTTP 503 upstream"
 - **Sentence case over Title Case** — sentence case reads conversational; title case feels corporate. Pick one and commit.
@@ -1141,8 +1202,6 @@ Premium apps obsess over words. Users read UI — UI should be worth reading.
 ---
 
 ## 15. BRAND MOMENTS
-
-The surfaces nobody thinks are craft opportunities — until you notice a premium app got them right.
 
 ### 404 / Not Found
 
@@ -1187,6 +1246,16 @@ These are moments of **first impression** — not edge cases. Premium apps desig
 ## 16. THE PREMIUM CHECKLIST
 
 Before declaring any surface done:
+
+**Visual System Foundations**
+- Every spacing value is a multiple of 4 or 8?
+- Breakpoints match the defined 375 / 768 / 1280 / 1536px values (not ad-hoc)?
+- Content max-width chosen from the three named modes (1200 / 720 / 480)?
+- Typography steps from the named scale (xs through 4xl+) only — no intermediates?
+- Color slots respected (1 primary, 1 secondary, neutral scale, 4 semantic)?
+- Elevation at 3 levels — no ad-hoc shadow values?
+- Hover (8% delta), focus (2px outline), active (scale 0.98), disabled (40% opacity) applied consistently?
+- Dark mode: no pure black surfaces, no pure white text, elevation reversal applied?
 
 **Tokens & Scale**
 - Every color traces to a token? (no raw hex/rgb)
@@ -1251,39 +1320,4 @@ Before declaring any surface done:
 - Offline screen designed?
 - First-run empty states designed?
 
-**Signature**
-- Is there one moment only this app does?
-- Would someone screenshot this and share it?
-
 If any answer is "no" or "not sure" — the surface is unfinished.
-
----
-
-## 17. THE ULTIMATE TEST
-
-1. Would someone **pay** for this?
-2. Would someone **show** this to a friend?
-3. Would someone **remember** this tomorrow?
-4. Would someone **feel** something using this?
-5. Would someone **miss** this if it disappeared?
-
----
-
-## SCOPE BOUNDARIES
-
-This skill enforces craft discipline, not brand identity. It does not:
-
-- Pick colors, fonts, or aesthetics — user picks, we recognize
-- Impose named themes
-- Rewrite components without consent
-- Replace your design system — it audits against the one you have
-
-It flags:
-- Values that don't trace to tokens
-- Mixing of harmonies or aesthetics
-- Missing states, failed contrast, broken rhythm
-- Ad-hoc values, inline styles, hardcoded hex
-- Missing brand-moment surfaces
-- Untested edge cases
-
-When in doubt — surface the gap with a recommendation. User decides.

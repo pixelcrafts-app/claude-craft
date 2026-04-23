@@ -1,0 +1,9 @@
+{
+  "name": "mobile-standards",
+  "version": "1.0.0",
+  "description": "Mobile-universal standards — craft quality, production readiness, forms, observability, testing. Applies to Flutter, React Native, SwiftUI, Jetpack Compose. Auto-invoked by description triggers.",
+  "author": { "name": "pixelcrafts", "url": "https://github.com/pixelcrafts-app" },
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
+  "license": "MIT",
+  "keywords": ["mobile", "standards", "craft", "production", "forms", "observability", "testing"]
+}

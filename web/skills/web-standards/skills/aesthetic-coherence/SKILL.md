@@ -7,11 +7,7 @@ argument-hint: [component-file-path | page-path | "app"]
 
 # Aesthetic Coherence Audit — Web
 
-An app with perfect tokens, perfect contrast, perfect motion — and two aesthetics fighting — still reads as amateur. This skill catches that.
-
-Unlike the other web audit commands, this one is **not** a pure thin wrapper: aesthetic *detection* (classify the signature) has no rule-by-rule equivalent — it's a signal-scoring pass. After detection, aesthetic *compliance* (does this committed aesthetic meet the spec in `craft-guide §9.x`?) is a standard rule walk — that part delegates to `core-skills:verify-changes`.
-
-So: this command runs detection itself, then hands spec-checking to the engine.
+Detection is a signal-scoring pass (Steps 1–3) — no rule-by-rule equivalent, runs here. Spec compliance (does the detected aesthetic meet `craft-guide §9.x`?) delegates to `core-standards:verify-changes` (Step 4).
 
 ---
 
@@ -217,23 +213,3 @@ Aesthetic fixes are **high-blast-radius** — converting a screen from glassmorp
 
 Do **not** invoke the engine with `fix: yes` for this command. Aesthetic is a taste call; rule-driven auto-fix is the wrong loop for this shape of decision.
 
----
-
-## Scope boundaries
-
-- Does **not** pick an aesthetic for the user.
-- Does **not** rewrite files without per-file confirmation.
-- Does **not** block a deliberately-chosen "signature mix" if the user documents it (e.g. "editorial body + bento hero is intentional for this landing page" noted in `CLAUDE.md`).
-- Does **not** impose the taste of any one aesthetic ("minimalist is better than bento" is not a claim this skill makes).
-
-Aesthetics are equal. Coherence within a chosen one is the standard.
-
----
-
-## Tradeoffs
-
-- **Signal detection is heuristic** — a single `backdrop-filter` doesn't prove glassmorphism. Low-signal files return `UNCLEAR`, not a forced classification.
-- **Aesthetic labels drift** — "AI-native" in 2026 will likely rename by 2028. The signals outlive the labels.
-- **Cross-file signal requires reading many files** — expensive on large apps. Scope to `components/ui` or a feature folder for faster runs.
-- **The §9 spec list is opinionated but not exhaustive** — each aesthetic has deeper communities of practice; this audit catches the 80% giveaways, not every nuance.
-- **Fix loop is manual-confirmation** — unlike token or contrast fixes, aesthetic rewrites need designer judgment. This skill will not auto-rewrite.

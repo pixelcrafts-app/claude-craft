@@ -46,12 +46,14 @@ Install: `/plugin install flutter-standards@pixelcrafts` — or enable in `.clau
 
 Install: `/plugin install api-standards@pixelcrafts`.
 
-### 2 auto-invoke standards
+### 4 auto-invoke standards
 
 | Skill | Fires on | Enforces |
 |---|---|---|
 | nestjs | `src/**/*.ts`, `prisma/schema.prisma` | Module/controller/service/repository split, DTO validation, error shapes |
 | code-quality | `src/**/*.ts` | Endpoint hygiene, auth guards, type safety, test coverage, verify-don't-guess cross-boundary contracts, smart Detect→Check→Suggest audit for rate limiting, idempotency, retries, webhooks, graceful shutdown, health/readiness, correlation IDs, soft delete, audit logs, DB pool, env-logging |
+| cross-stack-contracts | API boundaries when `craft.json stacks[]` has 2+ entries | Unified error shape `{code, message, details}`, cursor pagination only, `Authorization: Bearer` standard, versioned routes for breaking changes, generated OpenAPI spec committed |
+| websockets | When socket.io/ws + WebSocket usage pattern detected, or `craft.json features.realtime: true` | Auth on connection event, exponential backoff reconnect (1s/2s/4s, max 3 retries), event names in shared enum, versioned event schema on connect, room authorization |
 
 ### 1 explicit workflow
 
@@ -65,13 +67,15 @@ Install: `/plugin install api-standards@pixelcrafts`.
 
 Install: `/plugin install web-standards@pixelcrafts`.
 
-### 3 auto-invoke standards
+### 5 auto-invoke standards
 
 | Skill | Fires on | Enforces |
 |---|---|---|
 | nextjs | `app/**`, `components/**`, `**/*.tsx` | App router, server/client boundaries, Tailwind tokens, shadcn patterns, React Query, React Hook Form + Zod, verify-don't-guess cross-boundary contracts |
 | production-readiness | App-level wiring, middleware, `next.config.js` | Smart Detect→Check→Suggest audit: error boundaries, Suspense, optimistic UI, image optimization, metadata/OG, sitemap, CSP, analytics consent, Core Web Vitals, env-logging |
 | craft-guide | Any `.tsx` / `.css` under `app/` / `components/` | 17 universal design formulas — color + contrast + harmony, spacing rhythm, type scale, font loading, shadow + radius scales, motion choreography, all state variants, density by app type, safe-area, aesthetic coherence, iconography, chrome details, a11y as craft, theme discipline, microcopy, brand moments. Universal formulas enforced; brand values come from user. |
+| premium-signals | Any `.tsx` / `.css` under `app/` / `components/` | Market-sourced precision values — 2-layer shadow formula, 5-step dark gray scale, expo-out easing `cubic-bezier(0.16,1,0.3,1)`, tabular-nums hard requirement, display letter-spacing `−0.04em`, font selection by context (Inter/Geist/Söhne), glassmorphism overlay-only rule, SVG noise on gradients, bento/brutalist/luxury exact values |
+| i18n | When `next-i18next`/`react-i18next`/`i18next` in deps or `locales/` dir, or `craft.json features.i18n: true` | All user-visible strings via translation keys, library plural rules (no manual conditionals), RTL layout tested, Next.js locale routing wired |
 
 ### 5 explicit skills
 
@@ -111,12 +115,18 @@ No slash commands. Runs automatically.
 
 ---
 
-## Cross-stack skills plugin (`core-skills`)
+## Cross-stack skills plugin (`core-standards`)
 
-Install: `/plugin install core-skills@pixelcrafts`.
+Install: `/plugin install core-standards@pixelcrafts`.
 
 | Skill | Fires on | Does |
 |---|---|---|
+| principles | Every non-trivial task | Detect→Check→Suggest discipline. Evidence required for every verdict. Plan/Execute/Verify as separate phases — compressing them into one response means one wasn't done. Adversarial verifier mindset: find what's wrong, not confirm what's right. |
+| planning | Every delivery task before code is written | Discovery protocol for cold start. Structured `<!-- craft:plan -->` block with measurable deliverables — each requires a runnable verification command (grep/Bash/Read). `scope_boundary` field. Trivial bypass requires grep evidence. Generates draft `.claude/craft.json` on first run if absent. |
+| rules | Every code file edit | Universal standards: §1 Security (ALWAYS-MANDATORY — no opt-out), §2 Testing, §3 Observability, §4 Engineering, §5 Design tokens. §1 applies to every touched file regardless of scope boundary or project config. |
+| verification | After every delivery task | Adversarial framing. Step 0 reads `.claude/craft.json`. 4-tier detection: ALWAYS-MANDATORY / PROJECT-MANDATORY / TASK-SCOPED / FLAGGED-NOT-ENFORCED. Phase 1 reads plan block — DONE requires named tool call, prose = MISSED. After any fix: restart from Phase 1 item 1. INFO for gap zones (does not block READY). |
+| auth-flows | When `craft.json features.auth` non-false, or auth patterns detected | Auth guard + permission guard both required (not auth alone). Refresh token rotation on every use. Server-side logout revocation. Access token ≤15min. OAuth PKCE. Auth error non-enumeration. Rate limiting on auth endpoints. |
+| craft-config | When `.claude/craft.json` is absent and needs generation | Documents `.claude/craft.json` schema: `stacks[]`, `features{}`, `disabled_rules[]`. Auto-generates draft from file detection. Disabled rules surfaced with reasons in every verification report. |
 | docs-sync | End-of-task signals (version bump, plugin added/removed, "ship / done / release", pre-ship runs, `v*.*.*` commit) | Cross-checks code vs README / CHANGELOG / ROADMAP / `docs/skills.md` / plugin descriptions. Flags deltas. Never rewrites prose. Never blocks. |
 | subagent-brief | Any time the model considers delegating to Agent / Task / Explore / Plan / general-purpose subagent | Enforces warm-brief discipline: goal + known context (paths + lines) + hard scope + output shape + budget. A subagent given "figure it out" burns 3–10× the tokens of one given specifics. |
 | verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph. Verifies rule-by-rule from whichever SKILL.md files are installed. Emits critical / polish / consumer-break verdict. Pure prompt — no hooks, no external tools. |
@@ -148,7 +158,7 @@ Re-run anytime to refresh.
 
 `/flutter-standards:pre-ship`
 
-Closes the gap between "I wrote the code" and "ready to merge". Thin wrapper: runs `flutter analyze` as a pre-check, then delegates the audit to `core-skills:verify-changes` with every installed Flutter standard as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
+Closes the gap between "I wrote the code" and "ready to merge". Thin wrapper: runs `flutter analyze` as a pre-check, then delegates the audit to `core-standards:verify-changes` with every installed Flutter standard as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
 
 **Covers:** craft, engineering, widget discipline, api-data pipeline, testing, accessibility, performance, forms, observability, production-readiness. One engine, every rule, consumer-break detection in one run.
 
@@ -177,7 +187,7 @@ Catches 3–8 issues per feature before review, plus any consumer breakage from 
 
 `/flutter-standards:premium-check <screen-file>`
 
-Focused craft + widget + a11y + perf audit on a single screen. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [craft-guide, widget-rules, accessibility, performance]`, `depth: direct`. Optional fix loop with `--fix`.
+Focused craft + widget + a11y + perf audit on a single screen. Thin wrapper: delegates to `core-standards:verify-changes` with `dimensions: [craft-guide, widget-rules, accessibility, performance]`, `depth: direct`. Optional fix loop with `--fix`.
 
 Catches screens that technically work but feel off. Typography scale adherence, spacing rhythm (4/8/12/16/24), motion timing, state transitions (skeleton, not spinner), empty-state CTAs, error-state actionability, interactive feedback within 100ms.
 
@@ -189,7 +199,7 @@ Pairs with `audit-a11y-patterns` for the quick Dart-specific regex sweep.
 
 `/flutter-standards:verify-screens <feature>`
 
-Finds the mock-data-leftover bug — a screen that looks fine in dev because it still reads from a fixture. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [api-data, widget-rules, craft-guide]` and `depth: full-ripple` so the engine walks screen → provider → repo → data source.
+Finds the mock-data-leftover bug — a screen that looks fine in dev because it still reads from a fixture. Thin wrapper: delegates to `core-standards:verify-changes` with `dimensions: [api-data, widget-rules, craft-guide]` and `depth: full-ripple` so the engine walks screen → provider → repo → data source.
 
 **Checks:** every widget traces back to a real provider / repository, no `fake` / `mock` / `fixture` imports in production paths, API calls flow through the repository layer, loading / error states map to real async sources, no hardcoded data in screen files.
 
@@ -276,7 +286,7 @@ Removes the four-step dance from human memory.
 
 `/web-standards:pre-ship`
 
-Closes the gap between "I finished the component" and "ready to ship". Thin wrapper: runs `npm run lint` as a pre-check, then delegates to `core-skills:verify-changes` with every installed web standard (`nextjs`, `production-readiness`, `craft-guide`) as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
+Closes the gap between "I finished the component" and "ready to ship". Thin wrapper: runs `npm run lint` as a pre-check, then delegates to `core-standards:verify-changes` with every installed web standard (`nextjs`, `production-readiness`, `craft-guide`) as a dimension and `depth: direct+consumers`. Reports only — no auto-fix.
 
 **Covers:** lint pre-check, data pipeline traced API → hook → component, state coverage per data-driven component, design-token discipline, responsive 320–1440px, dark mode independently designed, a11y, production-readiness R1–R10 (error boundaries, Suspense, optimistic UI, images, OG, sitemap, CSP, consent, CWV, logging).
 
@@ -288,7 +298,7 @@ Closes the gap between "I finished the component" and "ready to ship". Thin wrap
 
 `/web-standards:premium-check <component-file>`
 
-Walks every rule in `craft-guide §1 – §15` against a single file. Thin wrapper: delegates to `core-skills:verify-changes` with `dimensions: [craft-guide §1 – §15]`, `depth: direct`. Before delegating, detects the app's aesthetic (§9) and density target (§8.5) — asks the user when ambiguous rather than guessing. With `--fix`, the engine loops: fix → re-audit → fix → re-audit until zero FAILs (or a rule hits the 3-retry stuck cap).
+Walks every rule in `craft-guide §1 – §15` against a single file. Thin wrapper: delegates to `core-standards:verify-changes` with `dimensions: [craft-guide §1 – §15]`, `depth: direct`. Before delegating, detects the app's aesthetic (§9) and density target (§8.5) — asks the user when ambiguous rather than guessing. With `--fix`, the engine loops: fix → re-audit → fix → re-audit until zero FAILs (or a rule hits the 3-retry stuck cap).
 
 Catches long-tail craft rules that single-pass audits skip. Expensive per-file — scope to one component or page at a time.
 
@@ -316,7 +326,7 @@ Never invents brand values. Asks the user when ambiguous.
 
 `/web-standards:theme-audit [optional-scope]`
 
-Thin wrapper: delegates to `core-skills:verify-changes` with the theme subset of craft rules — `craft-guide §13` (tokens, semantic naming, parity, hydration, color-scheme) plus `§1.5` (dark-mode contrast), `§11.3` (::selection), `§11.5` (caret-color), `§12.7` (color-scheme), `§12.8` (forced-colors), `§12.9` (reduced-transparency). Pre-flight: checks tokens exist (`design-tokens.md` or Tailwind / CSS var scan); if neither theme has tokens, halts and asks for `extract-tokens` first.
+Thin wrapper: delegates to `core-standards:verify-changes` with the theme subset of craft rules — `craft-guide §13` (tokens, semantic naming, parity, hydration, color-scheme) plus `§1.5` (dark-mode contrast), `§11.3` (::selection), `§11.5` (caret-color), `§12.7` (color-scheme), `§12.8` (forced-colors), `§12.9` (reduced-transparency). Pre-flight: checks tokens exist (`design-tokens.md` or Tailwind / CSS var scan); if neither theme has tokens, halts and asks for `extract-tokens` first.
 
 Catches theme completeness issues the full craft audit would catch too — faster because scope is narrower.
 
@@ -330,7 +340,7 @@ Pairs with `extract-tokens` — re-run after tokens land.
 
 Detects the #1 "assembled, not designed" tell: mixing two design languages in one surface (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial).
 
-Hybrid pattern: runs **detection itself** (scoring 14 aesthetic signatures per file, flagging MIXED / OUTLIER / UNCLEAR) because that's a signal-scoring task, not a rule walk. After classification, delegates **spec compliance** to `core-skills:verify-changes` with `dimensions: [craft-guide §9]` — the engine walks §9.1 (single aesthetic), §9.2 (per-aesthetic specs), §9.3 / §9.4 (glass-specific legibility + reduced-transparency), §9.5 (numeric specs).
+Hybrid pattern: runs **detection itself** (scoring 14 aesthetic signatures per file, flagging MIXED / OUTLIER / UNCLEAR) because that's a signal-scoring task, not a rule walk. After classification, delegates **spec compliance** to `core-standards:verify-changes` with `dimensions: [craft-guide §9]` — the engine walks §9.1 (single aesthetic), §9.2 (per-aesthetic specs), §9.3 / §9.4 (glass-specific legibility + reduced-transparency), §9.5 (numeric specs).
 
 Cross-file: detects outlier screens committed to a different aesthetic than the app.
 

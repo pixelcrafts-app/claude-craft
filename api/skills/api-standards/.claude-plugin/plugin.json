@@ -1,12 +1,12 @@
 {
   "name": "api-standards",
-  "version": "0.5.0",
-  "description": "API pack — NestJS + Prisma. Auto-invoke nestjs + code-quality standards, sync-migrate workflow.",
+  "version": "0.6.0",
+  "description": "API pack — NestJS + Prisma. Auto-invoke: nestjs + code-quality standards, cross-stack-contracts (active when craft.json stacks has 2+ entries: unified error shape, cursor pagination, Bearer header standard, versioned routes), websockets (conditional on socket.io/ws usage: connection auth, backoff reconnect, event enum, schema versioning). Sync-migrate workflow.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"
   },
   "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
-  "keywords": ["api", "nestjs", "prisma", "standards", "audit", "security", "documentation"]
+  "keywords": ["api", "nestjs", "prisma", "standards", "audit", "security", "documentation", "websockets", "cross-stack"]
 }

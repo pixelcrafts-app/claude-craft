@@ -5,6 +5,8 @@ description: Apply when auditing NestJS endpoints for security, correctness, and
 
 # API Code Quality Audit
 
+Universal engineering, security, testing, and observability rules — see core-standards:rules §1–§4. This skill covers NestJS+Prisma-specific patterns only.
+
 > Every item is a pass/fail check. Run before major releases or as the basis for a pre-ship skill.
 
 ## How to read this audit
@@ -20,16 +22,12 @@ For Detect→Check→Suggest items, the flow is always:
 2. **Check** — if present, audit depth: scoped correctly? covers the right cases? no bypass paths?
 3. **Suggest** — if absent, propose options with tradeoffs. The user decides. Do not rewrite their app.
 
-The reason: real codebases have real reasons for absent patterns (cost, scale stage, already handled upstream at the gateway/CDN/WAF). A rigid "must have X" rule from an AI creates noise. A smart audit catches genuine gaps.
-
 ---
 
 ## A. Architecture & Single Source of Truth
 
 - [ ] A1. Controllers handle HTTP only — no business logic, no DB queries
 - [ ] A2. Services contain all business logic — not scattered in controllers/guards
-- [ ] A3. Zero hardcoded values — all config from env vars, constants, or DB
-- [ ] A4. No duplicate logic across modules — same check in 2+ places = extract to shared
 - [ ] A5. Feature flags / plan enforcement / role checks live in ONE place (interceptor or guard) — zero inline duplicates
 - [ ] A6. Feature names and domain constants use typed enums / `as const` — no raw string literals scattered in code
 - [ ] A7. Modules don't import from each other's internals — only exported services

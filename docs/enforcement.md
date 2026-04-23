@@ -1,5 +1,37 @@
 # Enforcement mode
 
+## Two config files — different purposes
+
+claude-craft uses two separate project config files. Do not conflate them.
+
+| File | Purpose | Layer |
+|---|---|---|
+| `.claude/craft.json` | Declares which skill domains and conditional features apply to this project. Used by conversational verification to determine which rules to run. | Conversational — AI reads at task start |
+| `.claude/enforcement.json` | Declares which packs are mandatory for hook enforcement. Controls `PreToolUse` regex blocks and the `Stop` gate. | Hook — bash runs before every tool use |
+
+**`craft.json` example:**
+```json
+{
+  "stacks": ["web", "api"],
+  "features": { "auth": "jwt-refresh", "realtime": false, "i18n": false },
+  "disabled_rules": []
+}
+```
+
+**`enforcement.json` example:**
+```json
+{
+  "mandatory": ["web-standards", "api-standards"],
+  "disabled_rules": ["api.obs.console-log"]
+}
+```
+
+`craft.json` is for the AI's reasoning. `enforcement.json` is for the hook's regex. A project may have one, both, or neither. They are independent.
+
+See `core-standards:craft-config` for the full `craft.json` schema.
+
+---
+
 **Auto-invoke skills are advisory. Enforcement mode makes them mandatory.**
 
 By default, claude-craft skills fire on description match — Claude decides when to load them. Enforcement mode (shipped in `core-hooks` v0.10.0) turns that advisory discipline into a hard contract: required skills, deterministic rule blocks, and a gate check before any turn ends.
@@ -62,7 +94,7 @@ You install `core-hooks` the same way as before. Enforcement mode is **project-s
   "enabledPlugins": {
     "flutter-standards@pixelcrafts": true,
     "core-hooks@pixelcrafts": true,
-    "core-skills@pixelcrafts": true
+    "core-standards@pixelcrafts": true
   }
 }
 ```
@@ -203,6 +235,70 @@ echo '{"tool_name":"Write","tool_input":{"file_path":"/tmp/test.tsx","content":"
 | `gate_required` | `boolean` | `true` | `false` → Stop hook doesn't block turn-end |
 
 Nothing else is supported. Unknown fields are ignored (fail-open).
+
+---
+
+## Delegation quality (v0.11.0)
+
+Separate from enforcement mode — the delegation-quality system enforces warm-brief discipline on Task/Agent spawns. It ships on by default in `core-hooks` v0.11.0 and opts out per-project, not per-pack.
+
+### The three layers
+
+| Layer | Where | What it does |
+|---|---|---|
+| **Skill** (`core-standards:subagent-brief`) | Claude reads at plan time | Decision trees for *spawn vs inline*, *how many agents*, *what goes in the prompt* |
+| **Hook** (`enforce-subagent-brief.sh`) | PreToolUse on `Task\|Agent` | Deterministic warmth score check — blocks with stderr on miss |
+| **Preamble** (`rules-discipline.sh`) | SessionStart | One-liner pointing Claude at the skill before the first spawn |
+
+Skill teaches the ceiling; hook enforces the floor; preamble keeps the skill top-of-context. Each layer is independent — the skill is still useful when the hook is disabled, and the hook still fires when the skill isn't loaded.
+
+### The warmth score
+
+The hook inspects `tool_input.prompt` and scores it:
+
+| Signal | Value | Notes |
+|---|---|---|
+| Labeled section | 1 each | `GOAL:`, `**Goal**:`, `## Goal` (with or without trailing colon). Markers: `GOAL`, `CONTEXT`, `SCOPE`, `TASK`, `OUTPUT`, `DELIVERABLE`, `BUDGET` |
+| Code fence (\`\`\`) | 1 | Any triple-backtick block — presence of a pasted excerpt |
+| File path reference | 1 each, cap 2 | Any `dir/file.ext` pattern, with optional `:line`. Language-agnostic — no extension allowlist. Requires a `/` so bare dotted names do not accidentally count. Capped so a long pasted file list cannot dominate the score. |
+
+### The scope-scaled bar
+
+| Prompt length | Required score | Meaning |
+|---|---|---|
+| `<400` | 0 | Trivial lookup — passes through without ceremony |
+| `400–1500` | 2 | Medium spawn — any mix of labels and pasted context |
+| `≥1500` | 3 | Heavy spawn — full warm brief expected |
+
+Signals accumulate, so labels are not required as long as the prompt carries real context. The design intent is *warm context*, not label ceremony.
+
+### Disabling for a project
+
+```json
+// .claude/enforcement.json
+{
+  "warm_brief_required": false
+}
+```
+
+This disables only the Task/Agent warmth check. Enforcement-mode (`mandatory`, `disabled_rules`, `gate_required`) is unrelated and stays whatever you set it to.
+
+Note the default is `true` — adding the key is only needed to turn the check *off*. Most projects should leave it on; if the hook blocks you, almost always the fix is to paste the excerpt the prompt is missing rather than to disable the check.
+
+### When the hook blocks
+
+Its stderr tells you:
+- the score you got and the score required,
+- the breakdown by signal (markers / fence / paths),
+- concrete suggestions for the highest-leverage fix.
+
+Do not retry the same spawn — the block will fire again. Read the stderr, add the missing warmth signal, re-attempt.
+
+### What the hook does NOT do
+
+- **Does not cap how many agents you spawn.** Hooks fire per-tool-call, not per-batch. Agent-count judgment lives in the skill where the model can reason about work shape.
+- **Does not check quality of warmth signals.** A pasted excerpt is counted the same whether it is the right excerpt or the wrong one. The skill teaches how to pick.
+- **Does not fire inside subagents.** Same rule as the rest of core-hooks — a subagent's own spawns are not checked. Spawning from within a subagent is rare and usually wrong anyway.
 
 ---
 
