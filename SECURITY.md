@@ -18,9 +18,9 @@ We'll acknowledge receipt within 72 hours and work with you on a disclosure time
 
 In-scope:
 
-- Plugins in this repo (`flutter-standards`, `api-standards`, `web-standards`, `core-hooks`, `core-skills`)
+- Plugins in this repo (`flutter-standards`, `api-standards`, `web-standards`, `core-hooks`, `core-standards`)
 - Hooks shipped by `core-hooks` that could fail to block dangerous operations
-- Skills (including those in `core-skills`) that could be prompt-injected into leaking user code or secrets
+- Skills (including those in `core-standards`) that could be prompt-injected into leaking user code or secrets
 
 Out-of-scope:
 

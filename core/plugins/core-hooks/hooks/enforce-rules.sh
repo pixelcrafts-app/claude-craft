@@ -136,6 +136,7 @@ while IFS= read -r PACK; do
     RPAT=$(jq -r ".rules[$i].pattern // empty" "$PACK_FILE" 2>/dev/null)
     RMSG=$(jq -r ".rules[$i].message // empty" "$PACK_FILE" 2>/dev/null)
     RGLOB=$(jq -r ".rules[$i].applies_to // empty" "$PACK_FILE" 2>/dev/null)
+    RNOT=$(jq -r ".rules[$i].not_applies_to // empty" "$PACK_FILE" 2>/dev/null)
     i=$((i + 1))
     [ -z "$RID" ] || [ -z "$RPAT" ] && continue
 
@@ -150,6 +151,11 @@ while IFS= read -r PACK; do
 
     # File-glob scope (per-rule).
     if [ -n "$RGLOB" ] && ! _glob_match "$FILE" "$RGLOB"; then
+      continue
+    fi
+
+    # File-glob exclusion (per-rule).
+    if [ -n "$RNOT" ] && _glob_match "$FILE" "$RNOT"; then
       continue
     fi
 

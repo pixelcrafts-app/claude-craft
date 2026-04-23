@@ -1,7 +1,6 @@
 ---
 name: agents
 description: Apply when spawning subagents or delegating work via Task or Agent tool. Defines the delegation contract.
-disable-model-invocation: true
 ---
 
 # Agents
