@@ -63,7 +63,6 @@ A thin-wrapper audit command is ~20-40 lines. The body:
 ---
 name: <command-name>
 description: <one-line — what this command audits>
-disable-model-invocation: true
 argument-hint: [path or file to audit]
 ---
 
@@ -147,12 +146,11 @@ Same file location. Frontmatter:
 ---
 name: <name>
 description: <one-line description>
-disable-model-invocation: true
 argument-hint: [optional-arg]
 ---
 ```
 
-`disable-model-invocation: true` keeps it explicit — users invoke via `/<stack>-standards:<name>`.
+Keep the description narrow and explicit so it does not fire on ambient context — these skills are user-invoked via `/<stack>-standards:<name>`.
 
 Then: add a card to `docs/skills.md`, bump versions, add a changelog line.
 
@@ -171,7 +169,7 @@ Before duplicating universal content (DRY, testing pyramid, observability, secur
 ## Design principles
 
 - **Pack-universal** — a rule belongs in a pack only if every project using that stack would reasonably want it. Anything narrower (one client's style, one app's workflow) belongs in the consumer project's `CLAUDE.md`, not here.
-- **Non-destructive by default** — a standards skill reports and suggests, it does not silently rewrite. Follow Detect → Check → Suggest: name the gap, show options with tradeoffs, let the user decide. Skills that *do* mutate code (scaffolds, fix passes) must be explicit slash commands with `disable-model-invocation: true`, never auto-invoke standards.
+- **Non-destructive by default** — a standards skill reports and suggests, it does not silently rewrite. Follow Detect → Check → Suggest: name the gap, show options with tradeoffs, let the user decide. Skills that *do* mutate code (scaffolds, fix passes) must be explicit slash commands with narrow descriptions — never auto-invoke standards. Control invocation scope through description design, not flags.
 - **Principle-first** — state the rule abstractly enough that a capable reader can apply it to any codebase in the pack's stack. Reach for a concrete example only when the abstraction alone is genuinely ambiguous; default is no example. Avoid "Bad: X / Good: Y" dialogs, named-API illustrations, and scenario narratives — they bias readers toward the illustrated case and read as condescending.
 - **Description as trigger** — an auto-invoke skill's `description` frontmatter is what Claude matches against to load the skill. Write it as a condition Claude can recognise from file type or task intent ("Apply when editing …", "Use when …"), not as marketing copy. If the description can't be phrased as a matcher, the skill probably wants to be an explicit slash command instead.
 - **Self-contained** — a SKILL.md must stand alone. Do not assume other skills are installed, and do not cross-reference skill internals by `§N.M` from outside the owning skill unless that ID is explicitly documented as stable.

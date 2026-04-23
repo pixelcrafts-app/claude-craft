@@ -1,7 +1,6 @@
 ---
 name: scaffold
 description: "Scaffold a new Flutter feature or screen with correct structure and file locations. Explicit command only."
-disable-model-invocation: true
 argument-hint: "feature <name> [--with-api] [--with-persistence] | screen <name> <feature-path> [provider-name]"
 ---
 

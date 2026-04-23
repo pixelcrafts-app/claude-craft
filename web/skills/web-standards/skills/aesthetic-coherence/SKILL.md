@@ -1,7 +1,6 @@
 ---
 name: aesthetic-coherence
 description: Detect aesthetic mixing — a screen committing to two design languages at once (glassmorphism + neumorphism, bento + brutalist, AI-native + editorial) is the #1 "assembled, not designed" tell. This skill identifies the signals of each aesthetic, flags mixed signatures, and then hands the per-aesthetic spec walk to the audit engine. Use on any surface that feels "off" but passes token and contrast audits.
-disable-model-invocation: true
 argument-hint: [component-file-path | page-path | "app"]
 ---
 

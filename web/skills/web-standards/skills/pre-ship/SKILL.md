@@ -1,7 +1,6 @@
 ---
 name: pre-ship
 description: Full quality gate before merge — lint then all installed web standards
-disable-model-invocation: true
 argument-hint: [optional-path]
 ---
 

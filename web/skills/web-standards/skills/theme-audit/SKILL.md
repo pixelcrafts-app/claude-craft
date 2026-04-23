@@ -1,7 +1,6 @@
 ---
 name: theme-audit
 description: Verify theme completeness — every themeable value uses tokens, light and dark independently designed, no hardcoded bleed-through, SSR hydration flash prevented
-disable-model-invocation: true
 argument-hint: [optional: scope — "app" | "components" | path]
 ---
 

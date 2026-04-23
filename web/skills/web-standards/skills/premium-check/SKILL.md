@@ -1,7 +1,6 @@
 ---
 name: premium-check
 description: Craft audit for a component or page — walks all craft-guide §1–§15 rules with optional fix
-disable-model-invocation: true
 argument-hint: [component-file-path] [--fix]
 ---
 

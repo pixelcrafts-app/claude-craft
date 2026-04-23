@@ -1,7 +1,6 @@
 ---
 name: audit
 description: "Run full Flutter app audit: pre-ship checks, craft quality, screen states. Explicit command only."
-disable-model-invocation: true
 argument-hint: [optional-path] [--fix]
 ---
 

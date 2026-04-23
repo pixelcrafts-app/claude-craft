@@ -1,7 +1,6 @@
 ---
 name: extract-tokens
 description: Extract the user's design tokens (colors, type scale, spacing, radius, shadow, motion) from their codebase or design inputs and write them into a single source-of-truth file. Use before any craft audit — the audit needs the user's tokens to check against. Never imposes values.
-disable-model-invocation: true
 argument-hint: [optional: path-to-design-input | "from-codebase" | "from-figma-url"]
 ---
 

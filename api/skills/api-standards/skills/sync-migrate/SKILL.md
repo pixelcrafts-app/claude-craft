@@ -1,7 +1,6 @@
 ---
 name: sync-migrate
 description: Guide Prisma schema changes — edit schema, create migration, regenerate client, remind to sync downstream consumers
-disable-model-invocation: true
 ---
 
 # Schema Change Workflow (Prisma)

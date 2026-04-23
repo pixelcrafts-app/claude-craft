@@ -1,7 +1,6 @@
 ---
 name: mcp-integration
 description: Reference — how to declare user-installed MCP tools so the engine coordinates them correctly.
-disable-model-invocation: true
 ---
 
 # MCP Integration

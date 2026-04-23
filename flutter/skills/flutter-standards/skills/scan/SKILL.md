@@ -1,7 +1,6 @@
 ---
 name: scan
 description: "Run all Flutter code scans: hardcoded values, duplicate code, accessibility patterns. Explicit command only."
-disable-model-invocation: true
 argument-hint: [optional-directory]
 ---
 
