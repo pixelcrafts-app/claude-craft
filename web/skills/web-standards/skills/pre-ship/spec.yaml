@@ -1,0 +1,14 @@
+name: pre-ship
+display_name: "Pre-Ship Gate"
+description: "Full quality gate before merge — lint then all installed web standards"
+pack: web-standards
+default_prompt: "Run pre-ship checks on my changes before I commit or release"
+model: sonnet
+tools: [Read, Bash, Grep, Glob]
+invocation:
+  implicit: true
+  triggers:
+    - "before merge"
+    - "before commit"
+    - "before release"
+    - "before push"

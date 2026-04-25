@@ -1,0 +1,9 @@
+spec_version: "0.1.0"
+name: claude-craft
+version: 0.1.0
+description: "Harness-agnostic skill and agent system for AI-assisted development. Works with Claude Code, OpenAI Agents SDK, Cursor, and any agentic harness."
+author: pixelcrafts
+license: MIT
+skills:
+  - pre-ship
+

@@ -12,3 +12,6 @@ node_modules/
 # Local test fixtures — not part of the marketplace
 test/
 
+# Local Claude Code settings
+.claude/
+

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Pre-Ship Gate"
+  short_description: "Full quality gate before merge — lint then all installed web standards"
+  default_prompt: "Run pre-ship checks on my changes before I commit or release"
+policy:
+  allow_implicit_invocation: true
+
