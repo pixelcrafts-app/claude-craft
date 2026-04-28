@@ -1,5 +1,5 @@
 ---
-name: audit
+name: app-audit
 description: "Run full Flutter app audit: pre-ship checks, craft quality, screen states. Explicit command only."
 argument-hint: [optional-path] [--fix]
 ---

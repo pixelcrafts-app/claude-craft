@@ -1,5 +1,5 @@
 ---
-name: sync-migrate
+name: db-migrations
 description: Guide Prisma schema changes — edit schema, create migration, regenerate client, remind to sync downstream consumers
 ---
 
