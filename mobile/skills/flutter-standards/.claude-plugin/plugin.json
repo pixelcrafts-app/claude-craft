@@ -1,7 +1,7 @@
 {
   "name": "flutter-standards",
-  "version": "1.0.0",
-  "description": "Flutter-specific standards — engineering patterns (Dart, widget rules, data layer), accessibility (Semantics, screen readers), performance (DevTools, frame budget, const). Scan, audit, and scaffold commands. Pair with mobile-standards for craft, production-readiness, forms, observability, and testing.",
+  "version": "1.1.0",
+  "description": "Flutter-specific standards — engineering (Dart, widget rules, data layer, api-data patterns), accessibility (Semantics, screen readers, 48dp touch targets), performance (DevTools, frame budget, const widgets). app-audit (full Flutter audit: pre-ship checks + craft quality + screen states). scaffold (feature + screen file structure generator). scan (hardcoded values, duplicate code, a11y patterns). Pair with mobile-standards for craft-guide, production-readiness, forms, and observability.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

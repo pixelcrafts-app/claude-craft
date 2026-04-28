@@ -1,7 +1,7 @@
 {
   "name": "core-standards",
-  "version": "0.2.0",
-  "description": "Cross-stack engine and universal skills. Principles (detect→check→suggest, evidence required, separate plan/execute/verify phases, adversarial verifier mindset). Planning (structured plan block with measurable deliverables, craft.json auto-generation). Rules (§1 Security ALWAYS-MANDATORY, §2–§5 universal). Verification (4-tier detection: ALWAYS/PROJECT/TASK-SCOPED/FLAGGED, reads craft.json, restart-after-fix, adversarial framing). Auth-flows (JWT lifecycle, refresh rotation, PKCE, guard composition — active when craft.json features.auth set). Craft-config (craft.json schema and auto-generation).",
+  "version": "0.3.0",
+  "description": "Cross-stack engine and universal skills. work-principles (detect→check→suggest, evidence required, separate plan/execute/verify phases, adversarial verifier mindset). planning (structured plan block with measurable deliverables, craft.json auto-generation). universal-rules (§1 Security ALWAYS-MANDATORY, §2–§5 universal). verification (4-tier detection: ALWAYS/PROJECT/TASK-SCOPED/FLAGGED, reads craft.json, restart-after-fix). verify-changes (audit + delivery engine with dependency graph). auth-flows (JWT lifecycle, refresh rotation, PKCE, guard composition — active when craft.json features.auth set). craft-config (craft.json schema and auto-generation). subagent-brief (delegation contract — GOAL/CONTEXT/SCOPE/OUTPUT warmth check).",
   "author": { "name": "pixelcrafts", "url": "https://github.com/pixelcrafts-app" },
   "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",

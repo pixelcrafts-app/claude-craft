@@ -1,7 +1,7 @@
 {
   "name": "design-standards",
   "version": "0.1.0",
-  "description": "Platform-agnostic design pack — applies to Web, iOS, and Android. Covers: accessibility (WCAG 2.2 + Swift traits + Compose semantics), information architecture, aesthetic coherence, frontend design laws (color strategy, anti-AI-slop, absolute bans), brand research (fact verification + asset collection protocol).",
+  "description": "Platform-agnostic design pack — applies to Web, iOS, and Android. accessibility (WCAG 2.2 + Swift traits + Compose semantics), information-architecture, aesthetic-coherence, design-laws (color strategy axis, anti-AI-slop, absolute visual bans, category-reflex check — from pbakaus/impeccable), brand-research (fact verification before designing + asset collection: logo → product imagery → UI screenshots → color → font), creative-direction (signals that separate memorable from functional-but-forgettable UI).",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"
