@@ -1,5 +1,5 @@
 ---
-name: rules
+name: universal-rules
 description: Apply when editing any code file. Universal rules that apply regardless of stack. Checked via §N.M rule IDs.
 ---
 

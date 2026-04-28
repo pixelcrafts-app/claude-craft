@@ -1,5 +1,5 @@
 ---
-name: principles
+name: work-principles
 description: Apply when working on any non-trivial task. Governs how Claude reasons and delivers — not what rules to check.
 ---
 

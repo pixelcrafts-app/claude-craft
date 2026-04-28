@@ -1,0 +1,12 @@
+{
+  "name": "design-standards",
+  "version": "0.1.0",
+  "description": "Platform-agnostic design pack — applies to Web, iOS, and Android. Covers: accessibility (WCAG 2.2 + Swift traits + Compose semantics), information architecture, aesthetic coherence, frontend design laws (color strategy, anti-AI-slop, absolute bans), brand research (fact verification + asset collection protocol).",
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/pixelcrafts-app"
+  },
+  "homepage": "https://github.com/pixelcrafts-app/claude-craft",
+  "license": "MIT",
+  "keywords": ["design", "accessibility", "wcag", "information-architecture", "brand", "anti-slop", "platform-agnostic"]
+}

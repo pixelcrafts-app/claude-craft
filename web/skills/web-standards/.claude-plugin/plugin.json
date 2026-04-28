@@ -1,7 +1,7 @@
 {
   "name": "web-standards",
   "version": "0.10.0",
-  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke: nextjs + production-readiness (§R1–§R10) + craft-guide (§1–§15) standards; premium-signals (market-sourced precise values — shadow formula, OKLCH dark grays, easing, tabular-nums); i18n (conditional on next-i18next/react-i18next or locales/ dir: t() coverage, plural rules, RTL, next.config.js locale routing). Audit commands delegate to core-standards:verify-changes. extract-tokens writes token source of truth.",
+  "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke: nextjs + production-readiness (§R1–§R10) + craft-guide (§1–§15) standards; premium-signals (market-sourced precise values — shadow formula, OKLCH dark grays, easing, tabular-nums); taste-skill (metric dials: DESIGN_VARIANCE/MOTION_INTENSITY/VISUAL_DENSITY, AI-tells forbidden list); i18n (conditional on next-i18next/react-i18next or locales/ dir). Audit commands delegate to core-standards:verify-changes. extract-tokens writes token source of truth. Platform-agnostic design skills (accessibility, information-architecture, aesthetic-coherence) moved to design-standards plugin.",
   "author": {
     "name": "pixelcrafts",
     "url": "https://github.com/pixelcrafts-app"

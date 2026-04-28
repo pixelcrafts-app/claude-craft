@@ -1,5 +1,5 @@
 ---
-name: creativity
+name: creative-direction
 description: Apply when designing any UI — web or mobile. Teaches what separates memorable, ownable UI from functional but forgettable. Auto-invoke when generating screens, components, or interaction patterns.
 ---
 

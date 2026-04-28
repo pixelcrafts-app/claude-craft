@@ -1,5 +1,5 @@
 ---
-name: find-hardcoded
+name: scan-hardcoded
 description: ""
 ---
 

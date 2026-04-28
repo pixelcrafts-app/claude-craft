@@ -1,5 +1,5 @@
 ---
-name: audit-a11y-patterns
+name: scan-duplicates
 description: ""
 ---
 
