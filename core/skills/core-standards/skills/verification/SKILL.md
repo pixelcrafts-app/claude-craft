@@ -51,7 +51,7 @@ Use the 4-tier model. Apply tiers in order.
 
 **Tier 1 — ALWAYS-MANDATORY**
 These apply to every task on every file touched, regardless of craft.json, scope boundary, or what was planned. No opt-out.
-- `core-standards:rules §1` — Security (hardcoded secrets, input validation, auth error suppression)
+- `universal-rules:security` — Security (hardcoded secrets, input validation, auth error suppression)
 - Phase 1 plan compliance
 
 **Tier 2 — PROJECT-MANDATORY**
@@ -75,12 +75,11 @@ Gap zones not declared in craft.json but whose trigger conditions exist in chang
 
 ### Detect Active Skills — Reasoning Questions
 
-- Is this UI work? → apply the craft-guide for the stack
-- Is this Flutter/Dart? → apply flutter-standards:engineering and flutter-standards:accessibility
-- Is this a web frontend? → apply web-standards:craft-guide and web-standards:nextjs (if Next.js)
-- Is this API or backend? → apply api-standards:nestjs and api-standards:code-quality
-- Does it touch performance-critical paths? → apply the relevant performance skill
-- Is this any code at all? → apply core-standards:rules always (Tier 1)
+- Does craft.json declare stacks? → apply each declared stack's skill pack to files of that type
+- Do changed files include UI components? → apply the craft-guide for the declared stack
+- What file extensions appear in changed files? → match to stacks declared in craft.json; if no match, emit INFO
+- Does the task touch performance-critical paths? → apply the relevant performance skill if declared
+- Is this any code at all? → apply universal-rules:security always (Tier 1)
 
 For each skill considered as N/A: the exclusion must cite a tool call (grep, Read, file list) showing the skill's domain is not present in the changed files.
 

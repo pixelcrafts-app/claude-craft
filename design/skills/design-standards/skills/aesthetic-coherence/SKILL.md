@@ -6,7 +6,7 @@ argument-hint: [component-file-path | page-path | "app"]
 
 # Aesthetic Coherence Audit — Web
 
-Detection is a signal-scoring pass (Steps 1–3) — no rule-by-rule equivalent, runs here. Spec compliance (does the detected aesthetic meet `craft-guide §9.x`?) delegates to `core-standards:verify-changes` (Step 4).
+Detection is a signal-scoring pass (Steps 1–3) — no rule-by-rule equivalent, runs here. Spec compliance (does the detected aesthetic meet `craft-guide:aesthetic-coherence`?) delegates to `core-standards:verify-changes` (Step 4).
 
 ---
 
@@ -15,7 +15,7 @@ Detection is a signal-scoring pass (Steps 1–3) — no rule-by-rule equivalent,
 1. Read `$ARGUMENTS` (file, page, or whole app).
 2. If whole app, enumerate public routes under `app/` (App Router) or `pages/` (Pages Router).
 3. Read `design-tokens.md` if present — check for a declared aesthetic.
-4. Load `craft-guide` (the §9 Rule Index is the canonical aesthetic list).
+4. Load `craft-guide` (the `aesthetic-coherence` section is the canonical aesthetic rule set).
 
 ---
 
@@ -115,7 +115,7 @@ Every aesthetic has a fingerprint — a combination of CSS patterns, component s
 
 Per file, pick top 2 aesthetic scores. If the gap between #1 and #2 is **large**, the file commits — healthy.
 
-If the gap is **small** (≤ 30% difference), the file is **mixed** — a FAIL against `craft-guide §9.1` (single aesthetic committed).
+If the gap is **small** (≤ 30% difference), the file is **mixed** — a FAIL against `craft-guide:aesthetic-coherence:named-aesthetics` (single aesthetic committed).
 
 Output:
 
@@ -146,18 +146,18 @@ Mixed files:
   - <file> with gap <Z%>
 ```
 
-Cross-file mixing is worse than in-file mixing. A modal in glassmorphism inside a brutalist app reads broken — still a FAIL against `craft-guide §9.1`.
+Cross-file mixing is worse than in-file mixing. A modal in glassmorphism inside a brutalist app reads broken — still a FAIL against `craft-guide:aesthetic-coherence:named-aesthetics`.
 
 ---
 
 ## Step 4 — Delegate spec compliance to the engine
 
-Once the dominant aesthetic is classified (Step 2 per file, Step 3 cross-file), hand spec compliance to the engine. The rule index at the top of `craft-guide` numbers every §9.x rule, and the per-aesthetic specs live in §9 prose — the engine reads both.
+Once the dominant aesthetic is classified (Step 2 per file, Step 3 cross-file), hand spec compliance to the engine. The `aesthetic-coherence` section of craft-guide contains the full rule set — the engine reads the named-aesthetics, per-aesthetic-specs, and numeric-specs sub-sections.
 
 ```
 verify-changes brief:
   scope: <files classified COMMITTED or MIXED from Steps 1–3>
-  dimensions: [craft-guide §9]
+  dimensions: [craft-guide:aesthetic-coherence]
   depth: direct
   fix: no
   source: web-standards:aesthetic-coherence
@@ -165,9 +165,9 @@ verify-changes brief:
     aesthetic: <dominant detected or user-confirmed>
 ```
 
-The engine walks §9.1 (single aesthetic), §9.2 (per-aesthetic specs for the declared aesthetic), §9.3 / §9.4 (glass-specific legibility and reduced-transparency), and §9.5 (per-aesthetic numeric specs) rule-by-rule and reports PASS / FAIL / N_A against the committed aesthetic.
+The engine walks `named-aesthetics` (single aesthetic committed), `per-aesthetic-specs` (specs for the declared aesthetic), the glass-specific legibility and reduced-transparency rules, and the per-aesthetic numeric specs rule-by-rule and reports PASS / FAIL / N_A against the committed aesthetic.
 
-**Critical:** aesthetic choice is user taste — don't invoke the engine with an undetermined aesthetic. If Step 2 leaves the app UNCLEAR or classifications conflict, surface the ambiguity to the user and ask before delegating. Running §9 compliance against a guessed aesthetic is noise.
+**Critical:** aesthetic choice is user taste — don't invoke the engine with an undetermined aesthetic. If Step 2 leaves the app UNCLEAR or classifications conflict, surface the ambiguity to the user and ask before delegating. Running aesthetic-coherence compliance against a guessed aesthetic is noise.
 
 ---
 
@@ -183,19 +183,19 @@ DETECTION (Steps 1–3)
   Declared (if any): <Y — from design-tokens.md>
   Match: YES | NO — if NO, which wins? (ask user)
 
-  Mixed files (§9.1 FAIL): <count>
+  Mixed files (craft-guide:aesthetic-coherence:named-aesthetics FAIL): <count>
     [list with signal breakdown]
 
   Outlier files: <count>
     [list of files committed to off-brand aesthetic]
 
-COMPLIANCE (from verify-changes §9 walk)
+COMPLIANCE (from verify-changes craft-guide:aesthetic-coherence walk)
   [engine's per-rule PASS / FAIL / N_A output]
 
 Verdict:
-  - 0 mixed + 0 outliers + 0 §9 FAIL → COHERENT
+  - 0 mixed + 0 outliers + 0 aesthetic-coherence FAILs → COHERENT
   - any mixed or outliers → FRAGMENTED
-  - only §9 FAILs → COMMITTED-BUT-UNFINISHED
+  - only aesthetic-coherence FAILs → COMMITTED-BUT-UNFINISHED
 ```
 
 ---

@@ -2,7 +2,7 @@
 # Stop hook — blocks the turn-end if a mandatory pack has uncommitted
 # enforcement work. A pack is "touched" when a tracked file was about to be
 # edited; it becomes "gate_passed" when the pack's gate command (e.g.
-# /flutter-standards:pre-ship) reports SAFE TO COMMIT and writes the ledger.
+# /web-standards:pre-ship or the project's configured gate) reports SAFE TO COMMIT and writes the ledger.
 #
 # Exit 2 keeps Claude's turn open with the emitted stderr message. Fail-open
 # on any error so a bug in this hook can't strand the user.

@@ -57,7 +57,7 @@ Escape hatch for rules that genuinely do not apply to this project. Each entry r
 ```json
 "disabled_rules": [
   {
-    "rule": "flutter-standards:engineering §3.2",
+    "rule": "flutter-standards:engineering:observability",
     "reason": "Third-party SDK requires synchronous init before async context is available"
   }
 ]

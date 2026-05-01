@@ -5,7 +5,7 @@ description: Apply when adding logging, analytics, or crash reporting to a mobil
 
 # Observability Rules
 
-Universal engineering rules — see `core-standards:rules` §1–§4. This skill covers Flutter/mobile-specific patterns only.
+Universal engineering rules — see `universal-rules:security`, `universal-rules:testing`, `universal-rules:observability`, `universal-rules:engineering`. This skill covers mobile-specific patterns only.
 
 ---
 

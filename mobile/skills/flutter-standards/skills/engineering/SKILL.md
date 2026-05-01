@@ -5,7 +5,7 @@ description: Apply when writing or reviewing any Dart or Flutter code — widget
 
 # Flutter Engineering Rules
 
-Universal security, testing, observability, and engineering rules — see `core-standards:rules §1–§4`. This skill covers Flutter-specific patterns only.
+Universal security, testing, observability, and engineering rules — see `universal-rules:security`, `universal-rules:testing`, `universal-rules:observability`, `universal-rules:engineering`. This skill covers Flutter-specific patterns only.
 
 ---
 

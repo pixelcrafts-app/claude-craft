@@ -9,7 +9,7 @@ Resolve aesthetic and density from `tailwind.config.*`, `app/globals.css`, or as
 ```
 verify-changes brief:
   scope: $ARGUMENTS or "uncommitted working tree"
-  dimensions: [craft-guide §1–§15]
+  dimensions: [craft-guide]
   depth: direct
   fix: yes if --fix, else no
   source: web-standards:premium-check

@@ -5,7 +5,7 @@ description: Apply when auditing NestJS endpoints for security, correctness, and
 
 # API Code Quality Audit
 
-Universal engineering, security, testing, and observability rules — see core-standards:rules §1–§4. This skill covers NestJS+Prisma-specific patterns only.
+Universal engineering, security, testing, and observability rules — see `universal-rules:security`, `universal-rules:testing`, `universal-rules:observability`, `universal-rules:engineering`. This skill covers NestJS+Prisma-specific patterns only.
 
 > Every item is a pass/fail check. Run before major releases or as the basis for a pre-ship skill.
 

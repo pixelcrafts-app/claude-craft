@@ -143,7 +143,7 @@ Source of truth for the craft audit. Generated YYYY-MM-DD by /web-standards:extr
 <detected-or-user-declared>
 
 ## Density target
-<detected-or-user-declared — from §8 craft-guide>
+<detected-or-user-declared — from craft-guide:responsive-density>
 
 ## Color
 
