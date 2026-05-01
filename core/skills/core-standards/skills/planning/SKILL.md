@@ -9,6 +9,34 @@ description: Apply when starting any delivery task — feature, fix, migration, 
 
 A plan is a working hypothesis — not a commitment. It updates as you learn. Confirming a plan is permission to start, not permission to ignore what you discover during implementation. When implementation reveals the plan was wrong, update the plan and surface the change before continuing.
 
+## Step 0 — Route the task (runs before anything else)
+
+Before reading any files, classify the task by shape. This is the routing decision — inline or agents. **Make it once, at the start. Do not start inline and switch to agents mid-task — that is not routing, that is giving up.**
+
+| Task shape | Route |
+|---|---|
+| 1 file, 1 concern, no consumers | Inline |
+| 2–3 files, same module, known structure | Inline |
+| Research across unknown codebase area | Spawn Explore agent → inline continues with findings |
+| 3+ independent files across modules | Parallel agents — one per module |
+| Task requires research AND implementation | Research agent first → implement inline with findings |
+| Cross-stack work (web + api, mobile + backend) | Agent per stack, parallel |
+| Large audit or multi-dimension verification | `verify-changes` |
+| Feature that touches auth, payments, or shared schema | Sequential agents — auth/schema first, feature after |
+
+**If the route is agents:** write the agent briefs now, before any inline work starts. State the routing decision explicitly:
+
+```
+Routing: <N> parallel agents / sequential — reason: <why inline is insufficient>
+Agent 1: <scope>
+Agent 2: <scope>
+Dependency: <agent 2 waits for agent 1 result / independent>
+```
+
+**The default is NOT inline.** Inline is for narrow, single-focus tasks. Anything multi-file, multi-concern, or multi-stack should route to agents first — not as a fallback when inline gets unwieldy.
+
+---
+
 ## Before planning, understand
 
 If the ask references code you haven't read, read the relevant files first. You cannot plan changes to code you don't understand. A plan written before reading the code is a guess with formatting.
@@ -38,7 +66,7 @@ Without completing discovery, any plan produced is fabrication.
 
 5. **List verification criteria.** What must be observable or tool-verifiable after the task is complete? Each criterion must be checkable with a specific tool call (Read, Bash, grep) — not prose like "the screen renders" or "it works."
 
-6. **Identify parallel work.** If agents are appropriate, state which work is parallel-safe and which must be sequential. State the dependency explicitly.
+6. **Confirm routing decision.** Step 0 made the routing decision — confirm it holds after reading the code. If the task turned out to be more complex than the initial classification: re-route now, not mid-implementation. State any dependency changes explicitly.
 
 7. **Present the plan and wait for confirmation.** This is the only question asked up front. After confirmation, begin — and update the plan as you learn.
 
