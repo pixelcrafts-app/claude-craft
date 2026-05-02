@@ -2,7 +2,7 @@
 
 Standards your Claude Code follows — automatically. Install a pack, Claude applies the rules on every file, plans before coding, verifies its own output, and guards against mistakes. No `CLAUDE.md` edits.
 
-![version](https://img.shields.io/badge/version-0.13.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-7-orange)
+![version](https://img.shields.io/badge/version-0.14.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![plugins](https://img.shields.io/badge/plugins-7-orange)
 
 ---
 
@@ -33,6 +33,7 @@ USER ASK
 │  work-principles · planning · universal-rules        │
 │  verification · auth-flows · craft-config            │
 │  subagent-brief · mcp-integration · docs-sync        │
+│  codebase-index (audit cache — git blob hash keys)   │
 └───────────┬──────────────────────┬───────────────────┘
             │                      │
             ▼                      ▼
@@ -97,7 +98,7 @@ USER ASK
 | Pack | Stack | Skills |
 |---|---|---|
 | `core-hooks` | All | 5 bash enforcement hooks |
-| `core-standards` | All | Engine + 12 universal skills |
+| `core-standards` | All | Engine + cross-stack universal skills (verify-changes, codebase-index, universal-rules, planning, verification, auth-flows, craft-config, subagent-brief, docs-sync, and more) |
 | `design-standards` | Web + iOS + Android | 6 platform-agnostic design skills |
 | `web-standards` | Next.js / Tailwind / shadcn | 11 skills — craft, audit, performance, i18n, taste |
 | `api-standards` | NestJS / Prisma | 6 skills — api-design, nestjs, db-migrations, websockets |
@@ -160,11 +161,12 @@ core/skills/
     skills/verify-changes/       audit + delivery engine
     skills/work-principles/      always-load behavioral rules
     skills/planning/             pre-delivery planning procedure
-    skills/universal-rules/      universal §N.M rules
+    skills/universal-rules/      universal rules (named section refs — security/testing/observability/engineering/design-tokens)
     skills/verification/         cross-check procedure
     skills/subagent-brief/       delegation contract
     skills/mcp-integration/      MCP config reference
     skills/docs-sync/            post-audit doc drift check
+    skills/codebase-index/       persistent audit cache keyed by git blob hash
 
 design/skills/design-standards/  platform-agnostic design (Web + iOS + Android)
     skills/accessibility/        WCAG 2.2 + Swift traits + Compose semantics
@@ -216,4 +218,4 @@ scripts/                         compile agents, export utilities
 
 ---
 
-**v0.13.0** · MIT · PRs welcome → [docs/contributing.md](docs/contributing.md)
+**v0.14.0** · MIT · PRs welcome → [docs/contributing.md](docs/contributing.md)

@@ -8,10 +8,12 @@ Thanks for considering a contribution. This is a short guide — edit flow, nami
 flutter/skills/flutter-standards/     Flutter pack — bundle plugin
 api/skills/api-standards/             API pack — bundle plugin
 web/skills/web-standards/             Web pack — bundle plugin
-core/plugins/core-hooks/              Cross-stack hooks — secret/shell/token-value blocks, enforcement-mode gate, delegation warmth check, session-start mechanics
-core/plugins/core-standards/             Engine + universal skills — verify-changes, principles, planning, agents, rules, verification, mcp-integration, docs-sync, subagent-brief
+mobile/skills/mobile-standards/       Mobile-universal pack — Flutter / RN / SwiftUI / Compose
+design/skills/design-standards/       Platform-agnostic design pack — Web + iOS + Android
+core/skills/core-hooks/               Cross-stack hooks — secret/shell/token-value blocks, enforcement-mode gate, session-start mechanics
+core/skills/core-standards/           Engine + universal skills — verify-changes, codebase-index, planning, universal-rules, verification, mcp-integration, docs-sync, subagent-brief
 scripts/export.sh                     Export to Cursor / AGENTS.md
-.claude-plugin/marketplace.json       Marketplace index (5 plugins)
+.claude-plugin/marketplace.json       Marketplace index (7 plugins)
 ```
 
 Rules live **inside** `SKILL.md` bodies — not as separate `*.md` files. The frontmatter `description:` on a standards skill drives auto-invocation; the body is what Claude reads.
@@ -29,8 +31,8 @@ One copy. No build step. Edit and commit:
 
 1. Edit the skill file — the path depends on which plugin owns it:
    - Stack pack: `<stack>/skills/<stack>-standards/skills/<name>/SKILL.md`
-   - Cross-stack skill: `core/plugins/core-standards/skills/<name>/SKILL.md`
-   - Cross-stack hook: `core/plugins/core-hooks/hooks/<name>.sh` (plus registration in `core/plugins/core-hooks/.claude-plugin/plugin.json`)
+   - Cross-stack skill: `core/skills/core-standards/skills/<name>/SKILL.md`
+   - Cross-stack hook: `core/skills/core-hooks/hooks/<name>.sh` (plus registration in `core/skills/core-hooks/.claude-plugin/plugin.json`)
 2. Bump `version` in:
    - The owning plugin's `.claude-plugin/plugin.json`
    - `.claude-plugin/marketplace.json` (both `metadata.version` and the plugin entry)
@@ -109,7 +111,7 @@ When adding rules to these skills, use a descriptive `##` or `###` heading. The 
 
 Enforcement rules block Edit / Write / MultiEdit at the PreToolUse layer when a project has opted in via `.claude/enforcement.json`. They must be deterministic — regex-level checks on file content. Subjective rules (craft, aesthetic, architecture) stay inside standards skills and are enforced at the gate stage, not here.
 
-Per-pack default registries live at `core/plugins/core-hooks/enforcement/<pack>.json`. Add a rule to the `rules` array:
+Per-pack default registries live at `core/skills/core-hooks/enforcement/<pack>.json`. Add a rule to the `rules` array:
 
 ```json
 {
@@ -129,9 +131,9 @@ Test locally:
 
 ```bash
 echo '{"tool_name":"Write","tool_input":{"file_path":"/tmp/test.tsx","content":"<div dangerouslySetInnerHTML={{__html:x}} />"}}' \
-  | CLAUDE_PLUGIN_ROOT=/abs/path/to/core-hooks \
+  | CLAUDE_PLUGIN_ROOT=/abs/path/to/core/skills/core-hooks \
     CLAUDE_PROJECT_DIR=/tmp/fake-project \
-    bash /abs/path/to/core-hooks/hooks/enforce-rules.sh
+    bash /abs/path/to/core/skills/core-hooks/hooks/enforce-rules.sh
 ```
 
 With `.claude/enforcement.json` containing `{"mandatory":["web-standards"]}` in `/tmp/fake-project`, this should exit 2 with the message on stderr.
@@ -164,7 +166,7 @@ A new pack is a new top-level folder (`database/`, `rust/`, etc.) mirroring the 
 4. Document the pack in `docs/skills.md`
 5. Bump minor version, add a changelog entry
 
-Before duplicating universal content (DRY, testing pyramid, observability, security) into a new pack, check if it should be extracted to a shared cross-stack plugin first. A `core-standards` plugin is planned for this purpose — see [ROADMAP](../ROADMAP.md). Until it exists, flag the duplication in the PR so it can be lifted in one pass later.
+Before duplicating universal content (DRY, testing pyramid, observability, security) into a new pack, check if it already lives in `core-standards` first (`universal-rules:security`, `universal-rules:testing`, etc.). Add a reference to the relevant named section rather than copying the rules.
 
 ## Design principles
 

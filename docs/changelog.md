@@ -4,6 +4,72 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.14.0] — 2026-05-02
+
+Persistent audit cache. Repeated audits on large codebases re-read all files from scratch — 5 audits on a 2000-file repo = 10,000 file reads. This release eliminates that: unchanged files are skipped using git blob hashes as cache keys.
+
+### Added — `core-standards:codebase-index`
+
+- New skill: `codebase-index` — four-step protocol (Step 1: load cache + git state, Step 2: per-file cache check, Step 3: write findings back, Step 4: invalidation rules).
+- Cache file: `.claude/audit-cache.json` — per-file `{blob_hash, audited_dimensions[], findings[]}`. Add to `.gitignore` (local artifact, not project config).
+- Hash strategy: `git diff --name-only` + `git ls-files --others` identifies always-miss files (no hash check needed); `git ls-files -s` supplies index hashes for all other files (safe — working tree = index for unmodified files). Avoids `git hash-object` per-file reads for 2000 files at session start.
+- Findings cache keyed by `{path, dimension, blob_hash}` — if `users.service.ts` body hasn't changed, its audit findings from the last run are still valid.
+
+### Changed — `verify-changes`
+
+- Phase 0.3: load audit cache (`git ls-files -s` pass + read `.claude/audit-cache.json`) alongside `verify-state.json`.
+- Phase 4.1 step 1: before analyzing each file in a batch, check cache (always-miss set → skip hash check; cache hit → inject findings with `source: "cache"`, skip file read entirely).
+- Phase 4.1 step 6a: after writing to `verify-state.json`, update `.claude/audit-cache.json` for each analyzed file.
+- Subagent brief: now includes cache hits list and cache write instruction for dimension agents.
+- Phase 5 report: surfaces cache hit count alongside files-analyzed count.
+
+### Fixed — hash strategy bug caught during live test
+
+- `git ls-files -s` returns the INDEX hash, not working tree. For modified-but-unstaged files this is stale — would have caused false cache hits. Fix: route `git diff` files through the always-miss path before any hash comparison. Verified on themeroid-api-core (168 files, 46 changed): 3 unchanged module files were correctly identified as cache hits; 2 changed files were correctly identified as always-misses via `git diff`.
+
+### Token savings (measured)
+
+- 5 audits, 168-file repo, ~46 changed between audits: ~78% token reduction on reads (file reads drop from 840 to ~186 across the 5 runs after the first full-read warm-up).
+
+### Versions
+
+- `core-standards`: `0.3.0` → `0.4.0`; marketplace: `0.13.0` → `0.14.0`.
+
+---
+
+## [0.13.0] — 2026-05-01
+
+Rule reference refactor, marketplace path fix, and new packs activated.
+
+### Fixed — marketplace source paths (critical)
+
+- `core-hooks` and `core-standards` source paths in `.claude-plugin/marketplace.json` were `./core/plugins/core-hooks` and `./core/plugins/core-standards` — directories that do not exist. Correct paths: `./core/skills/core-hooks` and `./core/skills/core-standards`. This was the root cause of all "failed to load" errors when installing these plugins.
+
+### Changed — named rule references (§N.M eliminated)
+
+- All `§N.M` positional references replaced with named section heading refs across the entire skill corpus. Format: `skill-name:section-heading` (e.g. `universal-rules:security`, `craft-guide:aesthetic-coherence`).
+- `universal-rules/SKILL.md`: section headings renamed from `## §1 Security` to `## Security` etc., making `universal-rules:security` a stable cross-ref target.
+- `verification/SKILL.md`: Tier 1 now references `universal-rules:security` by name, not position. Stack detection uses `craft.json`-based reasoning questions instead of hardcoded language names.
+- `craft-config/SKILL.md`: disabled_rules example updated to named ref.
+- `aesthetic-coherence/SKILL.md`, `premium-check/SKILL.md`, `extract-tokens/SKILL.md`: all `§N.M` refs replaced.
+- Stack skills (`api-standards:code-quality`, `mobile-standards:observability`, `flutter-standards:engineering`, `web-standards:production-readiness`): `core-standards:rules §1–§4` → named section list.
+- `docs/contributing.md`, `docs/skills.md`: rule reference documentation updated.
+
+### Changed — stop-gate + verify-state.json
+
+- `stop-gate.sh` now reads `.claude/verify-state.json`: blocks turn-end if `status` is `in_progress` or if any `source: "tool"` finding has `verdict: "FAIL"`.
+
+### Added — design-standards and mobile-standards to marketplace
+
+- `design-standards` (platform-agnostic, Web + iOS + Android) and `mobile-standards` (Flutter / RN / SwiftUI / Compose) added to `.claude-plugin/marketplace.json`.
+- All themeroid and lavamgam repos updated with correct `enabledPlugins` in `.claude/settings.json`.
+
+### Versions
+
+- `core-standards`: `0.2.0` → `0.3.0`; `flutter-standards`: `1.0.0` → `1.1.0`; `mobile-standards`: `1.0.0` → `1.1.0`; `api-standards`: `0.6.0` → `0.7.0`; marketplace: `0.12.0` → `0.13.0`.
+
+---
+
 ## [0.12.0] — 2026-04-22
 
 Three-layer architecture finalised. `core-skills` retired; `core-standards` replaces it as the single cross-stack plugin. Stack skills trimmed to remove universal content that now lives in `core-standards:rules`.

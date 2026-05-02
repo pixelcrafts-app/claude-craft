@@ -1,6 +1,6 @@
 # Skills Catalog
 
-Four plugins ship. Every standard, audit, scaffold, and agent is listed here with what it does and when it fires.
+Seven plugins ship. Every standard, audit, scaffold, and agent is listed here with what it does and when it fires.
 
 **Two kinds of skill:**
 - **Auto-invoke standards** — no slash command. Claude loads them when it sees matching work (a `.dart` file triggers Flutter standards; `src/**/*.ts` triggers API standards).
@@ -123,13 +123,14 @@ Install: `/plugin install core-standards@pixelcrafts`.
 |---|---|---|
 | principles | Every non-trivial task | Detect→Check→Suggest discipline. Evidence required for every verdict. Plan/Execute/Verify as separate phases — compressing them into one response means one wasn't done. Adversarial verifier mindset: find what's wrong, not confirm what's right. |
 | planning | Every delivery task before code is written | Discovery protocol for cold start. Structured `<!-- craft:plan -->` block with measurable deliverables — each requires a runnable verification command (grep/Bash/Read). `scope_boundary` field. Trivial bypass requires grep evidence. Generates draft `.claude/craft.json` on first run if absent. |
-| rules | Every code file edit | Universal standards: `universal-rules:security` (ALWAYS-MANDATORY — no opt-out), `universal-rules:testing`, `universal-rules:observability`, `universal-rules:engineering`, `universal-rules:design-tokens`. Security applies to every touched file regardless of scope boundary or project config. |
+| universal-rules | Every code file edit | Universal standards identified by named section refs: `universal-rules:security` (ALWAYS-MANDATORY — no opt-out), `universal-rules:testing`, `universal-rules:observability`, `universal-rules:engineering`, `universal-rules:design-tokens`. Security applies to every touched file regardless of scope boundary or project config. |
 | verification | After every delivery task | Adversarial framing. Step 0 reads `.claude/craft.json`. 4-tier detection: ALWAYS-MANDATORY / PROJECT-MANDATORY / TASK-SCOPED / FLAGGED-NOT-ENFORCED. Phase 1 reads plan block — DONE requires named tool call, prose = MISSED. After any fix: restart from Phase 1 item 1. INFO for gap zones (does not block READY). |
 | auth-flows | When `craft.json features.auth` non-false, or auth patterns detected | Auth guard + permission guard both required (not auth alone). Refresh token rotation on every use. Server-side logout revocation. Access token ≤15min. OAuth PKCE. Auth error non-enumeration. Rate limiting on auth endpoints. |
 | craft-config | When `.claude/craft.json` is absent and needs generation | Documents `.claude/craft.json` schema: `stacks[]`, `features{}`, `disabled_rules[]`. Auto-generates draft from file detection. Disabled rules surfaced with reasons in every verification report. |
 | docs-sync | End-of-task signals (version bump, plugin added/removed, "ship / done / release", pre-ship runs, `v*.*.*` commit) | Cross-checks code vs README / CHANGELOG / ROADMAP / `docs/skills.md` / plugin descriptions. Flags deltas. Never rewrites prose. Never blocks. |
 | subagent-brief | Any time the model considers delegating to Agent / Task / Explore / Plan / general-purpose subagent | Enforces warm-brief discipline: goal + known context (paths + lines) + hard scope + output shape + budget. A subagent given "figure it out" burns 3–10× the tokens of one given specifics. |
-| verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph. Verifies rule-by-rule from whichever SKILL.md files are installed. Emits critical / polish / consumer-break verdict. Pure prompt — no hooks, no external tools. |
+| verify-changes | User says "verify my changes" / "cross-check" / "audit what I did" / ends a non-trivial chunk of work | Generic cross-stack verification workflow. Asks scope + dimensions + depth. Builds a dependency graph. Verifies rule-by-rule from whichever SKILL.md files are installed. Integrates with `codebase-index` to skip unchanged files on repeat audits. Emits critical / polish / consumer-break verdict with cache-hit count. Pure prompt — no hooks, no external tools. |
+| codebase-index | Loaded by verify-changes at Phase 0 | Persistent audit cache keyed by git blob hash. Protocol: `git diff --name-only` identifies always-miss files; `git ls-files -s` supplies index hashes for unchanged files; findings stored in `.claude/audit-cache.json` per `{path, dimension}`. Eliminates re-reading unchanged files across repeated audits — ~78% token reduction on a 2000-file repo audited 5 times. |
 
 Install either / both alongside any pack — they apply regardless of stack.
 
