@@ -1,6 +1,10 @@
 ---
 name: craft-guide
-description: Apply when designing, reviewing, or polishing mobile UI — typography, spacing, motion, state design, visual weight, transitions, information architecture. Auto-invoke whenever generating or evaluating mobile screens or widgets for craft quality.
+description: Apply when designing, reviewing, or polishing mobile UI — typography, spacing, motion, state design, visual weight, transitions, information architecture. Auto-invoke whenever generating or evaluating mobile screens or widgets for craft quality. This is the Tier 2 project-contract skill — pairs with craft-invariants (Tier 1 universals) and craft.json features.aesthetic (Tier 3 taste opt-in).
+requires:
+  - craft-invariants   # Tier 1 industry universals — citations and PASS/FAIL rules live there
+  - design-tokens      # token completeness + per-framework adapter patterns
+  - craft-config       # craft.json features.aesthetic schema for Tier 3 opt-in
 ---
 
 # Premium Mobile Craft Guide
@@ -10,7 +14,23 @@ description: Apply when designing, reviewing, or polishing mobile UI — typogra
 
 ---
 
-Design rules (layout, animation, color, typography, interaction) can be questioned. Engineering requirements (verification, auth guards, error states, accessibility) cannot be skipped.
+## How `verify-changes` reads this file (three tiers)
+
+This file is the **Tier 2 project contract**. Read alongside two siblings:
+
+| Tier | Where | What it enforces | Verdict |
+|---|---|---|---|
+| **1 — Invariants** | `craft-invariants` | Industry standards (Apple HIG, Material, WCAG, frame budget) — universal across every project | PASS / FAIL / N_A |
+| **2 — Contract** | this file (`craft-guide`) | The project's design system: declared base unit, declared scales, declared tokens. The contract is *that the declaration exists and is used*; the *values* are the project's call. | PASS / FAIL / N_A on declaration + adherence |
+| **3 — Taste** | `craft.json features.aesthetic` opt-in | Specific aesthetic recipes (soft-clay specifics, Material You vs Liquid Glass details, premium-signals catalog entries) | INFO unless explicitly promoted to enforced via craft.json |
+
+**What this means practically:**
+
+- Where this file says "8px baseline" — that's a **recommended default contract**. A project can declare a different base unit (4px, 6px, 8px) in its tokens; what's enforced is that *one* base unit is declared and *every* spacing value comes from the scale.
+- Where this file says "100–200ms micro-interactions" — that's a **recommended motion-scale band**. Projects declare their own durations as named tokens; what's enforced is that durations come from named tokens, not literal numbers.
+- Where this file says "Do not use drop shadows" or names specific durations / colors / opacities — those are **Tier 3 taste recommendations**. They INFO unless your project opted in via `craft.json features.aesthetic.<name>.enforced_guides[]`.
+
+Design rules (layout, animation, color, typography, interaction) can be questioned. Engineering requirements that come from `craft-invariants` (Tier 1) cannot be skipped.
 
 ---
 
@@ -207,11 +227,16 @@ Every screen type has a density signature. Mixing them feels wrong even if you c
 - **Creation screens** — focused, minimal chrome, maximum canvas. Get out of the way.
 - Never give a hub the density of a detail screen. Never give a form the spaciousness of a hub.
 
-### Visual System Constraints
-- **Grid**: 8px baseline. All spacing values are multiples of 4 or 8. No odd numbers.
-- **Corner radius**: 4px — inputs, badges, chips. 8px — cards, list items. 12–16px — sheets, modals, hero sections. Never mix adjacent elements with different radii.
-- **Color palette**: 1 primary (actions/selection), 1 secondary (accents), 6-step neutral scale, 3 semantic (error/success/warning). No tertiary colors. No per-feature accent colors.
-- **Shadows**: Do not use drop shadows. Elevation via background color shift or 1px border at 8–12% opacity.
+### Visual System Constraints (Tier 2 contract — project declares the specifics)
+
+The shape below is the recommended default. `verify-changes` checks that the project's tokens **declare** each of these scales (Tier 2 contract); the *specific values* are the project's call. Override any of them in tokens and document the choice.
+
+- **Grid**: a single base unit (commonly 4 or 8); all spacing values are multiples of it. Default recommendation: 8px baseline with multiples of 4 allowed.
+- **Corner radius**: a named radius scale with role mappings (input / button / card / sheet). Default recommendation: 4 / 8 / 12–16. Adjacent elements share the same role get the same radius.
+- **Color palette**: declared role tokens (primary, secondary, neutral steps, semantic states). Default count recommendation: 1 primary + 1 secondary + 6 neutral steps + 3 semantic (error / success / warning). Project may declare more if the design needs it; tertiary colors and per-feature accents must be explicit decisions, not inline values.
+- **Shadows / elevation**: a named elevation scale (≥ 2 levels, ≤ 5). Project chooses what each level means (shadow set, border tint at low opacity, surface luminance shift). The default *recommendation* for premium-feel mobile is depth via 1px border at 8–12% opacity rather than drop shadows — but Material Design 3 uses drop shadows correctly. Project's call; declare it.
+
+The above is what is enforced as Tier 2. The opinionated specifics (8px not 4px, no drop shadows, exact role counts) are Tier 3 — promote them in `craft.json features.aesthetic` if your project commits to those choices.
 
 ### Content Placement Logic
 - **Search Lives With Content** — search is a tool for finding things. Put it where the things are (content browse screen), not in its own isolated tab.
