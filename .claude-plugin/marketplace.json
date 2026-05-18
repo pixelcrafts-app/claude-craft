@@ -6,24 +6,42 @@
   },
   "metadata": {
     "description": "Production-grade standards for Claude Code — Flutter, API (NestJS + Prisma), Web (Next.js), Mobile-universal. Install a pack, Claude applies the standards. No CLAUDE.md edits. v0.16.0 adds the honesty contract: no unsourced claims about the codebase, evidence required before declaring done, paired with a Stop hook that surfaces violations (cite-or-read).",
-    "version": "0.16.0"
+    "version": "0.17.0"
   },
   "plugins": [
     {
       "name": "core-hooks",
       "source": "./core/skills/core-hooks",
       "description": "Hooks-only plugin. SessionStart surfaces plugin-hook mechanics and (opt-in) a mandatory-skills preamble. PreToolUse blocks edits to secrets, dangerous shell, raw design values in token-managed projects, cold Task/Agent spawns below warmth threshold, and — when enforcement mode is opted in via .claude/enforcement.json — a per-pack rule registry. PostToolUse runs post-test on every Write/Edit/MultiEdit (detects stack, runs related fast tests, exit 2 on failure forces fix before turn proceeds; fail-open on detection errors). Stop hook blocks turn-end until each mandatory pack's gate has passed and verify-state.json has no unresolved tool FAILs, plus surfaces honesty violations (cite-or-read: factual claims about files not Read/Grep'd in the same turn — non-blocking WARN to stderr).",
-      "version": "0.13.0",
+      "version": "0.14.0",
       "category": "core",
-      "tags": ["hooks", "safety", "secrets", "design-tokens", "post-test", "honesty"]
+      "tags": [
+        "hooks",
+        "safety",
+        "secrets",
+        "design-tokens",
+        "post-test",
+        "honesty"
+      ]
     },
     {
       "name": "core-standards",
       "source": "./core/skills/core-standards",
       "description": "Cross-stack engine, universal skills, and the production autonomous pipeline. Engine: verify-changes, codebase-index, planning, universal-rules, verification, auth-flows, craft-config, mcp-integration, docs-sync, subagent-brief. Honesty contract (always-loaded): no unsourced claims about the codebase, evidence-before-done — paired with the cite-or-read Stop hook in core-hooks. Autonomous pipeline (single prompt → verified delivery): spec-validator (challenges spec, locks acceptance-tests.md), contracts (architect-defined interfaces locked before any code), challenger (fresh-context adversarial review, 3-round cap), contract-tests (tests generated from contracts, implementer-locked), integration (wires implementations, runs acceptance tests, 5-attempt fix loop), full-setup (one-shot project layer generator). Slash commands: /full-setup, /spec.",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "category": "core",
-      "tags": ["skills", "cross-stack", "engine", "standards", "orchestration", "auth", "autonomous", "contracts", "spec", "honesty"]
+      "tags": [
+        "skills",
+        "cross-stack",
+        "engine",
+        "standards",
+        "orchestration",
+        "auth",
+        "autonomous",
+        "contracts",
+        "spec",
+        "honesty"
+      ]
     },
     {
       "name": "flutter-standards",
@@ -31,15 +49,29 @@
       "description": "Flutter-specific standards — engineering (Dart, widget rules, data layer, api-data patterns), accessibility (Semantics, screen readers, 48dp touch targets), performance (DevTools, frame budget, const widgets). app-audit (full Flutter audit: pre-ship checks + craft quality + screen states). scaffold (feature + screen file structure generator). scan (hardcoded values, duplicate code, a11y patterns). Pair with mobile-standards for craft-guide, production-readiness, forms, and observability.",
       "version": "1.1.0",
       "category": "mobile-flutter",
-      "tags": ["flutter", "dart", "mobile", "standards"]
+      "tags": [
+        "flutter",
+        "dart",
+        "mobile",
+        "standards"
+      ]
     },
     {
       "name": "mobile-standards",
       "source": "./mobile/skills/mobile-standards",
       "description": "Mobile-universal standards — craft quality (iOS Liquid Glass, Material You, tonal elevation, haptic timing), production readiness, forms, observability, testing, premium-signals (Spring animation values, bottom-sheet detents, scroll-linked animation). Applies to Flutter, React Native, SwiftUI, Jetpack Compose. Auto-invoked by description triggers.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "category": "mobile",
-      "tags": ["mobile", "ios", "android", "flutter", "react-native", "swiftui", "jetpack-compose", "standards"]
+      "tags": [
+        "mobile",
+        "ios",
+        "android",
+        "flutter",
+        "react-native",
+        "swiftui",
+        "jetpack-compose",
+        "standards"
+      ]
     },
     {
       "name": "api-standards",
@@ -47,23 +79,47 @@
       "description": "API pack — NestJS + Prisma. Auto-invoke: nestjs + code-quality standards; cross-stack-contracts (active when craft.json stacks has 2+ entries: unified error shape, cursor pagination, Bearer header, versioned routes, OpenAPI spec); websockets (conditional on socket.io/ws usage: connection auth, backoff reconnect, event enum, schema versioning). Sync-migrate workflow.",
       "version": "0.7.0",
       "category": "backend-api",
-      "tags": ["api", "nestjs", "prisma", "standards", "websockets", "cross-stack"]
+      "tags": [
+        "api",
+        "nestjs",
+        "prisma",
+        "standards",
+        "websockets",
+        "cross-stack"
+      ]
     },
     {
       "name": "web-standards",
       "source": "./web/skills/web-standards",
       "description": "Web pack — Next.js + Tailwind + shadcn. Auto-invoke: nextjs + production-readiness + craft-guide standards; premium-signals (market-sourced precise values — 2-layer shadow formula, OKLCH dark gray scale, Linear easing, tabular-nums, display tracking); i18n (conditional on next-i18next/react-i18next or locales/ dir). Audit commands delegate to core-standards:verify-changes. extract-tokens writes token source of truth.",
-      "version": "0.10.0",
+      "version": "0.11.0",
       "category": "frontend-web",
-      "tags": ["web", "nextjs", "react", "tailwind", "shadcn", "standards", "design-system", "craft", "i18n"]
+      "tags": [
+        "web",
+        "nextjs",
+        "react",
+        "tailwind",
+        "shadcn",
+        "standards",
+        "design-system",
+        "craft",
+        "i18n"
+      ]
     },
     {
       "name": "design-standards",
       "source": "./design/skills/design-standards",
       "description": "Platform-agnostic design pack — applies to Web, iOS, and Android. accessibility (WCAG 2.2), information-architecture, aesthetic-coherence (named rule refs — craft-guide:aesthetic-coherence), design-laws, brand-research, creative-direction.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "design",
-      "tags": ["design", "accessibility", "wcag", "information-architecture", "brand", "platform-agnostic"]
+      "tags": [
+        "design",
+        "accessibility",
+        "wcag",
+        "information-architecture",
+        "brand",
+        "platform-agnostic"
+      ]
     }
   ]
 }

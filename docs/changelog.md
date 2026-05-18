@@ -4,6 +4,78 @@ All notable changes are documented here. Format follows [Keep a Changelog](https
 
 ---
 
+## [0.17.0] — 2026-05-19
+
+Enforcement infrastructure + three-tier design architecture. Phase A closes the gap between skill *content* (already correct) and skill *enforcement at runtime* (previously self-imposed). Phase B refactors the design / craft skills so industry universals are enforced, project contracts are checked, and one designer's taste is opt-in.
+
+### Added — `core-hooks` (0.13.0 → 0.14.0)
+
+Four new hooks + one extension, all opt-in via `.claude/enforcement.json`. 96 unit tests in `core/skills/core-hooks/hooks/__tests__/`.
+
+- **`plan-required.sh`** (PreToolUse). Blocks the Nth unique non-trivial file edit per session until a `<!-- craft:plan` block exists in the transcript. Two modes: `true` (presence-only) and `"strict"` (presence + routing-shape — plans with 3+ deliverables must include a `Routing:` line per planning:Step 0). Default threshold 3, configurable via `plan_threshold`.
+- **`post-edit-verify.sh`** (Stop). At turn-end, if N+ non-trivial files were edited without a verification pass (no "Verification report" in transcript, no test-runner Bash command in this turn), nudge or block. `verify_required: true` (warn) or `"strict"` (exit 2).
+- **`agent-traffic.sh`** (PreToolUse + PostToolUse on `Agent`/`Task`). Logs every spawn + return to `.claude/agent-traffic.log` with live stderr summary so inter-agent communication is observable. Default on; opt-out via `agent_traffic_log: false`.
+- **`parallel-hint.sh`** (UserPromptSubmit). Heuristic-match on multi-file / multi-domain wording (audit, refactor, migrate, "all files", "across the codebase", "web and api", etc.). Emits `additionalContext` pointing at `/parallelize` and planning:Step 0. Non-blocking nudge.
+- **`cite-or-read.sh`** extended with opt-in BLOCK mode. `honesty_blocking: true` upgrades the unsourced-claim WARN to exit 2 — turn cannot Stop until Claude either Reads the cited file or removes the claim. Also fixed a pre-existing URL-extraction bug where `https://example.com/foo.ts` would falsely register as a violation.
+
+### Added — `core-standards` (0.6.0 → 0.7.0)
+
+- **`state-files`** new reference skill. Maps every `.claude/*` file in use across the pack: `craft.json`, `audit-cache.json`, `verify-state.json`, `progress.md` — ownership, schema, lifecycle, concurrency, `.gitignore` guidance, audit-cache invalidation contract. Linked from `subagent-brief`, `verify-changes`, `verification`, `challenger`.
+- **`craft-config`** documents the new `features.aesthetic.<name>` schema — `enforced_guides[]`, `enforced_signals[]`, `bans[]`. Per-project Tier-3 opt-in.
+- **`verify-changes`** Phase 4 now consumes the new schema. Adds Step 4.0.0 (aesthetic loader) + Step 4.1 step 1a (skill `verdict_mode: INFO_ONLY` pre-check) + Step 4.1 step 4 verdict-coercion order + Step 4.1 step 4a (bans grep). Closes the loop from documentation-first design refactor to runtime enforcement. Also fixed duplicate `### 4.2` numbering bug.
+- **`subagent-brief`**, **`verification`**, **`verify-changes`**, **`challenger`** now declare cross-skill dependencies in frontmatter `requires:` for discoverability.
+- **`full-setup`** rewritten to write the full `enforcement.json` shape with all new gates and ask the user once for an enforcement profile (Light / Standard / Strict). Hook wiring is now declared as automatic via the `core-hooks` plugin's `plugin.json` — no settings.json edits needed in generated projects.
+- **`planning`** unchanged — referenced by `plan-required.sh` for the canonical plan block format.
+
+### Added — `core-standards` slash command
+
+- **`/parallelize "<task>"`** new command. Partition + warm-brief + batched-spawn protocol in one keystroke. Refuses non-parallelizable tasks per planning:Step 0. Writes the `craft:plan` with explicit `Routing: N parallel agents` (passes `plan-required: strict` shape gate). Spawns all agents in a single batched response.
+
+### Changed — `mobile-standards` (1.1.0 → 1.2.0)
+
+- **NEW `craft-invariants`** skill. 15 cross-framework Tier 1 universals — Apple HIG tap targets, Material 48dp, WCAG contrast, system reduced-motion, 60 fps frame budget, safe areas, keyboard handling, platform-back conventions, accessibility labels, dynamic-type scaling, localization-ready by default, offline + slow-network states, cold-start journeys. Every rule is citation-backed.
+- **`craft-guide`** rewritten with explicit Tier 1 / Tier 2 / Tier 3 framing. Hardcoded specifics ("Grid: 8px baseline. Do not use drop shadows.") softened to project-contract form ("Project declares ONE base unit; Material 3 elevation shadows are legitimate"). Specifics retained as recommended defaults; opt-in via `craft.json features.aesthetic` to promote them to enforced.
+- **`design-tokens`** de-Flutter-ized. Token completeness + naming rules + audit patterns are framework-neutral; per-framework match patterns (Flutter `SizedBox`, RN `StyleSheet`, SwiftUI `Color`, Compose `Modifier.padding`, KMP shared tokens) live in a Framework Adapters section.
+- **`premium-signals`** declares `verdict_mode: INFO_ONLY` in frontmatter. Reference catalog of iOS 26 / Material You / Things 3 / Superhuman / Arc Mobile values — INFO only unless promoted per project.
+
+### Changed — `web-standards` (0.10.0 → 0.11.0)
+
+- **NEW `craft-invariants`** skill. 15 universals — WCAG AA, tap target ≥ 44 CSS px, body line-height ≥ 1.5, body measure 45–75ch (Bringhurst), semantic HTML, `:focus-visible`, `color-scheme`, `forced-colors`, single source of truth for design values, font-loading without CLS, tabular numerals, animation property restrictions. Each citation-backed.
+- **`craft-guide`** three-tier framing. Frontmatter description de-binds from Next.js / React / Tailwind / shadcn — now cross-framework (Next.js, Remix, SvelteKit, Astro, Nuxt). §0 hardcoded numbers reframed as "project declares X" + "recommended default Y." §6 motion durations and §9 aesthetic-specific values demoted to Tier 3.
+- **`premium-signals`** declares `verdict_mode: INFO_ONLY`. Linear / Vercel / Superhuman / Arc / Raycast / Stripe / Things 3 reference values — INFO only unless promoted.
+
+### Changed — `design-standards` (0.1.0 → 0.2.0)
+
+- **`design-laws`** split into RULES (6 universals — perceptual color, type scale, scene-sentence methodology, no-layout-animation, body measure 45–75ch) and GUIDES (9 taste recommendations — color strategy axis, identical card grids, gradient text bans, em-dash style, AI slop tests). GUIDES are INFO-only by default; promote specific guides via `craft.json features.aesthetic.<name>.enforced_guides[]`.
+
+### Architecture — three-tier design verdict semantics
+
+| Tier | Where | What enforces | Verdict default |
+|---|---|---|---|
+| 1 Invariants | `*/craft-invariants` | Industry standards | PASS / FAIL / N_A |
+| 2 Contract | `*/craft-guide` | Project's declared design system | PASS / FAIL / N_A |
+| 3 Taste | `*/premium-signals` + `design-laws` GUIDES + aesthetic recipes | Aesthetic specifics | INFO unless promoted |
+
+Promotion path: `craft.json features.aesthetic.<name>.enforced_guides[]` / `enforced_signals[]` / `bans[]`. Bans produce FAIL records regardless of containing skill's `verdict_mode`.
+
+### Migration
+
+After upgrade to 0.17.0, existing projects continue to work — every new gate is opt-in. To enable any of them, add to `.claude/enforcement.json`:
+
+```json
+{
+  "plan_required": "strict",
+  "verify_required": true,
+  "honesty_blocking": false,
+  "agent_traffic_log": true,
+  "parallel_hint": true
+}
+```
+
+Or run `/full-setup` and pick the Standard profile.
+
+---
+
 ## [0.16.0] — 2026-05-04
 
 Honesty contract. Catches the failure mode that no other skill addresses: **epistemic dishonesty under context pressure** — Claude has access to authoritative source (the file, the test runner) but answers from pattern-matching instead of reading it. The answer sounds confident, the user trusts it, a wrong claim ships. Verification skills check wrong code; this release checks wrong **claims about** code.

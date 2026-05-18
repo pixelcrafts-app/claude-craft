@@ -1,11 +1,30 @@
 {
   "name": "core-standards",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Cross-stack engine and universal skills. work-principles, planning, universal-rules, verification, verify-changes, codebase-index, auth-flows, craft-config, subagent-brief, honesty (no unsourced claims, evidence before done), spec-validator, contracts, challenger, contract-tests, integration, full-setup — production autonomous pipeline from single prompt to verified delivery.",
-  "author": { "name": "pixelcrafts", "url": "https://github.com/pixelcrafts-app" },
+  "author": {
+    "name": "pixelcrafts",
+    "url": "https://github.com/pixelcrafts-app"
+  },
   "homepage": "https://github.com/pixelcrafts-app/claude-craft",
   "license": "MIT",
-  "keywords": ["skills", "cross-stack", "standards", "engine", "orchestration", "verification", "planning", "auth", "autonomous", "contracts", "honesty"],
-  "skills": ["./skills/"],
-  "commands": ["./commands/"]
+  "keywords": [
+    "skills",
+    "cross-stack",
+    "standards",
+    "engine",
+    "orchestration",
+    "verification",
+    "planning",
+    "auth",
+    "autonomous",
+    "contracts",
+    "honesty"
+  ],
+  "skills": [
+    "./skills/"
+  ],
+  "commands": [
+    "./commands/"
+  ]
 }
