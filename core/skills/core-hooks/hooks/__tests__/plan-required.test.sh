@@ -71,6 +71,31 @@ EOF
   printf '%s' "$TRANSCRIPT"
 }
 
+# Plan with N deliverables, optional routing line. Builds real newlines
+# (not literal '\n') by writing to a content file and using jq --rawfile.
+# Usage: mk_transcript_strict <count> <with_routing: yes|no>
+mk_transcript_strict() {
+  local count="$1" with_routing="$2"
+  local file="$TESTDIR/transcript-strict-$RANDOM.jsonl"
+  local content_file="$TESTDIR/content-$RANDOM.txt"
+  {
+    if [ "$with_routing" = "yes" ]; then
+      printf 'Routing: 2 parallel agents — reason: independent modules.\n\n'
+    fi
+    printf '<!-- craft:plan\ndeliverables:\n'
+    local i=1
+    while [ "$i" -le "$count" ]; do
+      printf '  - id: D%d\n    files: [src/x%d.ts]\n    verification: "tsc"\n' "$i" "$i"
+      i=$((i + 1))
+    done
+    printf 'scope_boundary: "x"\n-->\n'
+  } > "$content_file"
+
+  jq -cn --rawfile text "$content_file" \
+    '{role:"assistant",content:[{type:"text",text:$text}]}' > "$file"
+  printf '%s' "$file"
+}
+
 call_hook() {
   local file="$1" transcript="$2"
   local payload
@@ -176,6 +201,52 @@ bad_actual=$(echo "{not json}" | bash "$HOOK" 2>/dev/null; echo $?)
 assert_exit "invalid JSON → exit 0" "0" "$bad_actual"
 nofile_actual=$(echo '{"tool_name":"Edit","tool_input":{}}' | bash "$HOOK" 2>/dev/null; echo $?)
 assert_exit "no file_path → exit 0" "0" "$nofile_actual"
+
+# T10: strict mode — plan with 2 deliverables, no routing → passes (shape only enforced ≥3)
+echo "T10: strict mode, 2 deliverables, no routing → exit 0"
+mkdir -p "$TESTDIR/.claude"
+cat > "$TESTDIR/.claude/enforcement.json" <<'EOF'
+{ "plan_required": "strict", "plan_threshold": 3 }
+EOF
+fresh_session
+TR=$(mk_transcript_strict 2 no)
+assert_exit "1st file → exit 0"            "0" "$(call_hook /tmp/proj/src/a.ts "$TR")"
+assert_exit "2nd file → exit 0"            "0" "$(call_hook /tmp/proj/src/b.ts "$TR")"
+assert_exit "3rd file, 2-deliv plan no routing → exit 0 (shape ok)" "0" "$(call_hook /tmp/proj/src/c.ts "$TR")"
+
+# T11: strict mode — plan with 3 deliverables, NO routing → BLOCK from the 1st edit
+# (shape check runs whenever a plan is detected, not only past threshold)
+echo "T11: strict mode, 3 deliverables, NO routing → exit 2 from 1st edit"
+fresh_session
+TR=$(mk_transcript_strict 3 no)
+assert_exit "1st file, 3-deliv no routing → exit 2" "2" "$(call_hook /tmp/proj/src/a.ts "$TR")"
+assert_exit "2nd file (still bad shape) → exit 2"   "2" "$(call_hook /tmp/proj/src/b.ts "$TR")"
+
+# T12: strict mode — plan with 3 deliverables, WITH routing → passes
+echo "T12: strict mode, 3 deliverables, WITH Routing line → exit 0"
+fresh_session
+TR=$(mk_transcript_strict 3 yes)
+assert_exit "1st file, 3-deliv + routing → exit 0" "0" "$(call_hook /tmp/proj/src/a.ts "$TR")"
+assert_exit "2nd file → exit 0"                    "0" "$(call_hook /tmp/proj/src/b.ts "$TR")"
+assert_exit "3rd file → exit 0"                    "0" "$(call_hook /tmp/proj/src/c.ts "$TR")"
+
+# T13: strict mode — 5 deliverables, no routing → block immediately
+echo "T13: strict mode, 5 deliverables, no routing → exit 2"
+fresh_session
+TR=$(mk_transcript_strict 5 no)
+assert_exit "1st file, 5-deliv no routing → exit 2" "2" "$(call_hook /tmp/proj/src/a.ts "$TR")"
+
+# T14: presence-only mode (true, not strict) — 3 deliverables no routing → still passes
+echo "T14: presence-only mode (plan_required: true) — shape NOT enforced"
+mkdir -p "$TESTDIR/.claude"
+cat > "$TESTDIR/.claude/enforcement.json" <<'EOF'
+{ "plan_required": true, "plan_threshold": 3 }
+EOF
+fresh_session
+TR=$(mk_transcript_strict 3 no)
+assert_exit "1st file → exit 0" "0" "$(call_hook /tmp/proj/src/a.ts "$TR")"
+assert_exit "2nd file → exit 0" "0" "$(call_hook /tmp/proj/src/b.ts "$TR")"
+assert_exit "3rd file, 3-deliv plan no routing, mode=true → exit 0 (shape not enforced)" "0" "$(call_hook /tmp/proj/src/c.ts "$TR")"
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""

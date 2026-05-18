@@ -6,13 +6,22 @@
 # This hook does not invent a format — it only enforces presence.
 #
 # Opt-in via .claude/enforcement.json:
-#   { "plan_required": true, "plan_threshold": 3 }
+#   { "plan_required": true,     "plan_threshold": 3 }     # presence-only
+#   { "plan_required": "strict", "plan_threshold": 3 }     # presence + shape
 #
 # Default threshold (3): the third unique non-trivial file modified in a
 # session triggers the gate. Trivial files (*.md, *.json, lockfiles, tests,
-# generated dirs) do not count toward the threshold. Once any plan block
-# exists in the transcript OR a "plan satisfied" ledger flag is set, the
-# gate clears for the rest of the session.
+# generated dirs) do not count toward the threshold.
+#
+# Modes:
+#   true     — plan-presence check only. Once any <!-- craft:plan block
+#              exists in the transcript, gate clears for the session.
+#   "strict" — plan-presence + plan-shape check. A plan with ≥ 3
+#              deliverables MUST also include a routing decision
+#              (a "Routing:" line in the assistant text OR a routing:
+#              field inside the plan block). Plans missing the routing
+#              line for 3+ deliverables continue to block until fixed.
+#              Plans with 1-2 deliverables don't need routing.
 #
 # Exit 2 → block, stderr instructs Claude to write a plan first.
 # Fail-open: any error / missing jq / missing config → exit 0. A bug in this
@@ -61,7 +70,10 @@ fi
 [ ! -f "$CONFIG" ] && exit 0
 
 PLAN_REQUIRED=$(jq -r '.plan_required // false' "$CONFIG" 2>/dev/null)
-[ "$PLAN_REQUIRED" != "true" ] && exit 0
+case "$PLAN_REQUIRED" in
+  true|strict) ;;
+  *) exit 0 ;;
+esac
 
 THRESHOLD=$(jq -r '.plan_threshold // 3' "$CONFIG" 2>/dev/null)
 # Sanity: threshold must be a positive integer.
@@ -74,13 +86,53 @@ if ledger_has "plan-required" "satisfied"; then
   exit 0
 fi
 
-# (2) Transcript contains a plan marker → set flag and clear.
+# (2) Transcript contains a plan marker → check presence (and shape in strict mode).
 TRANSCRIPT="${CLAUDE_TRANSCRIPT_PATH:-}"
 [ -z "$TRANSCRIPT" ] && TRANSCRIPT=$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null)
 
 if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-  if jq -r 'select(.role=="assistant") | .content[]? | select(.type=="text") | .text' "$TRANSCRIPT" 2>/dev/null \
-       | grep -q '<!-- craft:plan'; then
+  ASSISTANT_TEXT=$(jq -r 'select(.role=="assistant") | .content[]? | select(.type=="text") | .text' "$TRANSCRIPT" 2>/dev/null)
+
+  if printf '%s' "$ASSISTANT_TEXT" | grep -q '<!-- craft:plan'; then
+    # Plan exists. In strict mode, also validate shape before clearing.
+    if [ "$PLAN_REQUIRED" = "strict" ]; then
+      PLAN_BLOCK=$(printf '%s' "$ASSISTANT_TEXT" | awk '/<!-- craft:plan/,/-->/')
+      DELIVERABLE_COUNT=$(printf '%s' "$PLAN_BLOCK" | grep -cE '^[[:space:]]*-[[:space:]]+id:')
+      case "$DELIVERABLE_COUNT" in ''|*[!0-9]*) DELIVERABLE_COUNT=0 ;; esac
+
+      if [ "$DELIVERABLE_COUNT" -ge 3 ]; then
+        # 3+ deliverables — routing decision is required.
+        # Routing line acceptable anywhere in assistant text (prose before
+        # the block) OR as a `routing:` field inside the YAML block.
+        HAS_ROUTING=$(printf '%s' "$ASSISTANT_TEXT" | grep -cE '(^|[[:space:]])[Rr]outing:')
+        case "$HAS_ROUTING" in ''|*[!0-9]*) HAS_ROUTING=0 ;; esac
+
+        if [ "$HAS_ROUTING" -eq 0 ]; then
+          cat >&2 <<EOF
+[plan-required:strict] Plan has ${DELIVERABLE_COUNT} deliverables but no Routing decision.
+
+A plan with 3+ deliverables must include a routing decision per
+core-standards:planning Step 0 — inline vs parallel agents vs sequential agents.
+
+Add a Routing line BEFORE the <!-- craft:plan block (or as a top-level
+\`routing:\` field inside the block):
+
+  Routing: <N> parallel agents / sequential — reason: <why inline is insufficient>
+  Agent 1: <scope>
+  Agent 2: <scope>
+  Dependency: <independent | agent 2 waits for agent 1>
+
+Inline by reflex on this scope is the failure mode this gate exists to prevent.
+
+To soften to presence-only: change 'plan_required: "strict"' to 'plan_required: true'
+in .claude/enforcement.json.
+EOF
+          exit 2
+        fi
+      fi
+    fi
+
+    # Plan present (and shape valid if strict) → clear the gate.
     ledger_init
     ledger_set "plan-required" "satisfied"
     exit 0
